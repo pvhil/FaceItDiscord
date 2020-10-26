@@ -1,4 +1,4 @@
-## FaceITDiscordStats
+# FaceITDiscordStats
 A Discord Bot which shows you how bad you are in csgo!
 #Installation
 1. Add Bot to your Server: https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot
