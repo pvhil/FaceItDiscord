@@ -14,12 +14,12 @@ public class faceitStats {
     public static String faceitLongest;
     public static JSONArray faceitRecent;
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer a0397b8a-776b-4a20-b606-7733526753b3")
+                .header("Authorization", "Bearer TOKEN")
                 .uri(URI.create("https://open.faceit.com/data/v4/players/"+faceitAPI.faceitplayerID+"/stats/csgo"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
@@ -42,6 +42,7 @@ public class faceitStats {
         faceitKD = c;
         faceitLongest = d;
         faceitRecent = e;
+
 
         System.out.println(a);
         System.out.println(b);

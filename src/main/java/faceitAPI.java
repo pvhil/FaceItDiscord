@@ -12,14 +12,13 @@ public class faceitAPI {
     public static String faceitplayerCountry;
     public static Integer faceitLevel;
     public static Integer faceitElo;
-    private static final String POSTS_API_URL = "https://open.faceit.com/data/v4/players?nickname=";
 
     public static void main(String[] args) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer a0397b8a-776b-4a20-b606-7733526753b3")
+                .header("Authorization", "Bearer TOKEN")
                 .uri(URI.create("https://open.faceit.com/data/v4/players?nickname="+DiscordMessage.savedArgs))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
@@ -44,7 +43,9 @@ public class faceitAPI {
         faceitLevel = l;
         faceitElo = e;
         return null;
+
     }
+
 
 
 }

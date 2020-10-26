@@ -14,12 +14,13 @@ public class main implements EventListener {
 
     public static void main(String[] args) throws LoginException {
         jda = new JDABuilder(AccountType.BOT)
-                .setToken("NzcwMzEyMTMwMDM3MTUzODEz.X5bvEw.P00yrGq-OTk_6SymKIBDayEucNg")
+                .setToken(BOTTOKEN)
                 .build();
         jda.addEventListener(new DiscordMessage());
 
 
     }
+
     @Override
     public void onEvent(@NotNull GenericEvent genericEvent) {
 
