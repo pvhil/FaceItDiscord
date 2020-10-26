@@ -1,7 +1,6 @@
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -19,7 +18,7 @@ public class faceitStats {
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer FACEITTOKEN")
+                .header("Authorization", "Bearer "+main.FACEITTOKEN)
                 .uri(URI.create("https://open.faceit.com/data/v4/players/"+faceitAPI.faceitplayerID+"/stats/csgo"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())

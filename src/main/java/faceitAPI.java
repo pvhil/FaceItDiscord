@@ -13,12 +13,13 @@ public class faceitAPI {
     public static Integer faceitLevel;
     public static Integer faceitElo;
 
+
     public static void main(String[] args) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer FACEITTOKEN")
+                .header("Authorization", "Bearer "+main.FACEITTOKEN)
                 .uri(URI.create("https://open.faceit.com/data/v4/players?nickname="+DiscordMessage.savedArgs))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())

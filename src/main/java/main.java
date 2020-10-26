@@ -9,10 +9,14 @@ import javax.security.auth.login.LoginException;
 
 public class main implements EventListener {
     public static JDA jda;
-    public static String faceitToken;
+    public static String FACEITTOKEN;
+    public static String BOTTOKEN;
+
 
 
     public static void main(String[] args) throws LoginException {
+        BOTTOKEN = System.getenv("BOTTOKEN");
+        FACEITTOKEN = System.getenv("FACEITTOKEN");
         jda = new JDABuilder(AccountType.BOT)
                 .setToken(BOTTOKEN)
                 .build();
