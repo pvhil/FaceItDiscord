@@ -14,7 +14,7 @@ public class main implements EventListener {
 
     public static void main(String[] args) throws LoginException {
         jda = new JDABuilder(AccountType.BOT)
-                .setToken(BOTTOKEN)
+                .setToken("BOTTOKEN")
                 .build();
         jda.addEventListener(new DiscordMessage());
 
