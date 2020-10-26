@@ -19,7 +19,7 @@ public class faceitStats {
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer TOKEN")
+                .header("Authorization", "Bearer FACEITTOKEN")
                 .uri(URI.create("https://open.faceit.com/data/v4/players/"+faceitAPI.faceitplayerID+"/stats/csgo"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
