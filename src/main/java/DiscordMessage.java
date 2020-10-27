@@ -38,12 +38,12 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 savedArgs = args[1];
                 try {
                     faceitAPI.main(null);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    event.getChannel().sendMessage("This FaceIT Player does not exist!").queue();
+
                 }
-                event.getMessage().delete();
+
 
                 if(faceitAPI.faceitLevel == 1){
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
