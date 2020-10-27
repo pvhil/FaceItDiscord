@@ -13,6 +13,7 @@ public class faceitAPI {
     public static Integer faceitLevel;
     public static Integer faceitElo;
 
+
     public static void main(String[] args) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
