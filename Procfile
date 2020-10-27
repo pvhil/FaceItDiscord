@@ -1,1 +1,1 @@
-worker: java -jar target/FaceIt-1.0-SNAPSHOT.jar
+web: java FaceItDiscord/src/main/java/main.java
