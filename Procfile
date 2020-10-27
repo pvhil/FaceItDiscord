@@ -1,1 +1,1 @@
-Worker: java -jar FaceIt-1.0-SNAPSHOT.jar.jar
+Worker: java $JAVA_OPTS -cp FaceIt-1.0-SNAPSHOT.jar main
