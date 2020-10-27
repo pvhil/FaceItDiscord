@@ -1,11 +1,12 @@
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.io.IOException;
+import java.util.concurrent.CompletionException;
 
-public class DiscordMessage extends ListenerAdapter {
+public class DiscordMessage extends ListenerAdapter implements EventListener {
 
     public static String savedArgs;
     public static String faceitLevelPNG;
@@ -25,7 +26,7 @@ public class DiscordMessage extends ListenerAdapter {
         return emojiStr.toString();
     }
 
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+    public void onMessageReceived(MessageReceivedEvent event) {
         java.lang.String[] args = event.getMessage().getContentRaw().split("\\s+");
 
         if (args[0].equalsIgnoreCase(".faceit")) {
@@ -39,7 +40,14 @@ public class DiscordMessage extends ListenerAdapter {
                     faceitAPI.main(null);
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (InterruptedException e) {
+                    event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                } catch (InterruptedException | CompletionException e) {
+                    event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                    faceitStats.faceitRecent = null;
+                    faceitStats.faceitKD =null;
+                    faceitStats.faceitWins =null;
+                    faceitStats.faceitLongest =null;
+                    faceitStats.faceitRate =null;
                     e.printStackTrace();
                 }
                 event.getMessage().delete();
@@ -85,7 +93,7 @@ public class DiscordMessage extends ListenerAdapter {
                 info.addField("Wins: ", faceitStats.faceitWins, true);
                 info.addField("Winrate: ", faceitStats.faceitRate+"%", true);
                 info.addField("K/D: ", faceitStats.faceitKD, true);
-                info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "").replaceAll("\"", "") ,true);
+                info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "❌").replaceAll("\"", "") ,true);
                 info.setColor(0xe6851e);
 
 

@@ -27,7 +27,9 @@ public class faceitAPI {
                 .thenApply(faceitAPI::parse)
                 .join();
 
-            faceitStats.main(null);
+
+                faceitStats.main(null);
+
     }
     public static String parse(String responseBody) {
 
