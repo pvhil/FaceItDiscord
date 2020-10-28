@@ -1,4 +1,7 @@
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -9,10 +12,12 @@ import java.util.concurrent.CompletionException;
 public class DiscordMessage extends ListenerAdapter implements EventListener {
 
     public static String savedArgs;
+    public static String savedMap;
     public static String faceitLevelPNG;
+
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
-        if(code == null || code.length() != 2) {
+        if (code == null || code.length() != 2) {
             return "";
         }
         if (code.equalsIgnoreCase("uk")) {
@@ -25,6 +30,16 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         }
         return emojiStr.toString();
     }
+    public void onGuildJoin(GuildJoinEvent event){
+        Guild guild = event.getGuild();
+        TextChannel channel = guild.getDefaultChannel();
+        EmbedBuilder join = new EmbedBuilder();
+        join.setAuthor("Thanks for adding the FaceIT-Stats Bot!");
+        join.setColor(0xe6851e);
+        join.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
+        join.setDescription("The Bot has following Commands: \n*.faceit <name>*  Shows your alltime FaceIT Stats\n.*faceit <name> latest*  Shows your Stats from your latest game\n*.faceit <name> <map>*  Shows your performance in a specific map");
+        channel.sendMessage(join.build()).queue();
+    }
 
     public void onMessageReceived(MessageReceivedEvent event) {
         java.lang.String[] args = event.getMessage().getContentRaw().split("\\s+");
@@ -32,7 +47,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         if (args[0].equalsIgnoreCase(".faceit")) {
             if (args.length < 2) {
                 event.getChannel().sendMessage("Dont forget Faceit Name!").queue();
-            } else {
+            }
+            if (args.length == 2) {
                 event.getChannel().sendMessage("*loading faceit Stats*").queue();
 
                 savedArgs = args[1];
@@ -44,71 +60,124 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 } catch (InterruptedException | CompletionException e) {
                     event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                     faceitStats.faceitRecent = null;
-                    faceitStats.faceitKD =null;
-                    faceitStats.faceitWins =null;
-                    faceitStats.faceitLongest =null;
-                    faceitStats.faceitRate =null;
+                    faceitStats.faceitKD = null;
+                    faceitStats.faceitWins = null;
+                    faceitStats.faceitLongest = null;
+                    faceitStats.faceitRate = null;
                     e.printStackTrace();
                 }
                 event.getMessage().delete();
 
-                if(faceitAPI.faceitLevel == 1){
+                if (faceitAPI.faceitLevel == 1) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
                 }
-                if(faceitAPI.faceitLevel == 2){
+                if (faceitAPI.faceitLevel == 2) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
                 }
-                if(faceitAPI.faceitLevel == 3){
+                if (faceitAPI.faceitLevel == 3) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
                 }
-                if(faceitAPI.faceitLevel == 4){
+                if (faceitAPI.faceitLevel == 4) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
                 }
-                if(faceitAPI.faceitLevel == 5){
+                if (faceitAPI.faceitLevel == 5) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
                 }
-                if(faceitAPI.faceitLevel == 6){
+                if (faceitAPI.faceitLevel == 6) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
                 }
-                if(faceitAPI.faceitLevel == 7){
+                if (faceitAPI.faceitLevel == 7) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
                 }
-                if(faceitAPI.faceitLevel == 8){
+                if (faceitAPI.faceitLevel == 8) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
                 }
-                if(faceitAPI.faceitLevel == 9){
+                if (faceitAPI.faceitLevel == 9) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
                 }
-                if(faceitAPI.faceitLevel == 10){
+                if (faceitAPI.faceitLevel == 10) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
                 }
 
 
-
                 EmbedBuilder info = new EmbedBuilder();
-                info.setAuthor("Elo: "+faceitAPI.faceitElo, null, faceitLevelPNG);
-                info.setTitle("Stats for "+ savedArgs);
+                info.setAuthor("Elo: " + faceitAPI.faceitElo, null, faceitLevelPNG);
+                info.setTitle("Stats for " + savedArgs);
                 info.setThumbnail(faceitAPI.faceitAvatar);
                 info.addField("Country: ", countryCodeToEmoji(faceitAPI.faceitplayerCountry), true);
                 info.addField("Wins: ", faceitStats.faceitWins, true);
-                info.addField("Winrate: ", faceitStats.faceitRate+"%", true);
+                info.addField("Winrate: ", faceitStats.faceitRate + "%", true);
                 info.addField("K/D: ", faceitStats.faceitKD, true);
-                info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "❌").replaceAll("\"", "") ,true);
+                info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "❌").replaceAll("\"", ""), true);
+                info.addField("AFK / Left early: ", String.valueOf(faceitAPI.faceitAfk) + " / " + String.valueOf(faceitAPI.faceitLeave), true);
                 info.setColor(0xe6851e);
-
 
 
                 event.getChannel().sendMessage(info.build()).queue();
                 //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
 
+                System.out.println(savedArgs + " stats action");
+
+            }
+            if (args.length == 3) {
+                savedArgs = args[1];
+                savedMap = args[2];
+                if (savedMap.equals("latest")) {
+                    event.getChannel().sendMessage("*loading latest Match*").queue();
+                    try {
+                        faceitOnlyPlayerId.main(null);
+                    } catch (InterruptedException | IOException e) {
+                        e.printStackTrace();
+                    } catch (CompletionException e) {
+                        e.printStackTrace();
+                        event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                    }
+
+                        faceitLatest.main(null);
+                        EmbedBuilder latestem = new EmbedBuilder();
+                        latestem.setAuthor(faceitLatest.team1 + " vs " + faceitLatest.team2, null);
+                        latestem.addField("Team 1: ", faceitLatest.players1, true);
+                        latestem.addField("Team 2: ", faceitLatest.players2, true);
+                        latestem.addField("", " ", false);
+                        latestem.addField("Final Score: ", faceitdetailedMatch.endScore, true);
+                        latestem.addField("Map: ", faceitdetailedMatch.theMap, true);
+
+                        latestem.addField("", " ", false);
+                        latestem.addField("Kills: ", faceitdetailedMatch.kills, true);
+                        latestem.addField("Triple Kills: ", faceitdetailedMatch.tripleKills, true);
+                        latestem.addField("Quadro Kills: ", faceitdetailedMatch.quadroKills, true);
+                        latestem.addField("Aces: ", faceitdetailedMatch.pentaKills, true);
+                        latestem.addField("Assists: ", faceitdetailedMatch.assists, true);
+                        latestem.addField("Headshots: ", faceitdetailedMatch.headshots, true);
+                        latestem.addField("MVPs: ", faceitdetailedMatch.mvps, true);
+                        latestem.addField("K/D: ", faceitdetailedMatch.kdratio, true);
+                        latestem.addField("Deaths: ", faceitdetailedMatch.deaths, true);
+                        latestem.setFooter(faceitLatest.latestGameURL);
+                        latestem.setColor(0xe6851e);
+                        if (faceitLatest.gameWinner.equals("faction2")) {
+                            latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/team2w.png");
+                        } else {
+                            latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/team1w.png");
+                        }
+
+                        event.getChannel().sendMessage(latestem.build()).queue();
+                        faceitLatest.players1 = null;
+                        faceitLatest.players2 = null;
+                        faceitLatest.latestGameURL = null;
+                        faceitLatest.gameWinner = null;
+                        faceitLatest.team1 = null;
+                        faceitLatest.team2 = null;
+                        faceitOnlyPlayerId.faceitplayerID = null;
 
 
+                    }else {
+                    event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game or any map like *dust2* to see your map stats").queue();
+                }
 
-                System.out.println(savedArgs+" stats action");
-
+                }
             }
         }
     }
-}
+
 

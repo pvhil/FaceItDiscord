@@ -12,6 +12,8 @@ public class faceitAPI {
     public static String faceitplayerCountry;
     public static Integer faceitLevel;
     public static Integer faceitElo;
+    public static Integer faceitAfk;
+    public static Integer faceitLeave;
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -27,9 +29,7 @@ public class faceitAPI {
                 .thenApply(faceitAPI::parse)
                 .join();
 
-
                 faceitStats.main(null);
-
     }
     public static String parse(String responseBody) {
 
@@ -39,6 +39,8 @@ public class faceitAPI {
         String a = obj.getString("avatar");
         Integer e = obj.getJSONObject("games").getJSONObject("csgo").getInt("faceit_elo");
         Integer l = obj.getJSONObject("games").getJSONObject("csgo").getInt("skill_level");
+        int z = obj.getJSONObject("infractions").getInt("leaver");
+        int h = obj.getJSONObject("infractions").getInt("afk");
 
         System.out.println(n + " " + c);
         faceitplayerID = n;
@@ -46,10 +48,10 @@ public class faceitAPI {
         faceitAvatar = a;
         faceitLevel = l;
         faceitElo = e;
+        faceitAfk = h;
+        faceitLeave = z;
+
         return null;
 
     }
-
-
-
 }
