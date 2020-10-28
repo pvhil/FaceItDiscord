@@ -14,6 +14,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public static String savedArgs;
     public static String savedMap;
     public static String faceitLevelPNG;
+    public static String mapCode;
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -123,7 +124,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             if (args.length == 3) {
                 savedArgs = args[1];
                 savedMap = args[2];
-                if (savedMap.equals("latest")) {
+                if (savedMap.equalsIgnoreCase("latest")) {
                     event.getChannel().sendMessage("*loading latest Match*").queue();
                     try {
                         faceitOnlyPlayerId.main(null);
@@ -171,7 +172,67 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         faceitOnlyPlayerId.faceitplayerID = null;
 
 
-                    }else {
+                }if (savedMap.equalsIgnoreCase("dust2")||savedMap.equalsIgnoreCase("mirage")||savedMap.equalsIgnoreCase("train")||savedMap.equalsIgnoreCase("cache")||savedMap.equalsIgnoreCase("overpass")||savedMap.equalsIgnoreCase("vertigo")||savedMap.equalsIgnoreCase("inferno")||savedMap.equalsIgnoreCase("nuke")){
+                    event.getChannel().sendMessage("*loading map stats*").queue();
+                    try {
+                        faceitOnlyPlayerId.main(null);
+                    } catch (InterruptedException | IOException e) {
+                        e.printStackTrace();
+                    } catch (CompletionException e) {
+                        e.printStackTrace();
+                        event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                    }
+                    if (savedMap.equalsIgnoreCase("dust2")){
+                        mapCode = "de_dust2";
+                    }
+                    if (savedMap.equalsIgnoreCase("mirage")){
+                        mapCode = "de_mirage";
+                    }
+                    if (savedMap.equalsIgnoreCase("train")){
+                        mapCode = "de_train";
+                    }
+                    if (savedMap.equalsIgnoreCase("cache")){
+                        mapCode = "de_cache";
+                    }
+                    if (savedMap.equalsIgnoreCase("overpass")){
+                        mapCode = "de_overpass";
+                    }
+                    if (savedMap.equalsIgnoreCase("vertigo")){
+                        mapCode = "de_vertigo";
+                    }
+                    if (savedMap.equalsIgnoreCase("inferno")){
+                        mapCode = "de_inferno";
+                    }
+                    if (savedMap.equalsIgnoreCase("nuke")){
+                        mapCode = "de_nuke";
+                    }
+                    faceitMaps.main(null);
+                    EmbedBuilder mapem = new EmbedBuilder();
+                    mapem.setAuthor("Stats for "+savedMap);
+                    mapem.addField("Kills: ", faceitMaps.allkills, true);
+                    mapem.addField("Deaths: ", faceitMaps.alldeaths, true);
+                    mapem.addField("Assists: ", faceitMaps.assists, true);
+                    mapem.addField("Average Kills", faceitMaps.avgKills, true);
+                    mapem.addField("Average Deaths", faceitMaps.avgDeaths, true);
+                    mapem.addField("Played Rounds", faceitMaps.playedRounds, true);
+                    mapem.addField("Matches: ", faceitMaps.matches, true);
+                    mapem.addField("Wins: ", faceitMaps.wins, true);
+                    mapem.addField("Winrate: ", faceitMaps.winrate+"%", true);
+                    mapem.addField("Triple Kills: ", faceitMaps.triplekills, true);
+                    mapem.addField("Quadro Kills: ", faceitMaps.quadrokills, true);
+                    mapem.addField("Aces: ", faceitMaps.pentakills, true);
+                    mapem.addField("Headshots: ", faceitMaps.headshots ,true);
+                    mapem.addField("Headshots per Match: ", faceitMaps.headshotspermatch,true);
+                    mapem.addField("Average K/D: ", faceitMaps.avgkd, true);
+                    mapem.addField("MVPs: ", faceitMaps.mvps, true);
+                    mapem.setThumbnail(faceitMaps.mappicture);
+                    mapem.setColor(0xe6851e);
+
+                    event.getChannel().sendMessage(mapem.build()).queue();
+
+                }
+
+                else {
                     event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game or any map like *dust2* to see your map stats").queue();
                 }
 
