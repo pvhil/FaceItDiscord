@@ -12,5 +12,6 @@ A Discord Bot which shows you how bad you are in csgo!
 IMPORTANT! Faceitname is case-sensitive
 
 ## Note
-Bot is in version 1.0.0
+Bot is in version 1.0.0  
+Code could be for some people a mess because im still learning java
 
