@@ -8,7 +8,7 @@ A Discord Bot which shows you how bad you are in csgo!
 ## Usage
 .faceit (faceitname) = look at lifetime stats  
 .faceit (faceitname) latest = look at latest match  
-.faceit (faceitname) (map) = Look at map stats
+.faceit (faceitname) (map) = Look at map stats  
 IMPORTANT! Faceitname is case-sensitive
 
 ## Note
