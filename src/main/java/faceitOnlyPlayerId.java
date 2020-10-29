@@ -8,6 +8,7 @@ import java.net.http.HttpResponse;
 
 public class faceitOnlyPlayerId {
     public static String faceitplayerID;
+    public static String faceitAva;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
@@ -28,7 +29,9 @@ public class faceitOnlyPlayerId {
 
         JSONObject obj = new JSONObject(responseBody);
         String n = obj.getString("player_id");
+        String a = obj.getString("avatar");
         faceitplayerID = n;
+        faceitAva = a;
         return null;
     }
 }

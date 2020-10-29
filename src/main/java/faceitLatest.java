@@ -49,7 +49,7 @@ public class faceitLatest {
         for (int i = 0; i < 5; i++) {
             JSONObject a = pplayers1.getJSONObject(i);
             String player1 = a.getString("nickname");
-            sb1.append(player1 +" "+","+" ");
+            sb1.append(player1 +" "+"\n"+" ");
 
 
         }
@@ -58,7 +58,7 @@ public class faceitLatest {
         for (int i = 0; i < 5; i++){
             JSONObject a = pplayers2.getJSONObject(i);
             String player2 = a.getString("nickname");
-            sb2.append(player2+" "+","+" ");
+            sb2.append(player2+" "+"\n"+" ");
         }
         String pp2 = sb2.toString();
             team1 = t1;
