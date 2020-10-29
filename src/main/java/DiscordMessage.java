@@ -254,9 +254,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     last.addField("Average K/D", String.valueOf(faceitLast20.realkd), true);
                     last.addField("Average Assists", String.valueOf(faceitLast20.realassists), true);
                     last.addField("Average MVPs", String.valueOf(faceitLast20.realmvps), true);
-                    last.addField("Average Triple Kills", String.valueOf(faceitLast20.totalsumtriple), false);
-                    last.addField("Average Quadro Kills", String.valueOf(faceitLast20.totalsumquadro), true);
-                    last.addField("Average Aces", String.valueOf(faceitLast20.totalsumace), true);
+                    last.addField("Triple Kills", String.valueOf(faceitLast20.totalsumtriple), true);
+                    last.addField("Quadro Kills", String.valueOf(faceitLast20.totalsumquadro), true);
+                    last.addField("Aces", String.valueOf(faceitLast20.totalsumace), true);
                     last.addField("Average Headshots", String.valueOf(faceitLast20.realhead), true);
                     last.setColor(0xe6851e);
 
