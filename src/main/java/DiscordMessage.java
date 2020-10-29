@@ -229,6 +229,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     mapem.setColor(0xe6851e);
 
                     event.getChannel().sendMessage(mapem.build()).queue();
+                    faceitOnlyPlayerId.faceitplayerID = null;
+
 
                 }
 
