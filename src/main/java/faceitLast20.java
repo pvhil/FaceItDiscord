@@ -106,9 +106,6 @@ public class faceitLast20 {
          realassists = totalsumassists/15;
          realmvps = totalsummvps/15;
         realkd = totalsumkd/15;
-        realtriple = totalsumtriple/15;
-        realquadro = totalsumquadro/15;
-        realace = totalsumace/15;
         realhead = totalsumhead/15;
 
         totalsumkills = 0;
@@ -117,8 +114,6 @@ public class faceitLast20 {
         totalsummvps = 0;
         totalsumkd = 0;
         totalsumtriple = 0;
-        totalsumquadro = 0;
-        totalsumace = 0;
         totalsumhead = 0;
 
 

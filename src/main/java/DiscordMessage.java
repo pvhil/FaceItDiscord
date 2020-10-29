@@ -38,7 +38,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         join.setAuthor("Thanks for adding the FaceIT-Stats Bot!");
         join.setColor(0xe6851e);
         join.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
-        join.setDescription("The Bot has following Commands: \n*.faceit <name>*  Shows your alltime FaceIT Stats\n.*faceit <name> latest*  Shows your Stats from your latest game\n*.faceit <name> <map>*  Shows your performance in a specific map\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
+        join.setDescription("The Bot has following Commands: \n*.faceit <name>* = Shows your alltime FaceIT Stats\n.*faceit <name> latest* = Shows your Stats from your latest game\n*.faceit <name> <map>* = Shows your performance in a specific map\n*.faceit <name> last15* = Shows your Stats for your last 15 Games\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
         channel.sendMessage(join.build()).queue();
     }
 
@@ -146,14 +146,16 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
                     latestem.addField("", " ", false);
                     latestem.addField("Kills: ", faceitdetailedMatch.kills, true);
+                    latestem.addField("Deaths: ", faceitdetailedMatch.deaths, true);
+                    latestem.addField("K/D: ", faceitdetailedMatch.kdratio, true);
                     latestem.addField("Triple Kills: ", faceitdetailedMatch.tripleKills, true);
                     latestem.addField("Quadro Kills: ", faceitdetailedMatch.quadroKills, true);
                     latestem.addField("Aces: ", faceitdetailedMatch.pentaKills, true);
                     latestem.addField("Assists: ", faceitdetailedMatch.assists, true);
                     latestem.addField("Headshots: ", faceitdetailedMatch.headshots, true);
                     latestem.addField("MVPs: ", faceitdetailedMatch.mvps, true);
-                    latestem.addField("K/D: ", faceitdetailedMatch.kdratio, true);
-                    latestem.addField("Deaths: ", faceitdetailedMatch.deaths, true);
+
+
                     latestem.setFooter(faceitLatest.latestGameURL);
                     latestem.setColor(0xe6851e);
                     if (faceitLatest.gameWinner.equals("faction2")) {
@@ -232,7 +234,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitOnlyPlayerId.faceitplayerID = null;
 
 
-                } else if (savedMap.equalsIgnoreCase("last15")) {
+                } else if (savedMap.equalsIgnoreCase("last15")||savedMap.equalsIgnoreCase("last")) {
                     event.getChannel().sendMessage("*loading last 15 games (will take some time)*").queue();
                     try {
                         faceitOnlyPlayerId.main(null);
@@ -252,9 +254,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     last.addField("Average K/D", String.valueOf(faceitLast20.realkd), true);
                     last.addField("Average Assists", String.valueOf(faceitLast20.realassists), true);
                     last.addField("Average MVPs", String.valueOf(faceitLast20.realmvps), true);
-                    last.addField("Average Triple Kills", String.valueOf(faceitLast20.realtriple), true);
-                    last.addField("Average Quadro Kills", String.valueOf(faceitLast20.realquadro), true);
-                    last.addField("Average Aces", String.valueOf(faceitLast20.realace), true);
+                    last.addField("Average Triple Kills", String.valueOf(faceitLast20.totalsumtriple), false);
+                    last.addField("Average Quadro Kills", String.valueOf(faceitLast20.totalsumquadro), true);
+                    last.addField("Average Aces", String.valueOf(faceitLast20.totalsumace), true);
                     last.addField("Average Headshots", String.valueOf(faceitLast20.realhead), true);
                     last.setColor(0xe6851e);
 
@@ -280,6 +282,10 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLast20MatchStats.deaths = 0;
                     faceitLast20MatchStats.kdratio = null;
                     faceitLast20MatchStats.headshots = 0;
+
+                    faceitLast20.totalsumtriple = 0;
+                    faceitLast20.totalsumquadro = 0;
+                    faceitLast20.totalsumace = 0;
 
             } else {
                 event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game or any map like *dust2* to see your map stats").queue();

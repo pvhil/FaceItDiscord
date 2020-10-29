@@ -37,7 +37,7 @@ public class faceitLast20MatchStats {
                 .join();
     }
     private static boolean userexists(JSONObject jsonArray, String usernameToFind) {
-        return jsonArray.toString().contains("\"nickname\":\"" + usernameToFind + "\"");
+        return jsonArray.toString().contains("\"player_id\":\"" + usernameToFind + "\"");
     }
 
     public static String parseMatch(String responseBody) {
@@ -54,7 +54,7 @@ public class faceitLast20MatchStats {
                 JSONArray jPlayers = jOBJNEW.getJSONArray("players");
                 for (int kd = 0; kd < jPlayers.length(); kd++){
                     JSONObject jTest = jPlayers.getJSONObject(kd);
-                    if(userexists(jTest, "Reyved")) {
+                    if(userexists(jTest, faceitOnlyPlayerId.faceitplayerID)) {
                         testJSONObject = jTest;
 
                     }
