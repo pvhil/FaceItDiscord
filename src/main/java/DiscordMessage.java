@@ -172,7 +172,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         faceitOnlyPlayerId.faceitplayerID = null;
 
 
-                }if (savedMap.equalsIgnoreCase("dust2")||savedMap.equalsIgnoreCase("mirage")||savedMap.equalsIgnoreCase("train")||savedMap.equalsIgnoreCase("cache")||savedMap.equalsIgnoreCase("overpass")||savedMap.equalsIgnoreCase("vertigo")||savedMap.equalsIgnoreCase("inferno")||savedMap.equalsIgnoreCase("nuke")){
+                }else if (savedMap.equalsIgnoreCase("dust2")||savedMap.equalsIgnoreCase("mirage")||savedMap.equalsIgnoreCase("train")||savedMap.equalsIgnoreCase("cache")||savedMap.equalsIgnoreCase("overpass")||savedMap.equalsIgnoreCase("vertigo")||savedMap.equalsIgnoreCase("inferno")||savedMap.equalsIgnoreCase("nuke")){
                     event.getChannel().sendMessage("*loading map stats*").queue();
                     try {
                         faceitOnlyPlayerId.main(null);
