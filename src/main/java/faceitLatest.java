@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Date;
 
 public class faceitLatest {
     public static String team1;
@@ -14,7 +15,8 @@ public class faceitLatest {
     public static String latestGameURL;
     public static String gameWinner;
     public static String matchID;
-    public static String isitWin;
+    public static String isitWin = "false";
+    public static Date matchTime;
 
     public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
@@ -48,6 +50,8 @@ public class faceitLatest {
         JSONObject wWin = map.getJSONObject("results");
         String wwinner = wWin.getString("winner");
         matchID = map.getString("match_id");
+        matchTime = new Date(Long.parseLong(String.valueOf(map.getInt("started_at")))*1000);
+
 
         StringBuilder sb1 = new StringBuilder();
         for (int i = 0; i < 5; i++) {
@@ -58,7 +62,7 @@ public class faceitLatest {
                     isitWin = "true";
                 }else {
                     System.out.println("could work");
-                    isitWin = "false";
+
                 }
             }
 

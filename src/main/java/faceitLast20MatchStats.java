@@ -28,7 +28,7 @@ public class faceitLast20MatchStats {
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer a0397b8a-776b-4a20-b606-7733526753b3")
+                .header("Authorization", "Bearer "+main.FACEITLASTTOKEN)
                 .uri(URI.create("https://open.faceit.com/data/v4/matches/"+faceitLast20.matched1+"/stats"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())

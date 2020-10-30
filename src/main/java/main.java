@@ -10,6 +10,7 @@ public class main implements EventListener {
     public static JDA jda;
     public static String FACEITTOKEN = System.getenv("FACEITTOKEN");
     public static String BOTTOKEN = System.getenv("BOTTOKEN");
+    public static String FACEITLASTTOKEN = System.getenv("LASTTOKEN");
 
 
 

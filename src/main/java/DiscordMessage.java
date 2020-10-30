@@ -109,7 +109,11 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     info.setTitle("Stats for Premium Member " + savedArgs);
                 }
                 info.setDescription("[FaceIT Profile]("+faceitAPI.profileURL+") and [Steam Profile](https://steamcommunity.com/profiles/"+faceitAPI.steam64+")");
-                info.setThumbnail(faceitAPI.faceitAvatar);
+                try {
+                    info.setThumbnail(faceitAPI.faceitAvatar);
+                }catch (IllegalArgumentException e){
+                    System.out.println("no pic");
+                }
                 info.addField("Country: ", countryCodeToEmoji(faceitAPI.faceitplayerCountry), true);
                 info.addField("Wins: ", faceitStats.faceitWins, true);
                 info.addField("Winrate: ", faceitStats.faceitRate + "%", true);
@@ -142,9 +146,13 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                     }
 
-                    faceitLatest.main(null);
+                    try {
+                        faceitLatest.main(null);
+                    }catch (CompletionException e){
+                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo?").queue();
+                    }
                     EmbedBuilder latestem = new EmbedBuilder();
-                    latestem.setAuthor(faceitLatest.team1 + " vs " + faceitLatest.team2, null);
+                    latestem.setTitle(faceitLatest.team1 + " vs " + faceitLatest.team2, null);
                     latestem.addField("Team 1: ", faceitLatest.players1, true);
                     latestem.addField("Team 2: ", faceitLatest.players2, true);
                     latestem.addField("", " ", false);
@@ -162,8 +170,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     latestem.addField("Headshots: ", faceitdetailedMatch.headshots, true);
                     latestem.addField("MVPs: ", faceitdetailedMatch.mvps, true);
 
-
-                    latestem.setFooter(faceitLatest.latestGameURL);
+                    latestem.setFooter("Match played at "+String.valueOf(faceitLatest.matchTime), "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
+                    latestem.setDescription("[Link to Game]("+faceitLatest.latestGameURL+")");
 
                     if (faceitLatest.isitWin.equals("true")) {
                         latestem.setColor(0x09ff00);
@@ -181,7 +189,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLatest.team1 = null;
                     faceitLatest.team2 = null;
                     faceitOnlyPlayerId.faceitplayerID = null;
-                    faceitLatest.isitWin = null;
+                    faceitLatest.isitWin = "false";
 
 
                 } else if (savedMap.equalsIgnoreCase("dust2") || savedMap.equalsIgnoreCase("mirage") || savedMap.equalsIgnoreCase("train") || savedMap.equalsIgnoreCase("cache") || savedMap.equalsIgnoreCase("overpass") || savedMap.equalsIgnoreCase("vertigo") || savedMap.equalsIgnoreCase("inferno") || savedMap.equalsIgnoreCase("nuke")) {
@@ -218,9 +226,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     if (savedMap.equalsIgnoreCase("nuke")) {
                         mapCode = "de_nuke";
                     }
-                    faceitMaps.main(null);
+
+                    try {
+                        faceitMaps.main(null);
+                    }catch (CompletionException e){
+                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo?").queue();
+                    }
                     EmbedBuilder mapem = new EmbedBuilder();
-                    mapem.setAuthor("Stats for " + savedMap);
+                    mapem.setTitle("Stats for " + savedMap);
                     mapem.addField("Kills: ", faceitMaps.allkills, true);
                     mapem.addField("Deaths: ", faceitMaps.alldeaths, true);
                     mapem.addField("Assists: ", faceitMaps.assists, true);
@@ -254,20 +267,29 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         e.printStackTrace();
                         event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                     }
-                    faceitLast20.main(null);
+
+                    try {
+                        faceitLast20.main(null);
+                    }catch (CompletionException e){
+                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo?").queue();
+                    }
 
                     EmbedBuilder last = new EmbedBuilder();
-                    last.setAuthor("Stats for your last 15 Games");
-                    last.setThumbnail(faceitOnlyPlayerId.faceitAva);
+                    last.setTitle("Stats for your last 15 Games");
+                    try {
+                        last.setThumbnail(faceitOnlyPlayerId.faceitAva);
+                    }catch (IllegalArgumentException e){
+                        System.out.println("no pic");
+                    }
                     last.addField("Average Kills", String.valueOf(faceitLast20.realkills), true);
                     last.addField("Average Death", String.valueOf(faceitLast20.realdeaths), true);
                     last.addField("Average K/D", String.valueOf(faceitLast20.realkd), true);
                     last.addField("Average Assists", String.valueOf(faceitLast20.realassists), true);
                     last.addField("Average MVPs", String.valueOf(faceitLast20.realmvps), true);
+                    last.addField("Average Headshots", String.valueOf(faceitLast20.realhead), true);
                     last.addField("Triple Kills", String.valueOf(faceitLast20.totalsumtriple), true);
                     last.addField("Quadro Kills", String.valueOf(faceitLast20.totalsumquadro), true);
                     last.addField("Aces", String.valueOf(faceitLast20.totalsumace), true);
-                    last.addField("Average Headshots", String.valueOf(faceitLast20.realhead), true);
                     last.setColor(0xe6851e);
 
 
