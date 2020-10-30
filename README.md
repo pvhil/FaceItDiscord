@@ -2,6 +2,7 @@
 
 # FaceITDiscordStats
 [![Donate](https://img.shields.io/badge/Paypal-donate-blue.svg)](https://www.paypal.me/m4rk12)  
+[![Discord](https://img.shields.io/discord/742408927022546975?label=Discord?link=https://discord.gg/DUuCMgXDJC)
 
 A Discord Bot which shows you how bad you are in csgo!
 
