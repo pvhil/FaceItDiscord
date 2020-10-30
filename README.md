@@ -1,6 +1,6 @@
 <img src="https://cdn.discordapp.com/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512" height="140" align="right" style="background-color:black;padding:20px;"/>
 
-[https://img.shields.io/badge/Paypal-donate-blue?link=https://www.paypal.me/m4rk12"/>]
+[![Donate]https://img.shields.io/badge/Paypal-donate-blue?link=https://www.paypal.me/m4rk12"/]
 
 # FaceITDiscordStats
 A Discord Bot which shows you how bad you are in csgo!
