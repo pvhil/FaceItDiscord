@@ -1,3 +1,5 @@
+<img src="https://cdn.discordapp.com/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512" height="140" align="right" />
+
 # FaceITDiscordStats
 A Discord Bot which shows you how bad you are in csgo!
 
