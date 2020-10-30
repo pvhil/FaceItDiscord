@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.DecimalFormat;
 
 public class faceitLast20 {
 
@@ -36,7 +37,7 @@ public class faceitLast20 {
 
     public static double runsumkd = 0;
     public static double totalsumkd = 0;
-    public static double realkd = 0;
+    public static String realkd = null;
 
     public static Integer runsummvps = 0;
     public static Integer totalsummvps = 0;
@@ -64,6 +65,7 @@ public class faceitLast20 {
     public static String parse(String responseBody) {
         JSONObject values = new JSONObject(responseBody);
         JSONArray themap = values.getJSONArray("items");
+        DecimalFormat df = new DecimalFormat("#.##");
 
         for (int i = 0; i < themap.length(); i++) {
             JSONObject mId = themap.getJSONObject(i);
@@ -105,8 +107,9 @@ public class faceitLast20 {
          realdeaths = totalsumdeaths/15;
          realassists = totalsumassists/15;
          realmvps = totalsummvps/15;
-        realkd = totalsumkd/15;
+        realkd = df.format(totalsumkd/15);
         realhead = totalsumhead/15;
+
 
         totalsumkills = 0;
         totalsumdeaths = 0;

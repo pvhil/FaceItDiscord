@@ -14,19 +14,23 @@ public class faceitLatest {
     public static String latestGameURL;
     public static String gameWinner;
     public static String matchID;
+    public static String isitWin;
 
     public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer " +main.FACEITTOKEN)
+                .header("Authorization", "Bearer "+main.FACEITTOKEN)
                 .uri(URI.create("https://open.faceit.com/data/v4/players/"+faceitOnlyPlayerId.faceitplayerID+"/history?game=csgo&offset=0&limit=1"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
                 .thenApply(faceitLatest::parse)
                 .join();
+    }
+    private static boolean userexists(JSONObject jsonArray, String usernameToFind) {
+        return jsonArray.toString().contains("\"player_id\":\""+usernameToFind+"\"");
     }
     //needs rewrite in future
     public static String parse(String responseBody) {
@@ -48,6 +52,18 @@ public class faceitLatest {
         StringBuilder sb1 = new StringBuilder();
         for (int i = 0; i < 5; i++) {
             JSONObject a = pplayers1.getJSONObject(i);
+            if(wwinner.equalsIgnoreCase("faction1")){
+                if(userexists(a,faceitOnlyPlayerId.faceitplayerID)){
+                    System.out.println("its working");
+                    isitWin = "true";
+                }else {
+                    System.out.println("could work");
+                    isitWin = "false";
+                }
+            }
+
+
+
             String player1 = a.getString("nickname");
             sb1.append(player1 +" "+"\n"+" ");
 

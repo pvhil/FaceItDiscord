@@ -1,3 +1,4 @@
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -8,12 +9,15 @@ import java.net.http.HttpResponse;
 
 public class faceitAPI {
     public static String faceitplayerID;
+    public static String premium;
     public static String faceitAvatar;
     public static String faceitplayerCountry;
     public static Integer faceitLevel;
     public static Integer faceitElo;
     public static Integer faceitAfk;
     public static Integer faceitLeave;
+    public static String profileURL;
+    public static String steam64;
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -41,8 +45,15 @@ public class faceitAPI {
         Integer l = obj.getJSONObject("games").getJSONObject("csgo").getInt("skill_level");
         int z = obj.getJSONObject("infractions").getInt("leaver");
         int h = obj.getJSONObject("infractions").getInt("afk");
+        steam64 = obj.getString("steam_id_64");
+        String j = obj.getString("faceit_url");
+        JSONArray k = obj.getJSONArray("memberships");
+        premium = k.getString(0);
+        profileURL = j.replaceAll("lang", "en")
+                .replace("{", "")
+                .replace("}", "");
 
-        System.out.println(n + " " + c);
+        System.out.println(n + " " + c+" "+premium+" "+profileURL);
         faceitplayerID = n;
         faceitplayerCountry = c;
         faceitAvatar = a;

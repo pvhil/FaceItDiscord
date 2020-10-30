@@ -12,6 +12,8 @@ public class faceitStats {
     public static String faceitKD;
     public static String faceitLongest;
     public static JSONArray faceitRecent;
+    public static String longestwins;
+    public static String headshotperc;
 
     public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
@@ -35,6 +37,8 @@ public class faceitStats {
         String c = obj.getJSONObject("lifetime").getString("Average K/D Ratio");
         String d = obj.getJSONObject("lifetime").getString("Longest Win Streak");
         JSONArray e = obj.getJSONObject("lifetime").getJSONArray("Recent Results");
+        longestwins = obj.getJSONObject("lifetime").getString("Longest Win Streak");
+        headshotperc = obj.getJSONObject("lifetime").getString("Average Headshots %");
 
         faceitWins = a;
         faceitRate = b;

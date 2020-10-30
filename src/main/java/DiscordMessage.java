@@ -103,13 +103,20 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
                 EmbedBuilder info = new EmbedBuilder();
                 info.setAuthor("Elo: " + faceitAPI.faceitElo, null, faceitLevelPNG);
-                info.setTitle("Stats for " + savedArgs);
+                if(faceitAPI.premium.equals("free")) {
+                    info.setTitle("Stats for " + savedArgs);
+                }else {
+                    info.setTitle("Stats for Premium Member " + savedArgs);
+                }
+                info.setDescription("[FaceIT Profile]("+faceitAPI.profileURL+") and [Steam Profile](https://steamcommunity.com/profiles/"+faceitAPI.steam64+")");
                 info.setThumbnail(faceitAPI.faceitAvatar);
                 info.addField("Country: ", countryCodeToEmoji(faceitAPI.faceitplayerCountry), true);
                 info.addField("Wins: ", faceitStats.faceitWins, true);
                 info.addField("Winrate: ", faceitStats.faceitRate + "%", true);
                 info.addField("K/D: ", faceitStats.faceitKD, true);
+                info.addField("Longest Winstreak", faceitStats.longestwins+" Wins", true);
                 info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "❌").replaceAll("\"", ""), true);
+                info.addField("Headshot %: ", faceitStats.headshotperc+"%", true);
                 info.addField("AFK / Left early: ", String.valueOf(faceitAPI.faceitAfk) + " / " + String.valueOf(faceitAPI.faceitLeave), true);
                 info.setColor(0xe6851e);
 
@@ -157,11 +164,13 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
 
                     latestem.setFooter(faceitLatest.latestGameURL);
-                    latestem.setColor(0xe6851e);
-                    if (faceitLatest.gameWinner.equals("faction2")) {
-                        latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/team2w.png");
+
+                    if (faceitLatest.isitWin.equals("true")) {
+                        latestem.setColor(0x09ff00);
+                        latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/win.png");
                     } else {
-                        latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/team1w.png");
+                        latestem.setColor(0xff0000);
+                        latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/lose.png");
                     }
 
                     event.getChannel().sendMessage(latestem.build()).queue();
@@ -172,6 +181,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLatest.team1 = null;
                     faceitLatest.team2 = null;
                     faceitOnlyPlayerId.faceitplayerID = null;
+                    faceitLatest.isitWin = null;
 
 
                 } else if (savedMap.equalsIgnoreCase("dust2") || savedMap.equalsIgnoreCase("mirage") || savedMap.equalsIgnoreCase("train") || savedMap.equalsIgnoreCase("cache") || savedMap.equalsIgnoreCase("overpass") || savedMap.equalsIgnoreCase("vertigo") || savedMap.equalsIgnoreCase("inferno") || savedMap.equalsIgnoreCase("nuke")) {
@@ -267,7 +277,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLast20.realdeaths = 0;
                     faceitLast20.realassists = 0;
                     faceitLast20.realmvps = 0;
-                    faceitLast20.realkd = 0;
+                    faceitLast20.realkd = null;
                     faceitLast20.realtriple = 0;
                     faceitLast20.realquadro = 0;
                     faceitLast20.realace = 0;
@@ -288,7 +298,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLast20.totalsumace = 0;
 
             } else {
-                event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game or any map like *dust2* to see your map stats").queue();
+                event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game, *last15* to see your last 15 Games or any map like *dust2* to see your map stats").queue();
             }
 
         }
