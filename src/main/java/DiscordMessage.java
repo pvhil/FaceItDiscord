@@ -307,6 +307,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         faceitLast20EloPoints.main(null);
                     }catch (CompletionException e){
                         event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or the graph doesnt load").queue();
+                        e.printStackTrace();
                         return;
                     }
 
@@ -332,6 +333,17 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
                     event.getChannel().sendMessage(last.build()).queue();
                     faceitOnlyPlayerId.faceitplayerID = null;
+                    faceitLast20EloPoints.totalsumkills = 0;
+                    faceitLast20EloPoints.totalsumdeaths = 0;
+                    faceitLast20EloPoints.totalsumkd = 0;
+                    faceitLast20EloPoints.realkd = "0";
+                    faceitLast20EloPoints.totalsumassists = 0;
+                    faceitLast20EloPoints.totalsummvps = 0;
+                    faceitLast20EloPoints.totalsumheadshots = 0;
+                    faceitLast20EloPoints.totalsumtriple = 0;
+                    faceitLast20EloPoints.totalsumquadro = 0;
+                    faceitLast20EloPoints.totalsumace = 0;
+
 
             } else {
                 event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game, *last15* to see your last 15 Games or any map like *dust2* to see your map stats").queue();

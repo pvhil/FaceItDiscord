@@ -20,6 +20,7 @@ public class faceitLast20EloPoints {
     public static int totalsumtriple= 0;
     public static int totalsumquadro= 0;
     public static int totalsumace= 0;
+    public static int highelo;
 
     public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
@@ -32,14 +33,17 @@ public class faceitLast20EloPoints {
                 .thenApply(faceitLast20EloPoints::parse)
                 .join();
     }
-    public static String parse(String responseBody) {
+
+    public static String parse(String responseBody){
         JSONArray value = new JSONArray(responseBody);
         StringBuilder ep = new StringBuilder();
         DecimalFormat df = new DecimalFormat("#.##");
         for (int i = 0; i < 15; i++) {
             JSONObject elo = value.getJSONObject(i);
-            String elopoints = elo.getString("elo");
-            ep.append(elopoints+",");
+            if(elo.has("elo")) {
+                String elopoints = elo.getString("elo");
+                ep.append(elopoints + ",");
+            }
             int e1 = Integer.parseInt(elo.getString("i6"));
             int e2 = Integer.parseInt(elo.getString("i8"));
             double e3 = Double.parseDouble(elo.getString("c2"));
@@ -82,6 +86,17 @@ public class faceitLast20EloPoints {
         realkd = df.format(totalsumkd/15);
         System.out.println(totalsumkills/15+" "+totalsumdeaths/15+" "+realkd+" " +totalsumassists/15 +" "+totalsummvps/15+" "+totalsumheadshots/15+" "+totalsumtriple+" "+totalsumquadro+" "+totalsumace+" ");
         fcEloHistory = ep.toString();
+
+        String[] array = fcEloHistory.split(",");
+        int largestInt = Integer.MIN_VALUE;
+        for (String numberAsString : array) {
+            int number = Integer.parseInt(numberAsString);
+            if (number > largestInt) {
+                largestInt = number;
+                highelo = largestInt;
+            }
+        }
+        System.out.println(largestInt);
 
         return null;
     }
