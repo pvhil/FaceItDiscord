@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.text.NumberFormat;
 import java.util.concurrent.CompletionException;
 
 public class DiscordMessage extends ListenerAdapter implements EventListener {
@@ -15,6 +17,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public static String savedMap;
     public static String faceitLevelPNG;
     public static String mapCode;
+    public static String plsStop;
+    public static String fcStatus;
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -44,7 +48,31 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
     public void onMessageReceived(MessageReceivedEvent event) {
         java.lang.String[] args = event.getMessage().getContentRaw().split("\\s+");
-
+        if (args[0].equalsIgnoreCase(".faceitadminstats")){
+            if(event.getAuthor().getId().equals("208226733789282304")){
+                try {
+                    //not working, maybe delete
+                    // When top.gg accepted, implement API here and in main
+                    InetAddress inet = InetAddress.getByName("104.16.12.251");
+                    if (inet.isReachable(1005)) {
+                        fcStatus ="faceit is reachable.";
+                    } else {
+                        fcStatus = "faceit NOT reachable.";
+                    }
+                } catch (Exception e) {
+                    System.out.println("Exception:" + e.getMessage());
+                }
+                EmbedBuilder adminstats = new EmbedBuilder();
+                adminstats.setTitle("Stats for the Bot")
+                        .setAuthor("Hello phil :)")
+                        .addField("Servers: ", String.valueOf(main.jda.getGuilds().size()),true)
+                        .addField("Users: ", String.valueOf(main.jda.getUsers().size()),true)
+                        .addField("Free Ram: ", NumberFormat.getInstance().format(Runtime.getRuntime().freeMemory() / 1024)+" mb",true)
+                        .addField("Faceit: ", fcStatus,true)
+                        .setColor(0x1500ff);
+                event.getChannel().sendMessage(adminstats.build()).queue();
+            }
+        }
         if (args[0].equalsIgnoreCase(".faceit")) {
             if (args.length < 2) {
                 event.getChannel().sendMessage("Dont forget Faceit Name!").queue();
@@ -66,8 +94,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitStats.faceitLongest = null;
                     faceitStats.faceitRate = null;
                     e.printStackTrace();
+                    return;
                 }
-                event.getMessage().delete();
+
 
                 if (faceitAPI.faceitLevel == 1) {
                     faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
@@ -124,7 +153,6 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 info.addField("AFK / Left early: ", String.valueOf(faceitAPI.faceitAfk) + " / " + String.valueOf(faceitAPI.faceitLeave), true);
                 info.setColor(0xe6851e);
 
-
                 event.getChannel().sendMessage(info.build()).queue();
                 //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
@@ -144,6 +172,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     } catch (CompletionException e) {
                         e.printStackTrace();
                         event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                        return;
                     }
 
                     try {
@@ -194,6 +223,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
                 } else if (savedMap.equalsIgnoreCase("dust2") || savedMap.equalsIgnoreCase("mirage") || savedMap.equalsIgnoreCase("train") || savedMap.equalsIgnoreCase("cache") || savedMap.equalsIgnoreCase("overpass") || savedMap.equalsIgnoreCase("vertigo") || savedMap.equalsIgnoreCase("inferno") || savedMap.equalsIgnoreCase("nuke")) {
                     event.getChannel().sendMessage("*loading map stats*").queue();
+                    plsStop ="false";
                     try {
                         faceitOnlyPlayerId.main(null);
                     } catch (InterruptedException | IOException e) {
@@ -201,6 +231,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     } catch (CompletionException e) {
                         e.printStackTrace();
                         event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                        return;
                     }
                     if (savedMap.equalsIgnoreCase("dust2")) {
                         mapCode = "de_dust2";
@@ -230,7 +261,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     try {
                         faceitMaps.main(null);
                     }catch (CompletionException e){
-                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo?").queue();
+                        event.getChannel().sendMessage("Something went wrong. Maybe User never played csgo?").queue();
+                        return;
                     }
                     EmbedBuilder mapem = new EmbedBuilder();
                     mapem.setTitle("Stats for " + savedMap);
@@ -253,12 +285,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     mapem.setThumbnail(faceitMaps.mappicture);
                     mapem.setColor(0xe6851e);
 
-                    event.getChannel().sendMessage(mapem.build()).queue();
-                    faceitOnlyPlayerId.faceitplayerID = null;
+
+                        event.getChannel().sendMessage(mapem.build()).queue();
+                        faceitOnlyPlayerId.faceitplayerID = null;
+
 
 
                 } else if (savedMap.equalsIgnoreCase("last15")||savedMap.equalsIgnoreCase("last")) {
-                    event.getChannel().sendMessage("*loading last 15 games (will take some time)*").queue();
+                    event.getChannel().sendMessage("*loading last 15 games*").queue();
                     try {
                         faceitOnlyPlayerId.main(null);
                     } catch (InterruptedException | IOException e) {
@@ -266,12 +300,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     } catch (CompletionException e) {
                         e.printStackTrace();
                         event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                        return;
                     }
 
                     try {
-                        faceitLast20.main(null);
+                        faceitLast20EloPoints.main(null);
                     }catch (CompletionException e){
-                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo?").queue();
+                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or the graph doesnt load").queue();
+                        return;
                     }
 
                     EmbedBuilder last = new EmbedBuilder();
@@ -281,43 +317,21 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }catch (IllegalArgumentException e){
                         System.out.println("no pic");
                     }
-                    last.addField("Average Kills", String.valueOf(faceitLast20.realkills), true);
-                    last.addField("Average Death", String.valueOf(faceitLast20.realdeaths), true);
-                    last.addField("Average K/D", String.valueOf(faceitLast20.realkd), true);
-                    last.addField("Average Assists", String.valueOf(faceitLast20.realassists), true);
-                    last.addField("Average MVPs", String.valueOf(faceitLast20.realmvps), true);
-                    last.addField("Average Headshots", String.valueOf(faceitLast20.realhead), true);
-                    last.addField("Triple Kills", String.valueOf(faceitLast20.totalsumtriple), true);
-                    last.addField("Quadro Kills", String.valueOf(faceitLast20.totalsumquadro), true);
-                    last.addField("Aces", String.valueOf(faceitLast20.totalsumace), true);
+                    last.addField("Average Kills", String.valueOf(faceitLast20EloPoints.totalsumkills/15), true);
+                    last.addField("Average Death", String.valueOf(faceitLast20EloPoints.totalsumdeaths/15), true);
+                    last.addField("Average K/D", String.valueOf(faceitLast20EloPoints.realkd), true);
+                    last.addField("Average Assists", String.valueOf(faceitLast20EloPoints.totalsumassists/15), true);
+                    last.addField("Average MVPs", String.valueOf(faceitLast20EloPoints.totalsummvps/15), true);
+                    last.addField("Average Headshots", String.valueOf(faceitLast20EloPoints.totalsumheadshots/15), true);
+                    last.addField("Triple Kills", String.valueOf(faceitLast20EloPoints.totalsumtriple), true);
+                    last.addField("Quadro Kills", String.valueOf(faceitLast20EloPoints.totalsumquadro), true);
+                    last.addField("Aces", String.valueOf(faceitLast20EloPoints.totalsumace), true);
+                    last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22],datasets:[{label:%27EloPoints%27,data:%20["+faceitLast20EloPoints.fcEloHistory+"],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
                     last.setColor(0xe6851e);
 
 
                     event.getChannel().sendMessage(last.build()).queue();
                     faceitOnlyPlayerId.faceitplayerID = null;
-                    faceitLast20.realkills = 0;
-                    faceitLast20.realdeaths = 0;
-                    faceitLast20.realassists = 0;
-                    faceitLast20.realmvps = 0;
-                    faceitLast20.realkd = null;
-                    faceitLast20.realtriple = 0;
-                    faceitLast20.realquadro = 0;
-                    faceitLast20.realace = 0;
-                    faceitLast20.realhead = 0;
-
-                    faceitLast20MatchStats.pentaKills = 0;
-                    faceitLast20MatchStats.tripleKills = 0;
-                    faceitLast20MatchStats.assists = 0;
-                    faceitLast20MatchStats.kills = 0;
-                    faceitLast20MatchStats.quadroKills = 0;
-                    faceitLast20MatchStats.mvps = 0;
-                    faceitLast20MatchStats.deaths = 0;
-                    faceitLast20MatchStats.kdratio = null;
-                    faceitLast20MatchStats.headshots = 0;
-
-                    faceitLast20.totalsumtriple = 0;
-                    faceitLast20.totalsumquadro = 0;
-                    faceitLast20.totalsumace = 0;
 
             } else {
                 event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game, *last15* to see your last 15 Games or any map like *dust2* to see your map stats").queue();
