@@ -18,7 +18,6 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public static String faceitLevelPNG;
     public static String mapCode;
     public static String plsStop;
-    public static String fcStatus;
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -50,25 +49,12 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         java.lang.String[] args = event.getMessage().getContentRaw().split("\\s+");
         if (args[0].equalsIgnoreCase(".faceitadminstats")){
             if(event.getAuthor().getId().equals("208226733789282304")){
-                try {
-                    //not working, maybe delete
-                    // When top.gg accepted, implement API here and in main
-                    InetAddress inet = InetAddress.getByName("104.16.12.251");
-                    if (inet.isReachable(1005)) {
-                        fcStatus ="faceit is reachable.";
-                    } else {
-                        fcStatus = "faceit NOT reachable.";
-                    }
-                } catch (Exception e) {
-                    System.out.println("Exception:" + e.getMessage());
-                }
                 EmbedBuilder adminstats = new EmbedBuilder();
                 adminstats.setTitle("Stats for the Bot")
                         .setAuthor("Hello phil :)")
                         .addField("Servers: ", String.valueOf(main.jda.getGuilds().size()),true)
                         .addField("Users: ", String.valueOf(main.jda.getUsers().size()),true)
                         .addField("Free Ram: ", NumberFormat.getInstance().format(Runtime.getRuntime().freeMemory() / 1024)+" mb",true)
-                        .addField("Faceit: ", fcStatus,true)
                         .setColor(0x1500ff);
                 event.getChannel().sendMessage(adminstats.build()).queue();
             }
