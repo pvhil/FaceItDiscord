@@ -1,6 +1,6 @@
 <img src="https://cdn.discordapp.com/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512" height="140" align="right" style="background-color:black;padding:20px;"/>
 
-# FaceITDiscordStats
+# FaceIT Stats for your Discord Server!
 [![Donate](https://img.shields.io/badge/Paypal-donate-blue.svg)](https://www.paypal.me/m4rk12) [![Discord](https://img.shields.io/discord/742408927022546975?label=Discord)](https://discord.gg/DUuCMgXDJC)
 
 A Discord Bot which shows you how bad you are in csgo!
@@ -17,7 +17,11 @@ A Discord Bot which shows you how bad you are in csgo!
 IMPORTANT! Faceitname is case-sensitive
 
 ## Note
+Bot is using charts from quickchart.io and uses the FaceIT API v1 and v4.  
 Bot is in version 1.0.0  
 Code could be for some people a mess because im still learning java
+
+## Disclaimer
+FACEITDiscord/FaceITBot/FaceITDiscordBot is a third-party application and not affiliated with FACEIT.
 
  
