@@ -1,4 +1,5 @@
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -10,6 +11,8 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
+
+import static net.dv8tion.jda.api.OnlineStatus.*;
 
 public class DiscordMessage extends ListenerAdapter implements EventListener {
 
@@ -35,6 +38,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         return emojiStr.toString();
     }
     public void onGuildJoin(GuildJoinEvent event){
+        //joinevent
         Guild guild = event.getGuild();
         TextChannel channel = guild.getDefaultChannel();
 
@@ -49,18 +53,71 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
     public void onMessageReceived(MessageReceivedEvent event) {
         java.lang.String[] args = event.getMessage().getContentRaw().split("\\s+");
+        //admin
         if (args[0].equalsIgnoreCase(".faceitadminstats")){
             if(event.getAuthor().getId().equals("208226733789282304")){
-                EmbedBuilder adminstats = new EmbedBuilder();
-                adminstats.setTitle("Stats for the Bot")
-                        .setAuthor("Hello phil :)")
-                        .addField("Servers: ", String.valueOf(main.jda.getGuilds().size()),true)
-                        .addField("Users: ", String.valueOf(main.jda.getUsers().size()),true)
-                        .addField("Free Ram: ", NumberFormat.getInstance().format(Runtime.getRuntime().freeMemory() / 1024)+" mb",true)
-                        .setColor(0x1500ff);
-                event.getChannel().sendMessage(adminstats.build()).queue();
+                if (args.length == 1) {
+                    EmbedBuilder adminstats = new EmbedBuilder();
+                    adminstats.setTitle("Stats for the Bot")
+                            .setAuthor("Hello phil :)")
+                            .addField("Servers: ", String.valueOf(main.jda.getGuilds().size()), true)
+                            .addField("Users: ", String.valueOf(main.jda.getUsers().size()), true)
+                            .addField("Free Ram: ", NumberFormat.getInstance().format(Runtime.getRuntime().freeMemory() / 1024) + " mb", true)
+                            .setColor(0x1500ff);
+                    event.getChannel().sendMessage(adminstats.build()).queue();
+                }
+                if(args.length >= 2 ){
+                    if(args[1].equalsIgnoreCase("presence")){
+                        String activity = args[2];
+                        String activity1 = args[3];
+                        if (activity.equalsIgnoreCase("reset")){
+                            main.jda.getPresence().setActivity(Activity.watching(".faceithelp"));
+                        }else {
+                            main.jda.getPresence().setActivity(Activity.watching(activity + " " + activity1 + " | .faceithelp"));
+                        }
+                    }
+                    if(args[1].equalsIgnoreCase("status")){
+                        String activity = args[2];
+                        if(activity.equalsIgnoreCase("away")) {
+                            main.jda.getPresence().setStatus(IDLE);
+                            event.getChannel().sendMessage("Bot is now idle").queue();
+                        }
+                        if(activity.equalsIgnoreCase("online")) {
+                            main.jda.getPresence().setStatus(ONLINE);
+                            event.getChannel().sendMessage("Bot is online").queue();
+                        }
+                        if(activity.equalsIgnoreCase("busy")) {
+                            main.jda.getPresence().setStatus(DO_NOT_DISTURB);
+                            event.getChannel().sendMessage("Bot is now busy").queue();
+                        }
+                        if(activity.equalsIgnoreCase("offline")) {
+                            main.jda.getPresence().setStatus(INVISIBLE);
+                            event.getChannel().sendMessage("Bot made invisible").queue();
+                        }
+                    }
+                    if(args[1].equalsIgnoreCase("constructionmode")){
+                        if(args[2].equalsIgnoreCase("off")){
+                            main.jda.getPresence().setStatus(ONLINE);
+                            main.jda.getPresence().setActivity(Activity.watching(null));
+                        } else {
+                            main.jda.getPresence().setStatus(DO_NOT_DISTURB);
+                            main.jda.getPresence().setActivity(Activity.watching("BOT IS IN DEVELOPMENT"));
+                        }
+                    }
+                }
             }
         }
+        if (args[0].equalsIgnoreCase(".faceithelp")) {
+            EmbedBuilder help = new EmbedBuilder();
+            help.setTitle("How to use the Bot:");
+            help.setColor(0xe6851e);
+            help.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
+            help.setDescription("The Bot has following Commands: \n*.faceit <name>* = Shows your alltime FaceIT Stats\n.*faceit <name> latest* = Shows your Stats from your latest game\n*.faceit <name> <map>* = Shows your performance in a specific map\n*.faceit <name> last15* = Shows your Stats for your last 15 Games\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
+            event.getChannel().sendMessage(help.build()).queue();
+            return;
+        }
+
+        //Normal User
         if (args[0].equalsIgnoreCase(".faceit")) {
             if (args.length < 2) {
                 event.getChannel().sendMessage("Dont forget Faceit Name!").queue();

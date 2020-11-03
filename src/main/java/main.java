@@ -1,5 +1,6 @@
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ public class main implements EventListener {
         jda = JDABuilder.createDefault(BOTTOKEN)
                 .addEventListeners(new DiscordMessage())
                 .build();
+        main.jda.getPresence().setActivity(Activity.watching(".faceithelp"));
     }
     @Override
     public void onEvent(@NotNull GenericEvent genericEvent) {
