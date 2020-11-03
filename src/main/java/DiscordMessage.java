@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.text.NumberFormat;
+import java.util.Objects;
 import java.util.concurrent.CompletionException;
 
 public class DiscordMessage extends ListenerAdapter implements EventListener {
@@ -37,6 +37,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public void onGuildJoin(GuildJoinEvent event){
         Guild guild = event.getGuild();
         TextChannel channel = guild.getDefaultChannel();
+
+        Objects.requireNonNull(Objects.requireNonNull(main.jda.getGuildById("742408927022546975")).getTextChannelById("773217090924314694")).sendMessage("*"+event.getGuild().getName()+"*"+" now uses the bot").queue();
         EmbedBuilder join = new EmbedBuilder();
         join.setAuthor("Thanks for adding the FaceIT-Stats Bot!");
         join.setColor(0xe6851e);
