@@ -18,7 +18,7 @@ IMPORTANT! Faceitname is case-sensitive
 
 ## Note
 Bot is using charts from quickchart.io and uses the FaceIT API v1 and v4.  
-Bot is in version 2.0
+Bot is in version 2.0  
 Code could be for some people a mess because im still learning java
 
 ## Known Bugs
