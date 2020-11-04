@@ -193,7 +193,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 info.addField("Winrate: ", faceitStats.faceitRate + "%", true);
                 info.addField("K/D: ", faceitStats.faceitKD, true);
                 info.addField("Longest Winstreak", faceitStats.longestwins+" Wins", true);
-                info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "❌").replaceAll("\"", ""), true);
+                info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "\u274C").replaceAll("\"", ""), true);
                 info.addField("Headshot %: ", faceitStats.headshotperc+"%", true);
                 info.addField("AFK / Left early: ", String.valueOf(faceitAPI.faceitAfk) + " / " + String.valueOf(faceitAPI.faceitLeave), true);
                 info.setColor(0xe6851e);

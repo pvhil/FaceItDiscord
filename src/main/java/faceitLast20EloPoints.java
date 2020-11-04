@@ -38,48 +38,53 @@ public class faceitLast20EloPoints {
         JSONArray value = new JSONArray(responseBody);
         StringBuilder ep = new StringBuilder();
         DecimalFormat df = new DecimalFormat("#.##");
-        for (int i = 0; i < 15; i++) {
+        int test = 15;
+        for (int i = 0; i < test; i++) {
             JSONObject elo = value.getJSONObject(i);
             if(elo.has("elo")) {
                 String elopoints = elo.getString("elo");
                 ep.append(elopoints + ",");
+
+                int e1 = Integer.parseInt(elo.getString("i6"));
+                int e2 = Integer.parseInt(elo.getString("i8"));
+                double e3 = Double.parseDouble(elo.getString("c2"));
+                int e4 = Integer.parseInt(elo.getString("i14"));
+                int e5 = Integer.parseInt(elo.getString("i15"));
+                int e6 = Integer.parseInt(elo.getString("i7"));
+                int e7 = Integer.parseInt(elo.getString("i16"));
+                int e8 = Integer.parseInt(elo.getString("i13"));
+                int e9 = Integer.parseInt(elo.getString("i9"));
+
+                int runsumkills = e1;
+                totalsumkills = runsumkills + totalsumkills;
+
+                int runsumdeaths = e2;
+                totalsumdeaths = runsumdeaths + totalsumdeaths;
+
+                double runsumkd = e3;
+                totalsumkd = runsumkd + totalsumkd;
+
+                int runsumassists = e6;
+                totalsumassists = runsumassists + totalsumassists;
+
+                int runsummvps = e9;
+                totalsummvps = runsummvps + totalsummvps;
+
+                int runsumheadshots = e8;
+                totalsumheadshots = runsumheadshots + totalsumheadshots;
+
+                int runsumtriple = e4;
+                totalsumtriple = runsumtriple + totalsumtriple;
+
+                int runsumquadro = e5;
+                totalsumquadro = runsumquadro + totalsumquadro;
+
+                int runsumace = e7;
+                totalsumace = runsumace + totalsumace;
+            }else {
+                System.out.println("testinggggg");
+                test++;
             }
-            int e1 = Integer.parseInt(elo.getString("i6"));
-            int e2 = Integer.parseInt(elo.getString("i8"));
-            double e3 = Double.parseDouble(elo.getString("c2"));
-            int e4 = Integer.parseInt(elo.getString("i14"));
-            int e5 = Integer.parseInt(elo.getString("i15"));
-            int e6 = Integer.parseInt(elo.getString("i7"));
-            int e7 = Integer.parseInt(elo.getString("i16"));
-            int e8 = Integer.parseInt(elo.getString("i13"));
-            int e9 = Integer.parseInt(elo.getString("i9"));
-
-            int runsumkills = e1;
-            totalsumkills = runsumkills + totalsumkills;
-
-            int runsumdeaths = e2;
-            totalsumdeaths = runsumdeaths + totalsumdeaths;
-
-            double runsumkd = e3;
-            totalsumkd = runsumkd + totalsumkd;
-
-            int runsumassists = e6;
-            totalsumassists = runsumassists + totalsumassists;
-
-            int runsummvps = e9;
-            totalsummvps = runsummvps + totalsummvps;
-
-            int runsumheadshots = e8;
-            totalsumheadshots = runsumheadshots + totalsumheadshots;
-
-            int runsumtriple = e4;
-            totalsumtriple = runsumtriple + totalsumtriple;
-
-            int runsumquadro = e5;
-            totalsumquadro = runsumquadro + totalsumquadro;
-
-            int runsumace = e7;
-            totalsumace = runsumace + totalsumace;
 
 
         }
