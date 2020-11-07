@@ -18,8 +18,8 @@ A Discord Bot which shows you how bad you are in csgo!
 IMPORTANT! Faceitname is case-sensitive
 
 ## Note
-Bot is using charts from quickchart.io and uses the FaceIT API v1 and v4.  
-Bot is in version 2.0  
+Bot is using charts from quickchart.io, images from countryflags.io and the FaceIT API v1 and v4.  
+Bot is in version 3.0  
 Code could be for some people a mess because im still learning java
 
 ## Known Bugs
