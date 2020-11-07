@@ -1,2 +1,7 @@
 # Project exclude paths
 /target/
+FaceIt.iml
+important.txt
+pom.xml
+Procfile
+system.properties
