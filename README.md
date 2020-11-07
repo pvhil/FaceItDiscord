@@ -14,12 +14,13 @@ A Discord Bot which shows you how bad you are in csgo!
 ## Installation
 1. Add Bot to your Server: https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot
 ## Usage
+IMPORTANT! Faceitname is case-sensitive  
 * <code>.faceit (faceitname)</code> = look at lifetime stats  
 * <code>.faceit (faceitname) latest</code> = look at latest match  
 * <code>.faceit (faceitname) (map)</code> = Look at map stats  
 * <code>.faceit (faceitname) last (amount of games)</code> = Shows your Stats for your last games (standard: 15)  
 * <code>.faceitrank (region) (opt: country)</code> = Top 15 for your region / country  
-IMPORTANT! Faceitname is case-sensitive  
+
   
 If you need more help, look at our [Examples](https://github.com/pvhil/FaceItDiscord/blob/master/examples.md)
 
