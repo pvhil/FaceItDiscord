@@ -13,7 +13,7 @@
 
 ---
 ### Your Stats
-.faceit (name) last/last15  
+.faceit (name) last (amount of games)
 
 <img src="https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.PNG"/>
 

@@ -4,6 +4,8 @@
 [![Donate](https://img.shields.io/badge/Paypal-donate-blue.svg)](https://www.paypal.me/m4rk12) [![Discord](https://img.shields.io/discord/742408927022546975?label=Discord)](https://discord.gg/DUuCMgXDJC)  
 
 [![Add](https://img.shields.io/badge/ADD--TO--DISCORD-blue?logo=discord&style=for-the-badge)](https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot)
+[![top](https://img.shields.io/badge/TOP.GG-purple?logo=discord&style=for-the-badge)](https://top.gg/bot/770312130037153813)
+
 
 A Discord Bot which shows you how bad you are in csgo!
 
@@ -12,12 +14,13 @@ A Discord Bot which shows you how bad you are in csgo!
 ## Installation
 1. Add Bot to your Server: https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot
 ## Usage
-.faceit (faceitname) = look at lifetime stats  
-.faceit (faceitname) latest = look at latest match  
-.faceit (faceitname) (map) = Look at map stats  
-.faceit (faceitname) last (amount of games) = Shows your Stats for your last games (standard: 15)  
-.faceitrank (region) <country> = Top 15 for your region / country  
 IMPORTANT! Faceitname is case-sensitive  
+* <code>.faceit (faceitname)</code> = look at lifetime stats  
+* <code>.faceit (faceitname) latest</code> = look at latest match  
+* <code>.faceit (faceitname) (map)</code> = Look at map stats  
+* <code>.faceit (faceitname) last (amount of games)</code> = Shows your Stats for your last games (standard: 15)  
+* <code>.faceitrank (region) (opt: country)</code> = Top 15 for your region / country  
+
   
 If you need more help, look at our [Examples](https://github.com/pvhil/FaceItDiscord/blob/master/examples.md)
 
@@ -27,7 +30,7 @@ Bot is in version 3.0
 Code could be for some people a mess because im still learning java
 
 ## Known Bugs
-When playing in a hub without elo, elo graph is for that game invisible. (i think its fixed?)  
+.faceit player last (ex. 99) could be too high for some players because player played unranked faceit games which cant be added to the equation (NOT fixable) -> use lower amount    
   
 If you know a bug please contact me on my [Discord Server](https://discord.gg/DUuCMgXDJC)
 
