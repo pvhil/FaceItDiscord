@@ -18,6 +18,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
     public static String savedArgs;
     public static String savedMap;
+    public static String savedRegion;
+    public static String savedCountry;
     public static String faceitLevelPNG;
     public static String mapCode;
     public static String plsStop;
@@ -47,7 +49,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         join.setAuthor("Thanks for adding the FaceIT-Stats Bot!");
         join.setColor(0xe6851e);
         join.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
-        join.setDescription("The Bot has following Commands: \n*.faceit <name>* = Shows your alltime FaceIT Stats\n.*faceit <name> latest* = Shows your Stats from your latest game\n*.faceit <name> <map>* = Shows your performance in a specific map\n*.faceit <name> last15* = Shows your Stats for your last 15 Games\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
+        join.setDescription("The Bot has following Commands: \n*.faceit <name>* = Shows your alltime FaceIT Stats\n.*faceit <name> latest* = Shows your Stats from your latest game\n*.faceit <name> <map>* = Shows your performance in a specific map\n*.faceit <name> last15* = Shows your Stats for your last 15 Games\n*.faceitrank <region> [country]* = Top 15 for your Region/Country\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
         channel.sendMessage(join.build()).queue();
     }
 
@@ -112,9 +114,43 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             help.setTitle("How to use the Bot:");
             help.setColor(0xe6851e);
             help.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
-            help.setDescription("The Bot has following Commands: \n*.faceit <name>* = Shows your alltime FaceIT Stats\n.*faceit <name> latest* = Shows your Stats from your latest game\n*.faceit <name> <map>* = Shows your performance in a specific map\n*.faceit <name> last15* = Shows your Stats for your last 15 Games\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
+            help.setDescription("The Bot has following Commands: \n*.faceit <name>* = Shows your alltime FaceIT Stats\n.*faceit <name> latest* = Shows your Stats from your latest game\n*.faceit <name> <map>* = Shows your performance in a specific map\n*.faceit <name> last15* = Shows your Stats for your last 15 Games\n*.faceitrank <region> [country]* = Top 15 for your Region/Country\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
             event.getChannel().sendMessage(help.build()).queue();
             return;
+        }
+        if (args[0].equalsIgnoreCase(".faceitrank")) {
+            if(args.length >= 2) {
+                savedRegion = args[1].toUpperCase();
+                if(args.length ==3) {
+                    savedCountry = args[2].toLowerCase();
+                }
+                event.getChannel().sendMessage("*loading top 15*").queue();
+                EmbedBuilder ranks = new EmbedBuilder();
+                try {
+                    if (savedCountry == null) {
+                        savedCountry = "";
+                        faceitRanking.main(null);
+                        ranks.setThumbnail("https://www.countryflags.io/"+savedRegion+"/flat/64.png");
+                    } else {
+                        faceitRanking.country();
+                        ranks.setThumbnail("https://www.countryflags.io/"+savedCountry+"/flat/64.png");
+                    }
+                } catch (CompletionException e) {
+                    e.printStackTrace();
+                    event.getChannel().sendMessage("Wrong Region or Country!").queue();
+                    return;
+                }
+                ranks.setTitle("Top 15 for " + savedRegion+" "+savedCountry);
+                ranks.setDescription(faceitRanking.topr);
+                ranks.setColor(0xe6851e);
+
+
+                event.getChannel().sendMessage(ranks.build()).queue();
+                savedCountry = null;
+            } else {
+                event.getChannel().sendMessage("Please Use a region like *eu* , *us*").queue();
+                savedCountry = null;
+            }
         }
 
         //Normal User
@@ -196,6 +232,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "\u274C").replaceAll("\"", ""), true);
                 info.addField("Headshot %: ", faceitStats.headshotperc+"%", true);
                 info.addField("AFK / Left early: ", String.valueOf(faceitAPI.faceitAfk) + " / " + String.valueOf(faceitAPI.faceitLeave), true);
+                info.setFooter("\uD83C\uDF10 Rank: "+faceitPlayerRanking.regionRank+" | "+countryCodeToEmoji(faceitAPI.faceitplayerCountry)+" Rank: "+faceitPlayerRanking.countryRank);
                 info.setColor(0xe6851e);
 
                 event.getChannel().sendMessage(info.build()).queue();
@@ -205,7 +242,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 System.out.println(savedArgs + " stats action");
 
             }
-            if (args.length == 3) {
+            if (args.length >= 3) {
                 savedArgs = args[1];
                 savedMap = args[2];
                 if (savedMap.equalsIgnoreCase("latest")) {
@@ -390,7 +427,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLast20EloPoints.totalsumace = 0;
 
 
-            } else {
+            }
+                else {
                 event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game, *last15* to see your last 15 Games or any map like *dust2* to see your map stats").queue();
             }
 

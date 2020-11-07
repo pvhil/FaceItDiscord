@@ -18,6 +18,7 @@ public class faceitAPI {
     public static Integer faceitLeave;
     public static String profileURL;
     public static String steam64;
+    public static String region;
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -34,6 +35,7 @@ public class faceitAPI {
                 .join();
 
                 faceitStats.main(null);
+                faceitPlayerRanking.main(null);
     }
     public static String parse(String responseBody) {
 
@@ -42,6 +44,7 @@ public class faceitAPI {
         String c = obj.getString("country");
         String a = obj.getString("avatar");
         Integer e = obj.getJSONObject("games").getJSONObject("csgo").getInt("faceit_elo");
+        region = obj.getJSONObject("games").getJSONObject("csgo").getString("region");
         Integer l = obj.getJSONObject("games").getJSONObject("csgo").getInt("skill_level");
         int z = obj.getJSONObject("infractions").getInt("leaver");
         int h = obj.getJSONObject("infractions").getInt("afk");
