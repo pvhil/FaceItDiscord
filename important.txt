@@ -1,1 +1,0 @@
-heroku deploy:jar -a faceitdiscordstats --jdk 11 --jar FaceIt-1.0-SNAPSHOT.jar -i Procfile
