@@ -1,7 +1,9 @@
 <img src="https://cdn.discordapp.com/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512" height="140" align="right" style="background-color:black;padding:20px;"/>
 
 # FaceIT Stats for your Discord Server!
-[![Donate](https://img.shields.io/badge/Paypal-donate-blue.svg)](https://www.paypal.me/m4rk12) [![Discord](https://img.shields.io/discord/742408927022546975?label=Discord)](https://discord.gg/DUuCMgXDJC)
+[![Donate](https://img.shields.io/badge/Paypal-donate-blue.svg)](https://www.paypal.me/m4rk12) [![Discord](https://img.shields.io/discord/742408927022546975?label=Discord)](https://discord.gg/DUuCMgXDJC)  
+
+[![Add](https://img.shields.io/badge/ADD--TO--DISCORD-blue?logo=discord&style=for-the-badge)](https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot)
 
 A Discord Bot which shows you how bad you are in csgo!
 
