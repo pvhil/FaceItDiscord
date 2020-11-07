@@ -21,6 +21,10 @@ public class faceitLast20EloPoints {
     public static int totalsumquadro= 0;
     public static int totalsumace= 0;
     public static int highelo;
+    public static int startElo;
+    public static int endElo;
+    public static int lowelo;
+    public static int win=0;
 
     public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
@@ -54,6 +58,10 @@ public class faceitLast20EloPoints {
                 int e7 = Integer.parseInt(elo.getString("i16"));
                 int e8 = Integer.parseInt(elo.getString("i13"));
                 int e9 = Integer.parseInt(elo.getString("i9"));
+
+                if(elo.getString("i10").equalsIgnoreCase("1")){
+                    win++;
+                }
 
                 int runsumkills = e1;
                 totalsumkills = runsumkills + totalsumkills;
@@ -94,13 +102,20 @@ public class faceitLast20EloPoints {
 
         String[] array = fcEloHistory.split(",");
         int largestInt = Integer.MIN_VALUE;
+        int lowestInt = Integer.MAX_VALUE;
         for (String numberAsString : array) {
             int number = Integer.parseInt(numberAsString);
             if (number > largestInt) {
                 largestInt = number;
                 highelo = largestInt;
             }
+            if (number < lowestInt) {
+                lowestInt = number;
+                lowelo = lowestInt;
+            }
         }
+        endElo = Integer.parseInt(array[0]);
+        startElo = Integer.parseInt(array[DiscordMessage.savedCounter-1]);
         System.out.println(largestInt);
 
         return null;

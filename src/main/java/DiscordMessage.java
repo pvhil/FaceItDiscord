@@ -419,7 +419,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     try {
                         faceitLast20EloPoints.main(null);
                     }catch (CompletionException e){
-                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or the graph doesnt load").queue();
+                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or amount of games is too high for this player").queue();
                         e.printStackTrace();
                         faceitOnlyPlayerId.faceitplayerID = null;
                         faceitLast20EloPoints.totalsumkills = 0;
@@ -432,6 +432,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         faceitLast20EloPoints.totalsumtriple = 0;
                         faceitLast20EloPoints.totalsumquadro = 0;
                         faceitLast20EloPoints.totalsumace = 0;
+                        faceitLast20EloPoints.win = 0;
                         return;
                     }
 
@@ -451,6 +452,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     last.addField("Triple Kills", String.valueOf(faceitLast20EloPoints.totalsumtriple), true);
                     last.addField("Quadro Kills", String.valueOf(faceitLast20EloPoints.totalsumquadro), true);
                     last.addField("Aces", String.valueOf(faceitLast20EloPoints.totalsumace), true);
+                    last.addField("Winrate: ", faceitLast20EloPoints.win*100 / savedCounter +"%", true);
+                    last.addField("Start / End Elo: ", faceitLast20EloPoints.startElo+" / "+faceitLast20EloPoints.endElo, true);
+                    last.addField("Min. / Max. Elo: ", faceitLast20EloPoints.lowelo+" / "+faceitLast20EloPoints.highelo, true);
                     last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:["+hello.toString()+"],datasets:[{label:%27EloPoints%27,data:%20["+faceitLast20EloPoints.fcEloHistory+"],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
                     last.setColor(0xe6851e);
 
@@ -467,6 +471,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLast20EloPoints.totalsumtriple = 0;
                     faceitLast20EloPoints.totalsumquadro = 0;
                     faceitLast20EloPoints.totalsumace = 0;
+                    faceitLast20EloPoints.win = 0;
 
 
             }
