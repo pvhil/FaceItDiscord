@@ -15,7 +15,8 @@ A Discord Bot which shows you how bad you are in csgo!
 .faceit (faceitname) (map) = Look at map stats  
 .faceit (faceitname) last15 = Look at your last 15 Matches  
 .faceitrank (region) <country> = Top 15 for your region / country  
-IMPORTANT! Faceitname is case-sensitive
+IMPORTANT! Faceitname is case-sensitive  
+  
 If you need more help, look at our [Examples](https://github.com/pvhil/FaceItDiscord/blob/master/examples.md)
 
 ## Note
