@@ -4,6 +4,8 @@
 [![Donate](https://img.shields.io/badge/Paypal-donate-blue.svg)](https://www.paypal.me/m4rk12) [![Discord](https://img.shields.io/discord/742408927022546975?label=Discord)](https://discord.gg/DUuCMgXDJC)  
 
 [![Add](https://img.shields.io/badge/ADD--TO--DISCORD-blue?logo=discord&style=for-the-badge)](https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot)
+[![top](https://img.shields.io/badge/TOP.GG-purple?logo=discord&style=for-the-badge)](https://top.gg/bot/770312130037153813)
+
 
 A Discord Bot which shows you how bad you are in csgo!
 
