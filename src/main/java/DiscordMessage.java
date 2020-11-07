@@ -23,6 +23,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public static String faceitLevelPNG;
     public static String mapCode;
     public static String plsStop;
+    public static int savedCounter;
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -48,9 +49,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         EmbedBuilder join = new EmbedBuilder();
         join.setAuthor("Thanks for adding the FaceIT-Stats Bot!");
         join.setColor(0xe6851e);
+        join.setThumbnail("https://images.discordapp.net/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512");
         join.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
-        join.setDescription("The Bot has following Commands: \n*.faceit <name>* = Shows your alltime FaceIT Stats\n.*faceit <name> latest* = Shows your Stats from your latest game\n*.faceit <name> <map>* = Shows your performance in a specific map\n*.faceit <name> last15* = Shows your Stats for your last 15 Games\n*.faceitrank <region> [country]* = Top 15 for your Region/Country\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
-        channel.sendMessage(join.build()).queue();
+        join.addField("> .faceit <name> ","Shows your alltime FaceIT Stats", false);
+        join.addField("> .faceit <name> latest "," Shows your Stats from your latest game", false);
+        join.addField("> .faceit <name> <map> "," Shows your performance in a specific map", false);
+        join.addField("> .faceit <name> last (amount of games) "," Shows your Stats for your last games (standard: 15)", false);
+        join.addField("> .faceitrank <region> (opt: country): "," Top 15 for your Region/Country", false);
+        join.addField("> Please vote for our Bot: "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);        Objects.requireNonNull(channel).sendMessage(join.build()).queue();
     }
 
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -100,7 +106,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     if(args[1].equalsIgnoreCase("constructionmode")){
                         if(args[2].equalsIgnoreCase("off")){
                             main.jda.getPresence().setStatus(ONLINE);
-                            main.jda.getPresence().setActivity(Activity.watching(null));
+                            main.jda.getPresence().setActivity(Activity.watching(" .faceithelp"));
                         } else {
                             main.jda.getPresence().setStatus(DO_NOT_DISTURB);
                             main.jda.getPresence().setActivity(Activity.watching("BOT IS IN DEVELOPMENT"));
@@ -113,8 +119,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             EmbedBuilder help = new EmbedBuilder();
             help.setTitle("How to use the Bot:");
             help.setColor(0xe6851e);
+            help.setThumbnail("https://images.discordapp.net/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512");
             help.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
-            help.setDescription("The Bot has following Commands: \n*.faceit <name>* = Shows your alltime FaceIT Stats\n.*faceit <name> latest* = Shows your Stats from your latest game\n*.faceit <name> <map>* = Shows your performance in a specific map\n*.faceit <name> last15* = Shows your Stats for your last 15 Games\n*.faceitrank <region> [country]* = Top 15 for your Region/Country\nPlease vote for our Bot [Click Here](https://top.gg/bot/770312130037153813/vote)");
+            help.addField("> .faceit <name> ","Shows your alltime FaceIT Stats", false);
+            help.addField("> .faceit <name> latest "," Shows your Stats from your latest game", false);
+            help.addField("> .faceit <name> <map> "," Shows your performance in a specific map", false);
+            help.addField("> .faceit <name> last (amount of games) "," Shows your Stats for your last games (standard: 15)", false);
+            help.addField("> .faceitrank <region> (opt: country): "," Top 15 for your Region/Country", false);
+            help.addField("> Please vote for our Bot: "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
             event.getChannel().sendMessage(help.build()).queue();
             return;
         }
@@ -373,8 +385,27 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
 
 
-                } else if (savedMap.equalsIgnoreCase("last15")||savedMap.equalsIgnoreCase("last")) {
-                    event.getChannel().sendMessage("*loading last 15 games*").queue();
+                } else if (savedMap.startsWith("last")||savedMap.equalsIgnoreCase("last")) {
+                    if(savedMap.length()==4){
+                        savedCounter = 15;
+                    } else {
+                        String[] split = savedMap.split("t");
+                        savedCounter = Integer.parseInt(split[1]);
+                        if(savedCounter>=100){
+                            event.getChannel().sendMessage("You can max. load 99 Games!").queue();
+                            return;
+                        }
+                    }
+                    if(savedMap.equalsIgnoreCase("last")&& (args.length ==4)){
+                            savedCounter = Integer.parseInt(args[3]);
+                        if(savedCounter>=100){
+                            event.getChannel().sendMessage("You can max. load 99 Games!").queue();
+                            return;
+                        }
+                    }
+                    StringBuilder hello = new StringBuilder();
+                    hello.append("\"\",".repeat(Math.max(0, savedCounter)));
+                    event.getChannel().sendMessage("*loading last "+savedCounter+" games*").queue();
                     try {
                         faceitOnlyPlayerId.main(null);
                     } catch (InterruptedException | IOException e) {
@@ -390,26 +421,37 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }catch (CompletionException e){
                         event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or the graph doesnt load").queue();
                         e.printStackTrace();
+                        faceitOnlyPlayerId.faceitplayerID = null;
+                        faceitLast20EloPoints.totalsumkills = 0;
+                        faceitLast20EloPoints.totalsumdeaths = 0;
+                        faceitLast20EloPoints.totalsumkd = 0;
+                        faceitLast20EloPoints.realkd = "0";
+                        faceitLast20EloPoints.totalsumassists = 0;
+                        faceitLast20EloPoints.totalsummvps = 0;
+                        faceitLast20EloPoints.totalsumheadshots = 0;
+                        faceitLast20EloPoints.totalsumtriple = 0;
+                        faceitLast20EloPoints.totalsumquadro = 0;
+                        faceitLast20EloPoints.totalsumace = 0;
                         return;
                     }
 
                     EmbedBuilder last = new EmbedBuilder();
-                    last.setTitle("Stats for your last 15 Games");
+                    last.setTitle("Stats for your last "+savedCounter+" Games");
                     try {
                         last.setThumbnail(faceitOnlyPlayerId.faceitAva);
                     }catch (IllegalArgumentException e){
                         System.out.println("no pic");
                     }
-                    last.addField("Average Kills", String.valueOf(faceitLast20EloPoints.totalsumkills/15), true);
-                    last.addField("Average Death", String.valueOf(faceitLast20EloPoints.totalsumdeaths/15), true);
+                    last.addField("Average Kills", String.valueOf(faceitLast20EloPoints.totalsumkills/savedCounter), true);
+                    last.addField("Average Death", String.valueOf(faceitLast20EloPoints.totalsumdeaths/savedCounter), true);
                     last.addField("Average K/D", String.valueOf(faceitLast20EloPoints.realkd), true);
-                    last.addField("Average Assists", String.valueOf(faceitLast20EloPoints.totalsumassists/15), true);
-                    last.addField("Average MVPs", String.valueOf(faceitLast20EloPoints.totalsummvps/15), true);
-                    last.addField("Average Headshots", String.valueOf(faceitLast20EloPoints.totalsumheadshots/15), true);
+                    last.addField("Average Assists", String.valueOf(faceitLast20EloPoints.totalsumassists/savedCounter), true);
+                    last.addField("Average MVPs", String.valueOf(faceitLast20EloPoints.totalsummvps/savedCounter), true);
+                    last.addField("Average Headshots", String.valueOf(faceitLast20EloPoints.totalsumheadshots/savedCounter), true);
                     last.addField("Triple Kills", String.valueOf(faceitLast20EloPoints.totalsumtriple), true);
                     last.addField("Quadro Kills", String.valueOf(faceitLast20EloPoints.totalsumquadro), true);
                     last.addField("Aces", String.valueOf(faceitLast20EloPoints.totalsumace), true);
-                    last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22,%22%22],datasets:[{label:%27EloPoints%27,data:%20["+faceitLast20EloPoints.fcEloHistory+"],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
+                    last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:["+hello.toString()+"],datasets:[{label:%27EloPoints%27,data:%20["+faceitLast20EloPoints.fcEloHistory+"],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
                     last.setColor(0xe6851e);
 
 

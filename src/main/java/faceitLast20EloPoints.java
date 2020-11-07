@@ -38,7 +38,7 @@ public class faceitLast20EloPoints {
         JSONArray value = new JSONArray(responseBody);
         StringBuilder ep = new StringBuilder();
         DecimalFormat df = new DecimalFormat("#.##");
-        int test = 15;
+        int test = DiscordMessage.savedCounter;
         for (int i = 0; i < test; i++) {
             JSONObject elo = value.getJSONObject(i);
             if(elo.has("elo")) {
@@ -88,7 +88,7 @@ public class faceitLast20EloPoints {
 
 
         }
-        realkd = df.format(totalsumkd/15);
+        realkd = df.format(totalsumkd/DiscordMessage.savedCounter);
         System.out.println(totalsumkills/15+" "+totalsumdeaths/15+" "+realkd+" " +totalsumassists/15 +" "+totalsummvps/15+" "+totalsumheadshots/15+" "+totalsumtriple+" "+totalsumquadro+" "+totalsumace+" ");
         fcEloHistory = ep.toString();
 
