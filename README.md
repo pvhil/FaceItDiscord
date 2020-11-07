@@ -27,7 +27,7 @@ Bot is in version 3.0
 Code could be for some people a mess because im still learning java
 
 ## Known Bugs
-When playing in a hub without elo, elo graph is for that game invisible. (i think its fixed?)  
+.faceit player last (ex. 99) could be too high for some players because player played unranked faceit games which cant be added to the equation (NOT fixable) -> use lower amount    
   
 If you know a bug please contact me on my [Discord Server](https://discord.gg/DUuCMgXDJC)
 
