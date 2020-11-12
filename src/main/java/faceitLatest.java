@@ -55,9 +55,19 @@ public class faceitLatest {
 
         StringBuilder sb1 = new StringBuilder();
         for (int i = 0; i < 5; i++) {
+            JSONObject a1 = pplayers2.getJSONObject(i);
             JSONObject a = pplayers1.getJSONObject(i);
             if(wwinner.equalsIgnoreCase("faction1")){
                 if(userexists(a,faceitOnlyPlayerId.faceitplayerID)){
+                    System.out.println("its working");
+                    isitWin = "true";
+                }else {
+                    System.out.println("could work");
+
+                }
+            }
+            if(wwinner.equalsIgnoreCase("faction2")){
+                if(userexists(a1,faceitOnlyPlayerId.faceitplayerID)){
                     System.out.println("its working");
                     isitWin = "true";
                 }else {
