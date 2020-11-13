@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 
 import static net.dv8tion.jda.api.OnlineStatus.*;
 
@@ -24,6 +25,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public static String mapCode;
     public static String plsStop;
     public static int savedCounter;
+    public EmbedBuilder search = new EmbedBuilder();
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -40,6 +42,15 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         }
         return emojiStr.toString();
     }
+    public void unvalidPlayer(){
+        faceitPlayersearch.main(null);
+        search.setTitle("The Player you searched does not exist");
+        search.addField("Loading this Player: ","```"+faceitPlayersearch.nickname+"```", false);
+        search.setFooter("Remember the FaceIT name is case-sensitive!");
+        faceitAPI.faceitplayerID = faceitPlayersearch.id;
+        faceitOnlyPlayerId.faceitplayerID = faceitPlayersearch.id;
+        savedArgs = faceitPlayersearch.nickname;
+    }
     public void onGuildJoin(GuildJoinEvent event){
         //joinevent
         Guild guild = event.getGuild();
@@ -52,11 +63,12 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         join.setThumbnail("https://images.discordapp.net/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512");
         join.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
         join.addField("> .faceit <name> ","Shows your alltime FaceIT Stats", false);
-        join.addField("> .faceit <name> latest "," Shows your Stats from your latest game", false);
+        join.addField("> .faceit <name> latest (opt: number)"," Shows your Stats from your latest game\nWith a given number you can look at your for ex. second latest game (*.faceit latest <name> 2*)", false);
         join.addField("> .faceit <name> <map> "," Shows your performance in a specific map", false);
         join.addField("> .faceit <name> last (amount of games) "," Shows your Stats for your last games (standard: 15)", false);
         join.addField("> .faceitrank <region> (opt: country): "," Top 15 for your Region/Country", false);
-        join.addField("> Please vote for our Bot: "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);        Objects.requireNonNull(channel).sendMessage(join.build()).queue();
+        join.addField("> Please vote for our Bot: "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
+        Objects.requireNonNull(channel).sendMessage(join.build()).queue();
     }
 
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -122,7 +134,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             help.setThumbnail("https://images.discordapp.net/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512");
             help.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
             help.addField("> .faceit <name> ","Shows your alltime FaceIT Stats", false);
-            help.addField("> .faceit <name> latest "," Shows your Stats from your latest game", false);
+            help.addField("> .faceit <name> latest (opt: number)"," Shows your Stats from your latest game\nWith a given number you can look at your for ex. second latest game (*.faceit latest <name> 2*)", false);
             help.addField("> .faceit <name> <map> "," Shows your performance in a specific map", false);
             help.addField("> .faceit <name> last (amount of games) "," Shows your Stats for your last games (standard: 15)", false);
             help.addField("> .faceitrank <region> (opt: country): "," Top 15 for your Region/Country", false);
@@ -130,6 +142,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             event.getChannel().sendMessage(help.build()).queue();
             return;
         }
+        //extra: rank
         if (args[0].equalsIgnoreCase(".faceitrank")) {
             if(args.length >= 2) {
                 savedRegion = args[1].toUpperCase();
@@ -180,14 +193,20 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     e.printStackTrace();
                     event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                 } catch (InterruptedException | CompletionException e) {
-                    event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
-                    faceitStats.faceitRecent = null;
-                    faceitStats.faceitKD = null;
-                    faceitStats.faceitWins = null;
-                    faceitStats.faceitLongest = null;
-                    faceitStats.faceitRate = null;
-                    e.printStackTrace();
-                    return;
+                    try {
+                        unvalidPlayer();
+                    }catch (CompletionException e1){
+                        event.getChannel().sendMessage("Wrong FaceIT Name!");
+                        return;
+                    }
+                    event.getChannel().sendMessage(search.build()).queue( message -> message.delete().queueAfter(3, TimeUnit.SECONDS) );
+                    search.clearFields();
+                    try {
+                        faceitAPI.main(null);
+                    } catch (IOException | InterruptedException g) {
+                        g.printStackTrace();
+                        event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                    }
                 }
 
 
@@ -243,7 +262,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 info.addField("Longest Winstreak", faceitStats.longestwins+" Wins", true);
                 info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "\u274C").replaceAll("\"", ""), true);
                 info.addField("Headshot %: ", faceitStats.headshotperc+"%", true);
-                info.addField("AFK / Left early: ", String.valueOf(faceitAPI.faceitAfk) + " / " + String.valueOf(faceitAPI.faceitLeave), true);
+                info.addField("AFK / Left early: ", faceitAPI.faceitAfk + " / " + faceitAPI.faceitLeave, true);
                 info.setFooter("\uD83C\uDF10 Rank: "+faceitPlayerRanking.regionRank+" | "+countryCodeToEmoji(faceitAPI.faceitplayerCountry)+" Rank: "+faceitPlayerRanking.countryRank);
                 info.setColor(0xe6851e);
 
@@ -258,21 +277,43 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 savedArgs = args[1];
                 savedMap = args[2];
                 if (savedMap.equalsIgnoreCase("latest")) {
-                    event.getChannel().sendMessage("*loading latest Match*").queue();
+                    savedCounter = 1;
+                    if(args.length==4){
+                        savedCounter = Integer.parseInt(args[3]);
+                        event.getChannel().sendMessage("*loading "+savedCounter+". Match from now*").queue();
+                    }else {
+                        event.getChannel().sendMessage("*loading latest Match*").queue();
+                    }
                     try {
                         faceitOnlyPlayerId.main(null);
-                    } catch (InterruptedException | IOException e) {
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (CompletionException e) {
-                        e.printStackTrace();
-                        event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
-                        return;
+                        try {
+                            faceitOnlyPlayerId.main(null);
+                        } catch (InterruptedException | CompletionException l) {
+                            try {
+                                unvalidPlayer();
+                            }catch (CompletionException e1){
+                                event.getChannel().sendMessage("Wrong FaceIT Name!");
+                                return;
+                            }
+                            event.getChannel().sendMessage(search.build()).queue( message -> message.delete().queueAfter(3, TimeUnit.SECONDS) );
+                            search.clearFields();
+                            try {
+                                faceitOnlyPlayerId.main(null);
+                            } catch (InterruptedException g) {
+                                g.printStackTrace();
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                            }
+                        }
+
                     }
 
                     try {
                         faceitLatest.main(null);
                     }catch (CompletionException e){
-                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo?").queue();
+                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or given number is too high.").queue();
                     }
                     EmbedBuilder latestem = new EmbedBuilder();
                     latestem.setTitle(faceitLatest.team1 + " vs " + faceitLatest.team2, null);
@@ -293,7 +334,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     latestem.addField("Headshots: ", faceitdetailedMatch.headshots, true);
                     latestem.addField("MVPs: ", faceitdetailedMatch.mvps, true);
 
-                    latestem.setFooter("Match played at "+String.valueOf(faceitLatest.matchTime), "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
+                    latestem.setFooter("Match played at "+ faceitLatest.matchTime, "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
                     latestem.setDescription("[Link to Game]("+faceitLatest.latestGameURL+")");
 
                     if (faceitLatest.isitWin.equals("true")) {
@@ -320,12 +361,28 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     plsStop ="false";
                     try {
                         faceitOnlyPlayerId.main(null);
-                    } catch (InterruptedException | IOException e) {
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (CompletionException e) {
-                        e.printStackTrace();
-                        event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
-                        return;
+                        try {
+                            faceitOnlyPlayerId.main(null);
+                        } catch (InterruptedException | CompletionException l) {
+                            try {
+                                unvalidPlayer();
+                            }catch (CompletionException e1){
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                                return;
+                            }
+                            event.getChannel().sendMessage(search.build()).queue( message -> message.delete().queueAfter(3, TimeUnit.SECONDS) );
+                            search.clearFields();
+                            try {
+                                faceitOnlyPlayerId.main(null);
+                            } catch (InterruptedException g) {
+                                g.printStackTrace();
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                            }
+                        }
+
                     }
                     if (savedMap.equalsIgnoreCase("dust2")) {
                         mapCode = "de_dust2";
@@ -408,12 +465,28 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     event.getChannel().sendMessage("*loading last "+savedCounter+" games*").queue();
                     try {
                         faceitOnlyPlayerId.main(null);
-                    } catch (InterruptedException | IOException e) {
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (CompletionException e) {
-                        e.printStackTrace();
-                        event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
-                        return;
+                        try {
+                            faceitOnlyPlayerId.main(null);
+                        } catch (InterruptedException | CompletionException l) {
+                            try {
+                                unvalidPlayer();
+                            }catch (CompletionException e1){
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                                return;
+                            }
+                            event.getChannel().sendMessage(search.build()).queue( message -> message.delete().queueAfter(3, TimeUnit.SECONDS) );
+                            search.clearFields();
+                            try {
+                                faceitOnlyPlayerId.main(null);
+                            } catch (InterruptedException g) {
+                                g.printStackTrace();
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                            }
+                        }
+
                     }
 
                     try {
@@ -480,8 +553,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             }
 
         }
+
             }
         }
     }
-
-

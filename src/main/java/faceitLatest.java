@@ -24,7 +24,7 @@ public class faceitLatest {
                 .GET()
                 .header("accept", "application/json")
                 .header("Authorization", "Bearer "+main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/players/"+faceitOnlyPlayerId.faceitplayerID+"/history?game=csgo&offset=0&limit=1"))
+                .uri(URI.create("https://open.faceit.com/data/v4/players/"+faceitOnlyPlayerId.faceitplayerID+"/history?game=csgo&offset=0&limit="+DiscordMessage.savedCounter))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
@@ -38,7 +38,7 @@ public class faceitLatest {
     public static String parse(String responseBody) {
         JSONObject values = new JSONObject(responseBody);
         JSONArray themap = values.getJSONArray("items");
-        JSONObject map = themap.getJSONObject(0);
+        JSONObject map = themap.getJSONObject(DiscordMessage.savedCounter - 1);
         JSONObject xx = map.getJSONObject("teams");
         String link = map.getString("faceit_url");
         JSONObject frac1 = xx.getJSONObject("faction1");
