@@ -1,6 +1,7 @@
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.TimeUnit;
 
 import static net.dv8tion.jda.api.OnlineStatus.*;
 
@@ -26,6 +26,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public static String plsStop;
     public static int savedCounter;
     public EmbedBuilder search = new EmbedBuilder();
+    public Message toSend;
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -199,7 +200,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         event.getChannel().sendMessage("Wrong FaceIT Name!");
                         return;
                     }
-                    event.getChannel().sendMessage(search.build()).queue( message -> message.delete().queueAfter(3, TimeUnit.SECONDS) );
+                    event.getChannel().sendMessage(search.build()).queue( message -> toSend = message);
                     search.clearFields();
                     try {
                         faceitAPI.main(null);
@@ -267,6 +268,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 info.setColor(0xe6851e);
 
                 event.getChannel().sendMessage(info.build()).queue();
+                toSend.delete().queue();
                 //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
 
@@ -298,7 +300,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 event.getChannel().sendMessage("Wrong FaceIT Name!");
                                 return;
                             }
-                            event.getChannel().sendMessage(search.build()).queue( message -> message.delete().queueAfter(3, TimeUnit.SECONDS) );
+                            event.getChannel().sendMessage(search.build()).queue( message -> toSend = message);
                             search.clearFields();
                             try {
                                 faceitOnlyPlayerId.main(null);
@@ -346,6 +348,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }
 
                     event.getChannel().sendMessage(latestem.build()).queue();
+                    toSend.delete().queue();
                     faceitLatest.players1 = null;
                     faceitLatest.players2 = null;
                     faceitLatest.latestGameURL = null;
@@ -373,7 +376,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                                 return;
                             }
-                            event.getChannel().sendMessage(search.build()).queue( message -> message.delete().queueAfter(3, TimeUnit.SECONDS) );
+                            event.getChannel().sendMessage(search.build()).queue( message -> toSend = message);
                             search.clearFields();
                             try {
                                 faceitOnlyPlayerId.main(null);
@@ -438,6 +441,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
 
                         event.getChannel().sendMessage(mapem.build()).queue();
+                        toSend.delete().queue();
                         faceitOnlyPlayerId.faceitplayerID = null;
 
 
@@ -477,7 +481,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                                 return;
                             }
-                            event.getChannel().sendMessage(search.build()).queue( message -> message.delete().queueAfter(3, TimeUnit.SECONDS) );
+                            event.getChannel().sendMessage(search.build()).queue( message -> toSend = message);
                             search.clearFields();
                             try {
                                 faceitOnlyPlayerId.main(null);
@@ -533,6 +537,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
 
                     event.getChannel().sendMessage(last.build()).queue();
+                    toSend.delete().queue();
                     faceitOnlyPlayerId.faceitplayerID = null;
                     faceitLast20EloPoints.totalsumkills = 0;
                     faceitLast20EloPoints.totalsumdeaths = 0;

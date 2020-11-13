@@ -18,7 +18,7 @@ public class main implements EventListener {
         jda = JDABuilder.createDefault(BOTTOKEN)
                 .addEventListeners(new DiscordMessage())
                 .build();
-        main.jda.getPresence().setActivity(Activity.watching(".faceithelp"));
+        main.jda.getPresence().setActivity(Activity.watching("your stats | .faceithelp"));
     }
     @Override
     public void onEvent(@NotNull GenericEvent genericEvent) {
