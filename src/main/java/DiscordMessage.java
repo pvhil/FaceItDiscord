@@ -3,10 +3,12 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -52,10 +54,25 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         faceitOnlyPlayerId.faceitplayerID = faceitPlayersearch.id;
         savedArgs = faceitPlayersearch.nickname;
     }
+    //apis (class not public on github)
+    public void onReady(@NotNull ReadyEvent event){
+        try {
+            apis.main(null);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void onGuildJoin(GuildJoinEvent event){
         //joinevent
         Guild guild = event.getGuild();
         TextChannel channel = guild.getDefaultChannel();
+        //update api stats (class not public on github)
+        try {
+            apis.main(null);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
 
         Objects.requireNonNull(Objects.requireNonNull(main.jda.getGuildById("742408927022546975")).getTextChannelById("773217090924314694")).sendMessage("*"+event.getGuild().getName()+"*"+" now uses the bot").queue();
         EmbedBuilder join = new EmbedBuilder();
@@ -73,6 +90,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     }
 
     public void onMessageReceived(MessageReceivedEvent event) {
+        if(event.getAuthor().isBot()){
+            return;
+        }
         java.lang.String[] args = event.getMessage().getContentRaw().split("\\s+");
         //admin
         if (args[0].equalsIgnoreCase(".faceitadminstats")){
@@ -197,7 +217,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     try {
                         unvalidPlayer();
                     }catch (CompletionException e1){
-                        event.getChannel().sendMessage("Wrong FaceIT Name!");
+                        event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                         return;
                     }
                     event.getChannel().sendMessage(search.build()).queue( message -> toSend = message);
@@ -286,18 +306,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }else {
                         event.getChannel().sendMessage("*loading latest Match*").queue();
                     }
-                    try {
-                        faceitOnlyPlayerId.main(null);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (CompletionException e) {
+
                         try {
                             faceitOnlyPlayerId.main(null);
                         } catch (InterruptedException | CompletionException l) {
                             try {
                                 unvalidPlayer();
                             }catch (CompletionException e1){
-                                event.getChannel().sendMessage("Wrong FaceIT Name!");
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                                 return;
                             }
                             event.getChannel().sendMessage(search.build()).queue( message -> toSend = message);
@@ -310,7 +326,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                             }
                         }
 
-                    }
+
 
                     try {
                         faceitLatest.main(null);
