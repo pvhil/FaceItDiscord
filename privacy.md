@@ -1,2 +1,2 @@
 # Privacy Policy  
-No data is stored when you use the bot. 
+No data is stored using the Bot. 
