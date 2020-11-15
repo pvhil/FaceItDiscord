@@ -79,7 +79,15 @@ public class faceitLatest {
 
 
             String player1 = a.getString("nickname");
-            sb1.append(player1 +" "+"\n"+" ");
+            if(player1.startsWith("_")||player1.startsWith("*")&&!player1.contains(DiscordMessage.savedArgs)){
+                player1 = player1.replace("*","\\*");
+                player1 = player1.replace("_","\\_");
+            }
+            if(player1.contains(DiscordMessage.savedArgs)){
+                player1 = "***"+player1+"***";
+                System.out.println(player1);
+            }
+            sb1.append(player1 +"\n ");
 
 
         }
@@ -88,7 +96,15 @@ public class faceitLatest {
         for (int i = 0; i < 5; i++){
             JSONObject a = pplayers2.getJSONObject(i);
             String player2 = a.getString("nickname");
-            sb2.append(player2+" "+"\n"+" ");
+            if(player2.startsWith("_")||player2.startsWith("*")&&!player2.contains(DiscordMessage.savedArgs)){
+                player2 = player2.replace("*","\\*");
+                player2 = player2.replace("_","\\_");
+            }
+            if(player2.contains(DiscordMessage.savedArgs)){
+                player2 = "***"+player2+"***";
+                System.out.println(player2);
+            }
+            sb2.append(player2+"\n ");
         }
         String pp2 = sb2.toString();
             team1 = t1;

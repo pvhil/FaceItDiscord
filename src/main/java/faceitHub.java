@@ -5,83 +5,101 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.CompletionException;
 
-public class faceitRanking {
+public class faceitHub {
+    public static String hubid;
+    public static String name;
+    public static String icon;
+    public static String desc;
+    public static int playersc;
     public static String topr;
+    public static String perm;
+    public static int mins;
+    public static int maxs;
+    public static String link;
+    public static String working;
+
     public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
                 .header("Authorization", "Bearer "+main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/rankings/games/csgo/regions/"+DiscordMessage.savedRegion+"?offset=0&limit=15"))
+                .uri(URI.create("https://open.faceit.com/data/v4/search/hubs?name="+DiscordMessage.hub+"&offset=0&limit=1"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenApply(faceitRanking::parse)
+                .thenApply(faceitHub::parse)
                 .join();
     }
-    public static void country() {
+    public static void mainhub(String args) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
                 .header("Authorization", "Bearer "+main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/rankings/games/csgo/regions/"+DiscordMessage.savedRegion+"?country="+DiscordMessage.savedCountry+"&offset=0&limit=15"))
+                .uri(URI.create("https://open.faceit.com/data/v4/hubs/"+args))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenApply(faceitRanking::parse)
+                .thenApply(faceitHub::parsemain)
                 .join();
     }
-    public static void fpleu() {
+    public static void hubrank(String args) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
                 .header("Authorization", "Bearer "+main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/74caad23-077b-4ef3-8b1d-c6a2254dfa75/seasons/39?offset=0&limit=15"))
+                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/"+args+"/general?offset=0&limit=10"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenApply(faceitRanking::fplparse)
+                .thenApply(faceitHub::parserank)
                 .join();
     }
-    public static void fplus() {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
-                .GET()
-                .header("accept", "application/json")
-                .header("Authorization", "Bearer "+main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/748cf78c-be73-4eb9-b131-21552f2f8b75/seasons/32?offset=0&limit=15"))
-                .build();
-        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenApply(faceitRanking::fplparse)
-                .join();
-    }
-
     public static String parse(String responseBody){
         JSONObject obj = new JSONObject(responseBody);
-        JSONArray it = obj.getJSONArray("items");
-        StringBuilder ept = new StringBuilder();
-        for(int i = 0; i< 15; i++) {
-            JSONObject test = it.getJSONObject(i);
-            String namet = test.getString("nickname");
-            namet = "***"+namet+"***";
-            int elot = test.getInt("faceit_elo");
-            int lvlt = test.getInt("game_skill_level");
-            ept.append(i+1+". "+namet+": "+"Elo: "+elot+" | "+"Level: "+lvlt+ "\n");
-
+        JSONArray array = obj.getJSONArray("items");
+        JSONObject test = array.getJSONObject(0);
+        hubid = test.getString("competition_id");
+        mainhub(hubid);
+        try{
+            hubrank(hubid);
+        }catch (CompletionException g){
+            System.out.println("couldnt load leaderboard");
+            working = "false";
         }
-        topr = (ept.toString());
+
+
         return null;
     }
-    public static String fplparse(String responseBody){
+    public static String parsemain(String responseBody){
+        JSONObject obj = new JSONObject(responseBody);
+        name = obj.getString("name");
+        try {
+            icon = obj.getString("avatar");
+        }catch (CompletionException ignored){}
+
+        desc = obj.getString("description");
+        playersc = obj.getInt("players_joined");
+        perm = obj.getString("join_permission");
+        link = obj.getString("faceit_url");
+        mins = obj.getInt("min_skill_level");
+        maxs = obj.getInt("max_skill_level");
+
+        link = link.replaceAll("lang", "en")
+                .replace("{", "")
+                .replace("}", "");
+
+        return null;
+    }
+    public static String parserank(String responseBody){
         JSONObject obj = new JSONObject(responseBody);
         JSONArray it = obj.getJSONArray("items");
         StringBuilder ept = new StringBuilder();
-        for(int i = 0; i< 15; i++) {
+        for(int i = 0; i<= 9; i++) {
             JSONObject test = it.getJSONObject(i);
             int played = test.getInt("played");
             double winrate = test.getDouble("win_rate");
@@ -93,7 +111,8 @@ public class faceitRanking {
 
         }
         topr = (ept.toString());
+        working = "true";
         return null;
     }
-}
 
+}

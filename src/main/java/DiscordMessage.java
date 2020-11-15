@@ -29,6 +29,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public static int savedCounter;
     public EmbedBuilder search = new EmbedBuilder();
     public Message toSend;
+    public static String hub;
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -85,7 +86,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         join.addField("> .faceit <name> <map> "," Shows your performance in a specific map", false);
         join.addField("> .faceit <name> last (amount of games) "," Shows your Stats for your last games (standard: 15)", false);
         join.addField("> .faceitrank <region> (opt: country): "," Top 15 for your Region/Country", false);
-        join.addField("> Please vote for our Bot: "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
+        join.addField("> .faceitrank fpl eu/us: "," Current Leaderboard of the FPL EU/US", false);
+        join.addField("> .faceithub <name of hub> "," Information about a FaceIT Hub and its leaderboard", false);
+        join.addField("> Please vote for our Bot, it would really help!: "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
         Objects.requireNonNull(channel).sendMessage(join.build()).queue();
     }
 
@@ -108,6 +111,10 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     event.getChannel().sendMessage(adminstats.build()).queue();
                 }
                 if(args.length >= 2 ){
+                    if(args[1].equalsIgnoreCase("voters")){
+                        apis.topggVotes();
+                        event.getChannel().sendMessage("Watch console").queue();
+                    }
                     if(args[1].equalsIgnoreCase("presence")){
                         String activity = args[2];
                         String activity1 = args[3];
@@ -159,7 +166,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             help.addField("> .faceit <name> <map> "," Shows your performance in a specific map", false);
             help.addField("> .faceit <name> last (amount of games) "," Shows your Stats for your last games (standard: 15)", false);
             help.addField("> .faceitrank <region> (opt: country): "," Top 15 for your Region/Country", false);
-            help.addField("> Please vote for our Bot: "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
+            help.addField("> .faceitrank fpl eu/us: "," Current Leaderboard of the FPL EU/US", false);
+            help.addField("> .faceithub <name of hub> "," Information about a FaceIT Hub and its leaderboard", false);
+            help.addField("> Please vote for our Bot, it would really help! "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
             event.getChannel().sendMessage(help.build()).queue();
             return;
         }
@@ -173,7 +182,22 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 event.getChannel().sendMessage("*loading top 15*").queue();
                 EmbedBuilder ranks = new EmbedBuilder();
                 try {
-                    if (savedCountry == null) {
+                    if(savedRegion.equalsIgnoreCase("FPL")){
+                        if(savedCountry==null){
+                            event.getChannel().sendMessage("Use a region (*us/eu*)").queue();
+                            return;
+                        }
+                        if(savedCountry.equalsIgnoreCase("us")){
+                            faceitRanking.fplus();
+                        }
+                        else if(savedCountry.equalsIgnoreCase("eu")){
+                            faceitRanking.fpleu();
+                        } else {
+                            event.getChannel().sendMessage("Use a region (*us/eu*)").queue();
+                            return;
+                        }
+                    }
+                     else if (savedCountry == null) {
                         savedCountry = "";
                         faceitRanking.main(null);
                         ranks.setThumbnail("https://www.countryflags.io/"+savedRegion+"/flat/64.png");
@@ -192,11 +216,53 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
 
                 event.getChannel().sendMessage(ranks.build()).queue();
-                savedCountry = null;
             } else {
-                event.getChannel().sendMessage("Please Use a region like *eu* , *us*").queue();
-                savedCountry = null;
+                event.getChannel().sendMessage("Please Use a region like *eu* , *fpl eu/us* , *us* and maybe a country").queue();
             }
+            savedCountry = null;
+        }
+        //hub
+        if(args[0].equalsIgnoreCase(".faceithub")){
+            if(args.length ==1){
+                event.getChannel().sendMessage("Specify a hub").queue();
+                return;
+            }
+            event.getChannel().sendMessage("*loading hub*").queue();
+            int hello = args.length;
+            StringBuilder hub = new StringBuilder();
+            for(int i = 1;i <hello;i++){
+                hub.append(args[i]).append("%20");
+            }
+            System.out.println(hub.toString());
+            DiscordMessage.hub = hub.toString();
+            try {
+                faceitHub.main(null);
+            }catch (CompletionException e){
+                event.getChannel().sendMessage("Hub is invalid!").queue();
+                return;
+            }
+            EmbedBuilder hubem = new EmbedBuilder();
+            hubem.setTitle("Hub "+faceitHub.name);
+            hubem.setDescription(faceitHub.desc);
+            hubem.addField("Players: ", String.valueOf(faceitHub.playersc),true);
+            hubem.addField("Min/Max Elolevel: ", faceitHub.mins +" / "+faceitHub.maxs, true);
+            hubem.addField("Permissions: ",faceitHub.perm,true);
+            hubem.addField("FaceIT Link: ","[Link to FaceIT Hub]("+faceitHub.link+")",false);
+            try {
+                hubem.setThumbnail(faceitHub.icon);
+            }catch (IllegalArgumentException e){
+                System.out.println("no pic");
+            }
+            hubem.setColor(0xe6851e);
+            EmbedBuilder hubstats = new EmbedBuilder();
+            hubstats.setTitle("Leaderboard: ");
+            hubstats.setDescription(faceitHub.topr);
+            hubstats.setColor(0xe6851e);
+            event.getChannel().sendMessage(hubem.build()).queue();
+            if(faceitHub.working.equalsIgnoreCase("true")) {
+                event.getChannel().sendMessage(hubstats.build()).queue();
+            }
+
         }
 
         //Normal User
@@ -224,9 +290,10 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     search.clearFields();
                     try {
                         faceitAPI.main(null);
-                    } catch (IOException | InterruptedException g) {
+                    } catch (IOException | InterruptedException | CompletionException g) {
                         g.printStackTrace();
-                        event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                        event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
+                        toSend.delete().queue();
                     }
                 }
 
@@ -320,9 +387,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                             search.clearFields();
                             try {
                                 faceitOnlyPlayerId.main(null);
-                            } catch (InterruptedException g) {
-                                g.printStackTrace();
-                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                            } catch (InterruptedException| CompletionException g ) {
+                                event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
+                                toSend.delete().queue();
                             }
                         }
 
@@ -396,9 +463,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                             search.clearFields();
                             try {
                                 faceitOnlyPlayerId.main(null);
-                            } catch (InterruptedException g) {
-                                g.printStackTrace();
-                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                            } catch (InterruptedException| CompletionException g) {
+                                event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
+                                toSend.delete().queue();
                             }
                         }
 
@@ -501,9 +568,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                             search.clearFields();
                             try {
                                 faceitOnlyPlayerId.main(null);
-                            } catch (InterruptedException g) {
-                                g.printStackTrace();
-                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                            } catch (InterruptedException| CompletionException g) {
+                                event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
+                                toSend.delete().queue();
                             }
                         }
 
@@ -570,7 +637,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
             }
                 else {
-                event.getChannel().sendMessage("Wrong 3rd Argument! Use *latest* to see your last game, *last15* to see your last 15 Games or any map like *dust2* to see your map stats").queue();
+                event.getChannel().sendMessage("Wrong Argument! Use *.faceithelp* if you need help").queue();
             }
 
         }
