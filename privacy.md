@@ -3,7 +3,7 @@
 ### By using the FaceITBot you accept with its privacy policy. 
 
 ### 1. What does it store?
-#### Dredd stores the following: 
+#### FaceITBot stores the following: 
 ##### • User IDs and FaceIT Names (only by using .faceitsave)
 ##### • It does NOT save anything by using every other command
 
