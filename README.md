@@ -20,6 +20,12 @@ IMPORTANT! Faceitname is case-sensitive
 * <code>.faceit (faceitname) (map)</code> = Look at map stats  
 * <code>.faceit (faceitname) last (amount of games)</code> = Shows your Stats for your last games (standard: 15)  
 * <code>.faceitrank (region) (opt: country)</code> = Top 15 for your region / country  
+* <code>.faceitrank fpl eu/us</code> = Current Leaderboard of the FPL  
+* <code>.faceithub (hub)</code> = Information and Leaderboard for a hub  
+<p></p>
+  
+* <code>.faceithubsettings </code> = Settings for the discord server admin (with MANAGE-ROLES permission)  
+* <code>.faceitsave (name)</code> = Save your name for more comfortability. This is only for [Voters](https://top.gg/bot/770312130037153813)  
 
   
 If you need more help, look at our [Examples](https://github.com/pvhil/FaceItDiscord/blob/master/examples.md)
@@ -35,6 +41,6 @@ Code could be for some people a mess because im still learning java
 If you know a bug please contact me on my [Discord Server](https://discord.gg/DUuCMgXDJC)
 
 ## Disclaimer
-FACEITDiscord/FaceITBot/FaceITDiscordBot is a third-party application and not affiliated with FACEIT.
+FACEITDiscord/FaceITBot/FaceITDiscordBot is a third-party application and not affiliated with FACEIT. [Privacy Policy](https://github.com/pvhil/FaceItDiscord/blob/master/privacy.md)
 
  
