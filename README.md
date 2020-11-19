@@ -40,6 +40,12 @@ Code could be for some people a mess because im still learning java
   
 If you know a bug please contact me on my [Discord Server](https://discord.gg/DUuCMgXDJC)
 
+## Can i host this bot by my own?
+Of course you can. But please do not act like it is your written code.  
+I will not help you to host this bot by yourself. You need to edit the code to your preferences.  
+Please do not use this code commercially and only for your private things if you really want to host it yourself.  
+It would really be better if you just add the bot. [Invite](https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot)
+
 ## Disclaimer
 FACEITDiscord/FaceITBot/FaceITDiscordBot is a third-party application and not affiliated with FACEIT. [Privacy Policy](https://github.com/pvhil/FaceItDiscord/blob/master/privacy.md)
 
