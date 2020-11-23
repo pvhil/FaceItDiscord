@@ -1,9 +1,11 @@
 import org.json.JSONObject;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 public class faceitOnlyPlayerId {
     public static String faceitplayerID;
@@ -15,7 +17,7 @@ public class faceitOnlyPlayerId {
                 .GET()
                 .header("accept", "application/json")
                 .header("Authorization", "Bearer " + main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/players?nickname=" + DiscordMessage.savedArgs))
+                .uri(URI.create("https://open.faceit.com/data/v4/players?nickname=" + URLEncoder.encode(DiscordMessage.savedArgs, StandardCharsets.UTF_8)))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)

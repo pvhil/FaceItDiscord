@@ -70,7 +70,17 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         }
     }
     public void onGuildLeave(GuildLeaveEvent event){
-        Objects.requireNonNull(Objects.requireNonNull(main.jda.getGuildById("742408927022546975")).getTextChannelById("773217090924314694")).sendMessage("*"+event.getGuild().getName()+"*"+" DELETED the bot (Servers: "+main.jda.getGuilds().size()+")").queue();
+        name = event.getGuild().getId();
+        try {
+            Statement stmt = main.conn.createStatement();
+            stmt.execute("DELETE FROM settings WHERE serverid=" + name);
+            stmt.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        name = null;
+
+        Objects.requireNonNull(Objects.requireNonNull(main.jda.getGuildById("742408927022546975")).getTextChannelById("773217090924314694")).sendMessage("*" + event.getGuild().getName() + "*" + " DELETED the bot (Servers: " + main.jda.getGuilds().size() + ")").queue();
     }
 
     public void onGuildJoin(GuildJoinEvent event){
@@ -320,11 +330,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             }
         //Settings for admins/mods
         }if(args[0].equalsIgnoreCase(".faceitsettings")) {
+            if (!Objects.requireNonNull(event.getMember()).hasPermission(Permission.MANAGE_ROLES) || event.getAuthor().isBot()) {
+                return;
+            }
             if (args.length == 1) {
                 EmbedBuilder settings = new EmbedBuilder();
                 settings.setTitle("Settings for Discord Server admins")
-                        .addField(".faceitsettings shortcmd on/off","Will allow you to use *.f*",false)
-                        .addField(".faceitsettings ban add/clear","Will disallow a player to use the bot / clears banned players",false)
+                        .addField(".faceitsettings shortcmd on/off", "Will allow you to use *.f*", false)
+                        .addField(".faceitsettings ban add/clear", "Will disallow a player to use the bot / clears banned players", false)
                         .setFooter("More settings will be added");
                 event.getChannel().sendMessage(settings.build()).queue();
                 return;
@@ -332,7 +345,6 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             //.f
             if (args[1].equalsIgnoreCase("shortcmd")) {
                 name = event.getMessage().getGuild().getId();
-                if(event.getMember().hasPermission(Permission.valueOf("MANAGE_ROLES")))
                 if (args[2].equalsIgnoreCase("on")) {
                     int test = 9;
                     try {
@@ -396,6 +408,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
                 }
             }
+
+
         }
 
         //Normal User
@@ -426,23 +440,339 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     if (rs.next()) {
                         System.out.println(rs.getString(3));
                         int inte = rs.getInt(3);
-                        if(!(inte ==9)){
+                        if (!(inte == 9)) {
                             return;
                         }
-                    }else return;
+                    } else return;
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
 
 
             }
+            //voters last map latest
+            if (args.length == 2 || args.length == 3) {
+                try {
+                    savedMap = args[1];
+                    if (args.length == 3) {
+                        try {
+                            savedCounter = Integer.parseInt(args[2]);
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                    name = event.getMessage().getAuthor().getId();
+                    Statement stmt = main.conn.createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM stats WHERE discord=" + name);
+                    if (args[1].equalsIgnoreCase("last") || args[1].equalsIgnoreCase("latest") || savedMap.equalsIgnoreCase("dust2") || savedMap.equalsIgnoreCase("mirage") || savedMap.equalsIgnoreCase("train") || savedMap.equalsIgnoreCase("cache") || savedMap.equalsIgnoreCase("overpass") || savedMap.equalsIgnoreCase("vertigo") || savedMap.equalsIgnoreCase("inferno") || savedMap.equalsIgnoreCase("nuke")) {
+                        if (rs.next()) {
+                            System.out.println(rs.getString(2));
+                            savedArgs = rs.getString(2);
+
+                            //latest
+                            if (args[1].equalsIgnoreCase("latest")) {
+                                savedCounter = 1;
+                                {
+                                    if (args.length == 3) {
+                                        savedCounter = Integer.parseInt(args[2]);
+                                        event.getChannel().sendMessage("*loading " + savedCounter + ". Match from now (saved user)*").queue();
+                                    } else {
+                                        event.getChannel().sendMessage("*loading latest Match from saved user*").queue();
+                                    }
+
+                                    try {
+                                        faceitOnlyPlayerId.main(null);
+                                    } catch (InterruptedException | CompletionException l) {
+                                        try {
+                                            unvalidPlayer();
+                                        } catch (CompletionException e1) {
+                                            event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                                            return;
+                                        }
+                                        event.getChannel().sendMessage(search.build()).queue(message -> toSend = message);
+                                        search.clearFields();
+                                        try {
+                                            faceitOnlyPlayerId.main(null);
+                                        } catch (InterruptedException | CompletionException g) {
+                                            event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
+                                            toSend.delete().queue();
+                                        }
+                                    }
+
+
+                                    try {
+                                        faceitLatest.main(null);
+                                    } catch (CompletionException e) {
+                                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or given number is too high.").queue();
+                                    }
+                                    EmbedBuilder latestem = new EmbedBuilder();
+                                    latestem.setTitle(faceitLatest.team1 + " vs " + faceitLatest.team2, null);
+                                    latestem.addField("Team 1: ", faceitLatest.players1, true);
+                                    latestem.addField("Team 2: ", faceitLatest.players2, true);
+                                    latestem.addField("", " ", false);
+                                    latestem.addField("Final Score: ", faceitdetailedMatch.endScore, true);
+                                    latestem.addField("Map: ", faceitdetailedMatch.theMap, true);
+
+                                    latestem.addField("", " ", false);
+                                    latestem.addField("Kills: ", faceitdetailedMatch.kills, true);
+                                    latestem.addField("Deaths: ", faceitdetailedMatch.deaths, true);
+                                    latestem.addField("K/D: ", faceitdetailedMatch.kdratio, true);
+                                    latestem.addField("Triple Kills: ", faceitdetailedMatch.tripleKills, true);
+                                    latestem.addField("Quadro Kills: ", faceitdetailedMatch.quadroKills, true);
+                                    latestem.addField("Aces: ", faceitdetailedMatch.pentaKills, true);
+                                    latestem.addField("Assists: ", faceitdetailedMatch.assists, true);
+                                    latestem.addField("Headshots: ", faceitdetailedMatch.headshots, true);
+                                    latestem.addField("MVPs: ", faceitdetailedMatch.mvps, true);
+
+                                    latestem.setFooter("Match played at " + faceitLatest.matchTime, "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
+                                    latestem.setDescription("[Link to Game](" + faceitLatest.latestGameURL + ")");
+
+                                    if (faceitLatest.isitWin.equals("true")) {
+                                        latestem.setColor(0x09ff00);
+                                        latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/win.png");
+                                    } else {
+                                        latestem.setColor(0xff0000);
+                                        latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/lose.png");
+                                    }
+
+                                    event.getChannel().sendMessage(latestem.build()).queue();
+                                    try {
+                                        toSend.delete().queue();
+                                    } catch (NullPointerException ignored) {
+                                    }
+                                    faceitLatest.players1 = null;
+                                    faceitLatest.players2 = null;
+                                    faceitLatest.latestGameURL = null;
+                                    faceitLatest.gameWinner = null;
+                                    faceitLatest.team1 = null;
+                                    faceitLatest.team2 = null;
+                                    faceitOnlyPlayerId.faceitplayerID = null;
+                                    faceitLatest.isitWin = "false";
+
+
+                                }
+                                return;
+                            }
+                            //last
+                            if (savedMap.startsWith("last") || savedMap.equalsIgnoreCase("last")) {
+                                if (savedMap.length() == 4) {
+                                    savedCounter = 15;
+                                } else {
+                                    String[] split = savedMap.split("t");
+                                    savedCounter = Integer.parseInt(split[1]);
+                                    if (savedCounter >= 100) {
+                                        event.getChannel().sendMessage("You can max. load 99 Games!").queue();
+                                        return;
+                                    }
+                                }
+                                if (savedMap.equalsIgnoreCase("last") && (args.length == 3)) {
+                                    savedCounter = Integer.parseInt(args[2]);
+                                    if (savedCounter >= 100) {
+                                        event.getChannel().sendMessage("You can max. load 99 Games!").queue();
+                                        return;
+                                    }
+                                }
+                                StringBuilder hello = new StringBuilder();
+                                hello.append("\"\",".repeat(Math.max(0, savedCounter)));
+                                event.getChannel().sendMessage("*loading last " + savedCounter + " games from saved user*").queue();
+                                try {
+                                    faceitOnlyPlayerId.main(null);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                } catch (CompletionException e) {
+                                    try {
+                                        faceitOnlyPlayerId.main(null);
+                                    } catch (InterruptedException | CompletionException l) {
+                                        try {
+                                            unvalidPlayer();
+                                        } catch (CompletionException e1) {
+                                            event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                                            return;
+                                        }
+                                        event.getChannel().sendMessage(search.build()).queue(message -> toSend = message);
+                                        search.clearFields();
+                                        try {
+                                            faceitOnlyPlayerId.main(null);
+                                        } catch (InterruptedException | CompletionException g) {
+                                            event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
+                                            toSend.delete().queue();
+                                        }
+                                    }
+
+                                }
+
+                                try {
+                                    faceitLast20EloPoints.main(null);
+                                } catch (CompletionException e) {
+                                    event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or amount of games is too high for this player").queue();
+                                    e.printStackTrace();
+                                    faceitOnlyPlayerId.faceitplayerID = null;
+                                    faceitLast20EloPoints.totalsumkills = 0;
+                                    faceitLast20EloPoints.totalsumdeaths = 0;
+                                    faceitLast20EloPoints.totalsumkd = 0;
+                                    faceitLast20EloPoints.realkd = "0";
+                                    faceitLast20EloPoints.totalsumassists = 0;
+                                    faceitLast20EloPoints.totalsummvps = 0;
+                                    faceitLast20EloPoints.totalsumheadshots = 0;
+                                    faceitLast20EloPoints.totalsumtriple = 0;
+                                    faceitLast20EloPoints.totalsumquadro = 0;
+                                    faceitLast20EloPoints.totalsumace = 0;
+                                    faceitLast20EloPoints.win = 0;
+                                    return;
+                                }
+
+                                EmbedBuilder last = new EmbedBuilder();
+                                last.setTitle("Stats for your last " + savedCounter + " Games");
+                                try {
+                                    last.setThumbnail(faceitOnlyPlayerId.faceitAva);
+                                } catch (IllegalArgumentException e) {
+                                    System.out.println("no pic");
+                                }
+                                last.addField("Average Kills", String.valueOf(faceitLast20EloPoints.totalsumkills / savedCounter), true);
+                                last.addField("Average Death", String.valueOf(faceitLast20EloPoints.totalsumdeaths / savedCounter), true);
+                                last.addField("Average K/D", String.valueOf(faceitLast20EloPoints.realkd), true);
+                                last.addField("Average Assists", String.valueOf(faceitLast20EloPoints.totalsumassists / savedCounter), true);
+                                last.addField("Average MVPs", String.valueOf(faceitLast20EloPoints.totalsummvps / savedCounter), true);
+                                last.addField("Average Headshots", String.valueOf(faceitLast20EloPoints.totalsumheadshots / savedCounter), true);
+                                last.addField("Triple Kills", String.valueOf(faceitLast20EloPoints.totalsumtriple), true);
+                                last.addField("Quadro Kills", String.valueOf(faceitLast20EloPoints.totalsumquadro), true);
+                                last.addField("Aces", String.valueOf(faceitLast20EloPoints.totalsumace), true);
+                                last.addField("Winrate: ", faceitLast20EloPoints.win * 100 / savedCounter + "%", true);
+                                last.addField("Start / End Elo: ", faceitLast20EloPoints.startElo + " / " + faceitLast20EloPoints.endElo, true);
+                                last.addField("Min. / Max. Elo: ", faceitLast20EloPoints.lowelo + " / " + faceitLast20EloPoints.highelo, true);
+                                last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[" + hello.toString() + "],datasets:[{label:%27EloPoints%27,data:%20[" + faceitLast20EloPoints.fcEloHistory + "],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
+                                last.setColor(0xe6851e);
+
+
+                                event.getChannel().sendMessage(last.build()).queue();
+                                try {
+                                    toSend.delete().queue();
+                                } catch (NullPointerException ignored) {
+                                }
+                                faceitOnlyPlayerId.faceitplayerID = null;
+                                faceitLast20EloPoints.totalsumkills = 0;
+                                faceitLast20EloPoints.totalsumdeaths = 0;
+                                faceitLast20EloPoints.totalsumkd = 0;
+                                faceitLast20EloPoints.realkd = "0";
+                                faceitLast20EloPoints.totalsumassists = 0;
+                                faceitLast20EloPoints.totalsummvps = 0;
+                                faceitLast20EloPoints.totalsumheadshots = 0;
+                                faceitLast20EloPoints.totalsumtriple = 0;
+                                faceitLast20EloPoints.totalsumquadro = 0;
+                                faceitLast20EloPoints.totalsumace = 0;
+                                faceitLast20EloPoints.win = 0;
+                                return;
+
+
+                            }
+
+                            //map
+                            else if (savedMap.equalsIgnoreCase("dust2") || savedMap.equalsIgnoreCase("mirage") || savedMap.equalsIgnoreCase("train") || savedMap.equalsIgnoreCase("cache") || savedMap.equalsIgnoreCase("overpass") || savedMap.equalsIgnoreCase("vertigo") || savedMap.equalsIgnoreCase("inferno") || savedMap.equalsIgnoreCase("nuke")) {
+                                event.getChannel().sendMessage("*loading map stats from saved user*").queue();
+                                plsStop = "false";
+                                try {
+                                    faceitOnlyPlayerId.main(null);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                } catch (CompletionException e) {
+                                    try {
+                                        faceitOnlyPlayerId.main(null);
+                                    } catch (InterruptedException | CompletionException l) {
+                                        try {
+                                            unvalidPlayer();
+                                        } catch (CompletionException e1) {
+                                            event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                                            return;
+                                        }
+                                        event.getChannel().sendMessage(search.build()).queue(message -> toSend = message);
+                                        search.clearFields();
+                                        try {
+                                            faceitOnlyPlayerId.main(null);
+                                        } catch (InterruptedException | CompletionException g) {
+                                            event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
+                                            toSend.delete().queue();
+                                        }
+                                    }
+
+                                }
+                                if (savedMap.equalsIgnoreCase("dust2")) {
+                                    mapCode = "de_dust2";
+                                }
+                                if (savedMap.equalsIgnoreCase("mirage")) {
+                                    mapCode = "de_mirage";
+                                }
+                                if (savedMap.equalsIgnoreCase("train")) {
+                                    mapCode = "de_train";
+                                }
+                                if (savedMap.equalsIgnoreCase("cache")) {
+                                    mapCode = "de_cache";
+                                }
+                                if (savedMap.equalsIgnoreCase("overpass")) {
+                                    mapCode = "de_overpass";
+                                }
+                                if (savedMap.equalsIgnoreCase("vertigo")) {
+                                    mapCode = "de_vertigo";
+                                }
+                                if (savedMap.equalsIgnoreCase("inferno")) {
+                                    mapCode = "de_inferno";
+                                }
+                                if (savedMap.equalsIgnoreCase("nuke")) {
+                                    mapCode = "de_nuke";
+                                }
+
+                                try {
+                                    faceitMaps.main(null);
+                                } catch (CompletionException e) {
+                                    event.getChannel().sendMessage("Something went wrong. Maybe User never played csgo?").queue();
+                                    return;
+                                }
+                                EmbedBuilder mapem = new EmbedBuilder();
+                                mapem.setTitle("Stats for " + savedMap);
+                                mapem.addField("Kills: ", faceitMaps.allkills, true);
+                                mapem.addField("Deaths: ", faceitMaps.alldeaths, true);
+                                mapem.addField("Assists: ", faceitMaps.assists, true);
+                                mapem.addField("Average Kills", faceitMaps.avgKills, true);
+                                mapem.addField("Average Deaths", faceitMaps.avgDeaths, true);
+                                mapem.addField("Played Rounds", faceitMaps.playedRounds, true);
+                                mapem.addField("Matches: ", faceitMaps.matches, true);
+                                mapem.addField("Wins: ", faceitMaps.wins, true);
+                                mapem.addField("Winrate: ", faceitMaps.winrate + "%", true);
+                                mapem.addField("Triple Kills: ", faceitMaps.triplekills, true);
+                                mapem.addField("Quadro Kills: ", faceitMaps.quadrokills, true);
+                                mapem.addField("Aces: ", faceitMaps.pentakills, true);
+                                mapem.addField("Headshots: ", faceitMaps.headshots, true);
+                                mapem.addField("Headshots per Match: ", faceitMaps.headshotspermatch, true);
+                                mapem.addField("Average K/D: ", faceitMaps.avgkd, true);
+                                mapem.addField("MVPs: ", faceitMaps.mvps, true);
+                                mapem.setThumbnail(faceitMaps.mappicture);
+                                mapem.setColor(0xe6851e);
+
+
+                                event.getChannel().sendMessage(mapem.build()).queue();
+                                try {
+                                    toSend.delete().queue();
+                                } catch (NullPointerException ignored) {
+                                }
+                                faceitOnlyPlayerId.faceitplayerID = null;
+                                return;
+                            }
+
+                            System.out.println("gay");
+
+                        }
+                    }
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+
+                }
+            }
+            //normal
             if (args.length < 2) {
                 try {
                     //no faceitname or voters function
                     name = null;
-                    name= event.getMessage().getAuthor().getId();
+                    name = event.getMessage().getAuthor().getId();
                     Statement stmt = main.conn.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM stats WHERE discord="+name);
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM stats WHERE discord=" + name);
                     if (rs.next()) {
                         System.out.println(rs.getString(2));
                         savedArgs = rs.getString(2);
@@ -548,7 +878,6 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }
                     rs.close();
                     stmt.close();
-                    //need to copy it everywhere
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                     EmbedBuilder err = new EmbedBuilder();
@@ -560,6 +889,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     return;
                 }
             }
+            //without save, just normal function
             if (args.length == 2) {
                     event.getChannel().sendMessage("*loading faceit Stats*").queue();
                     savedArgs = args[1];
@@ -654,6 +984,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     System.out.println(savedArgs + " stats action");
 
             }
+
             if (args.length >= 3) {
                 savedArgs = args[1];
                 savedMap = args[2];
