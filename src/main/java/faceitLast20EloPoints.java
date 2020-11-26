@@ -24,7 +24,8 @@ public class faceitLast20EloPoints {
     public static int startElo;
     public static int endElo;
     public static int lowelo;
-    public static int win=0;
+    public static int win = 0;
+    public static String kdHistory;
 
     public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
@@ -41,6 +42,7 @@ public class faceitLast20EloPoints {
     public static String parse(String responseBody){
         JSONArray value = new JSONArray(responseBody);
         StringBuilder ep = new StringBuilder();
+        StringBuilder kdlist = new StringBuilder();
         DecimalFormat df = new DecimalFormat("#.##");
         int test = DiscordMessage.savedCounter;
         for (int i = 0; i < test; i++) {
@@ -70,6 +72,7 @@ public class faceitLast20EloPoints {
                 totalsumdeaths = runsumdeaths + totalsumdeaths;
 
                 double runsumkd = e3;
+                kdlist.append(runsumkd + ",");
                 totalsumkd = runsumkd + totalsumkd;
 
                 int runsumassists = e6;
@@ -99,6 +102,7 @@ public class faceitLast20EloPoints {
         realkd = df.format(totalsumkd/DiscordMessage.savedCounter);
         System.out.println(totalsumkills/15+" "+totalsumdeaths/15+" "+realkd+" " +totalsumassists/15 +" "+totalsummvps/15+" "+totalsumheadshots/15+" "+totalsumtriple+" "+totalsumquadro+" "+totalsumace+" ");
         fcEloHistory = ep.toString();
+        kdHistory = kdlist.toString();
 
         String[] array = fcEloHistory.split(",");
         int largestInt = Integer.MIN_VALUE;

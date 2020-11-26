@@ -13,6 +13,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -36,6 +38,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public Message toSend;
     public static String hub;
     public static String name;
+    public static String cPrefix;
+    public Message loadingMSG;
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -115,13 +119,32 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     }
 
     public void onMessageReceived(MessageReceivedEvent event) {
-        if(event.getAuthor().isBot()){
+        if (event.getAuthor().isBot()) {
             return;
         }
+
+        cPrefix = ".";
+        try {
+            //check if banned
+            name = event.getMessage().getGuild().getId();
+            Statement stmt = main.conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM settings WHERE serverid=" + name);
+            if (rs.next()) {
+                System.out.println(rs.getString(4));
+                cPrefix = rs.getString(4);
+            } else {
+                cPrefix = ".";
+            }
+        } catch (SQLException throwables) {
+            System.out.println("no prefix set?");
+            cPrefix = ".";
+        }
+
+
         java.lang.String[] args = event.getMessage().getContentRaw().split("\\s+");
         //admin
-        if (args[0].equalsIgnoreCase(".faceitadminstats")){
-            if(event.getAuthor().getId().equals("208226733789282304")){
+        if (args[0].equalsIgnoreCase(cPrefix + "faceitadminstats")) {
+            if (event.getAuthor().getId().equals("208226733789282304")) {
                 if (args.length == 1) {
                     EmbedBuilder adminstats = new EmbedBuilder();
                     adminstats.setTitle("Stats for the Bot")
@@ -177,29 +200,29 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 }
             }
         }
-        if (args[0].equalsIgnoreCase(".faceithelp")) {
+        if (args[0].equalsIgnoreCase(cPrefix + "faceithelp") || args[0].equalsIgnoreCase(".faceithelp")) {
             EmbedBuilder help = new EmbedBuilder();
             help.setTitle("How to use the Bot:");
             help.setColor(0xe6851e);
             help.setThumbnail("https://images.discordapp.net/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512");
             help.setFooter("Bot made with love by phil#0346", "https://cdn.discordapp.com/avatars/208226733789282304/80c3394993bb882de40259ee52202c44.webp?size=128");
-            help.addField("> .faceit <name> ","Shows your alltime FaceIT Stats", false);
-            help.addField("> .faceit <name> latest (opt: number)"," Shows your Stats from your latest game\nWith a given number you can look at your for ex. second latest game (*.faceit latest <name> 2*)", false);
-            help.addField("> .faceit <name> <map> "," Shows your performance in a specific map", false);
-            help.addField("> .faceit <name> last (amount of games) "," Shows your Stats for your last games (standard: 15)", false);
-            help.addField("> .faceitrank <region> (opt: country): "," Top 15 for your Region/Country", false);
-            help.addField("> .faceitrank fpl eu/us: "," Current Leaderboard of the FPL EU/US", false);
-            help.addField("> .faceithub <name of hub> "," Information about a FaceIT Hub and its leaderboard", false);
-            help.addField("Extras:","",false);
-            help.addField("> .faceitsave <name> "," Save your FaceItName to only need to write *.faceit* \n(only for voters)", true);
-            help.addField("> .faceitsettings "," Will show you some options for the bot.\n (User needs manage roles permission)", true);
-            help.addField("> Please vote for our Bot, it would really help! "," [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
+            help.addField("> " + cPrefix + "faceit <name> ", "Shows your alltime FaceIT Stats", false);
+            help.addField("> " + cPrefix + "faceit <name> latest (opt: number)", " Shows your Stats from your latest game\nWith a given number you can look at your for ex. second latest game (*.faceit latest <name> 2*)", false);
+            help.addField("> " + cPrefix + "faceit <name> <map> ", " Shows your performance in a specific map", false);
+            help.addField("> " + cPrefix + "faceit <name> last (amount of games) ", " Shows your Stats for your last games (standard: 15)", false);
+            help.addField("> " + cPrefix + "faceitrank <region> (opt: country): ", " Top 15 for your Region/Country", false);
+            help.addField("> " + cPrefix + "faceitrank fpl eu/us: ", " Current Leaderboard of the FPL EU/US", false);
+            help.addField("> " + cPrefix + "faceithub <name of hub> ", " Information about a FaceIT Hub and its leaderboard", false);
+            help.addField("Extras:", "", false);
+            help.addField("> " + cPrefix + "faceitsave <name> ", " Save your FaceItName to only need to write *.faceit* \n(only for voters)", true);
+            help.addField("> " + cPrefix + "faceitsettings ", " Will show you some options for the bot.\n (User needs manage roles permission)", true);
+            help.addField("> Please vote for our Bot, it would really help! ", " [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
             event.getChannel().sendMessage(help.build()).queue();
             return;
         }
         //VOTING: saving name
-        if(args[0].equalsIgnoreCase(".faceitsave")){
-            if(args.length<2){
+        if (args[0].equalsIgnoreCase(cPrefix + "faceitsave")) {
+            if (args.length < 2) {
                 event.getChannel().sendMessage("Dont forget your FaceIT Name!").queue();
                 return;
             }
@@ -207,17 +230,17 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             System.out.println(name);
             savedArgs = args[1];
             apis.topggVotes();
-            if(apis.vote.equalsIgnoreCase("true")){
+            if (apis.vote.equalsIgnoreCase("true")) {
                 try {
                     Statement stmt = main.conn.createStatement();
-                    stmt.execute("INSERT INTO stats(discord, faceit) VALUES ("+name+",'"+savedArgs+"') ON CONFLICT ON CONSTRAINT stats_pkey DO UPDATE SET faceit=EXCLUDED.faceit;");
+                    stmt.execute("INSERT INTO stats(discord, faceit) VALUES (" + name + ",'" + savedArgs + "') ON CONFLICT ON CONSTRAINT stats_pkey DO UPDATE SET faceit=EXCLUDED.faceit;");
                     stmt.close();
-                    event.getChannel().sendMessage("Your name is now saved, thanks for voting!!").queue();
+                    event.getChannel().sendMessage("Your name (" + savedArgs + ") is now saved, thanks for voting!! Use *" + cPrefix + "faceitdelete* to delete your name").queue();
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
 
-            }else{
+            } else {
                 EmbedBuilder err = new EmbedBuilder();
                 err.setTitle("You need to vote to save your FaceIT Name!");
                 err.setDescription("[Click here to Vote!](https://top.gg/bot/770312130037153813/vote)");
@@ -226,11 +249,12 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 event.getChannel().sendMessage(err.build()).queue();
             }
 
-        }if(args[0].equalsIgnoreCase(".faceitdelete")){
+        }
+        if (args[0].equalsIgnoreCase(cPrefix + "faceitdelete")) {
             name = event.getMessage().getAuthor().getId();
             try {
                 Statement stmt = main.conn.createStatement();
-                stmt.execute("DELETE FROM stats WHERE discord="+name);
+                stmt.execute("DELETE FROM stats WHERE discord=" + name);
                 stmt.close();
                 event.getChannel().sendMessage("Deleted your FaceITName from database!").queue();
             } catch (SQLException throwables) {
@@ -239,24 +263,23 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             name = null;
         }
         //extra: rank
-        if (args[0].equalsIgnoreCase(".faceitrank")) {
-            if(args.length >= 2) {
+        if (args[0].equalsIgnoreCase(cPrefix + "faceitrank")) {
+            if (args.length >= 2) {
                 savedRegion = args[1].toUpperCase();
-                if(args.length ==3) {
+                if (args.length == 3) {
                     savedCountry = args[2].toLowerCase();
                 }
-                event.getChannel().sendMessage("*loading top 15*").queue();
+                event.getChannel().sendMessage("*loading top 15*").queue(message -> loadingMSG = message);
                 EmbedBuilder ranks = new EmbedBuilder();
                 try {
-                    if(savedRegion.equalsIgnoreCase("FPL")){
-                        if(savedCountry==null){
+                    if (savedRegion.equalsIgnoreCase("FPL")) {
+                        if (savedCountry == null) {
                             event.getChannel().sendMessage("Use a region (*us/eu*)").queue();
                             return;
                         }
-                        if(savedCountry.equalsIgnoreCase("us")){
+                        if (savedCountry.equalsIgnoreCase("us")) {
                             faceitRanking.fplus();
-                        }
-                        else if(savedCountry.equalsIgnoreCase("eu")){
+                        } else if (savedCountry.equalsIgnoreCase("eu")) {
                             faceitRanking.fpleu();
                         } else {
                             event.getChannel().sendMessage("Use a region (*us/eu*)").queue();
@@ -269,16 +292,20 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         ranks.setThumbnail("https://www.countryflags.io/"+savedRegion+"/flat/64.png");
                     } else {
                         faceitRanking.country();
-                        ranks.setThumbnail("https://www.countryflags.io/"+savedCountry+"/flat/64.png");
+                        ranks.setThumbnail("https://www.countryflags.io/" + savedCountry + "/flat/64.png");
                     }
                 } catch (CompletionException e) {
                     e.printStackTrace();
                     event.getChannel().sendMessage("Wrong Region or Country!").queue();
                     return;
                 }
-                ranks.setTitle("Top 15 for " + savedRegion+" "+savedCountry);
+                ranks.setTitle("Top 15 for " + savedRegion + " " + savedCountry);
                 ranks.setDescription(faceitRanking.topr);
                 ranks.setColor(0xe6851e);
+                try {
+                    loadingMSG.delete().queue();
+                } catch (NullPointerException ignored) {
+                }
 
 
                 event.getChannel().sendMessage(ranks.build()).queue();
@@ -288,15 +315,15 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             savedCountry = null;
         }
         //hub
-        if(args[0].equalsIgnoreCase(".faceithub")){
-            if(args.length ==1){
+        if (args[0].equalsIgnoreCase(cPrefix + "faceithub")) {
+            if (args.length == 1) {
                 event.getChannel().sendMessage("Specify a hub").queue();
                 return;
             }
-            event.getChannel().sendMessage("*loading hub*").queue();
+            event.getChannel().sendMessage("*loading hub*").queue(message -> loadingMSG = message);
             int hello = args.length;
             StringBuilder hub = new StringBuilder();
-            for(int i = 1;i <hello;i++){
+            for (int i = 1; i < hello; i++) {
                 hub.append(args[i]).append("%20");
             }
             System.out.println(hub.toString());
@@ -316,7 +343,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             hubem.addField("FaceIT Link: ","[Link to FaceIT Hub]("+faceitHub.link+")",false);
             try {
                 hubem.setThumbnail(faceitHub.icon);
-            }catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 System.out.println("no pic");
             }
             hubem.setColor(0xe6851e);
@@ -324,34 +351,40 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             hubstats.setTitle("Leaderboard: ");
             hubstats.setDescription(faceitHub.topr);
             hubstats.setColor(0xe6851e);
+            try {
+                loadingMSG.delete().queue();
+            } catch (NullPointerException ignored) {
+            }
             event.getChannel().sendMessage(hubem.build()).queue();
-            if(faceitHub.working.equalsIgnoreCase("true")) {
+            if (faceitHub.working.equalsIgnoreCase("true")) {
                 event.getChannel().sendMessage(hubstats.build()).queue();
             }
-        //Settings for admins/mods
-        }if(args[0].equalsIgnoreCase(".faceitsettings")) {
+            //Settings for admins/mods
+        }
+        if (args[0].equalsIgnoreCase(cPrefix + "faceitsettings")) {
             if (!Objects.requireNonNull(event.getMember()).hasPermission(Permission.MANAGE_ROLES) || event.getAuthor().isBot()) {
                 return;
             }
             if (args.length == 1) {
                 EmbedBuilder settings = new EmbedBuilder();
                 settings.setTitle("Settings for Discord Server admins")
-                        .addField(".faceitsettings shortcmd on/off", "Will allow you to use *.f*", false)
-                        .addField(".faceitsettings ban add/clear", "Will disallow a player to use the bot / clears banned players", false)
-                        .setFooter("More settings will be added");
+                        .addField(cPrefix + "faceitsettings shortcmd on/off", "Will allow you to use *" + cPrefix + "f*", false)
+                        .addField(cPrefix + "faceitsettings ban add/clear", "Will disallow a player to use the bot / clears banned players", false)
+                        .addField(cPrefix + "faceitsettings setprefix 'char'", "Will disallow a player to use the bot / clears banned players", false)
+                        .addField(cPrefix + "faceitsettings kd on/off", "When activated, the graph for 'last games' also shows the kd", false)
+                        .setFooter("Settings will be saved for the whole Server and not only for the user");
                 event.getChannel().sendMessage(settings.build()).queue();
                 return;
             }
-            //.f
-            if (args[1].equalsIgnoreCase("shortcmd")) {
-                name = event.getMessage().getGuild().getId();
+            //kd
+            if (args[1].equalsIgnoreCase("kd")) {
                 if (args[2].equalsIgnoreCase("on")) {
                     int test = 9;
                     try {
                         Statement stmt = main.conn.createStatement();
-                        stmt.execute("INSERT INTO settings(serverid, banned, short) VALUES ("+name+",' ','"+test+"') ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET short=EXCLUDED.short;");
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd) VALUES (" + name + ",' ','0','.'," + test + ") ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET kd=EXCLUDED.kd;");
                         stmt.close();
-                        event.getChannel().sendMessage("Short command activated. You can use now *.f*").queue();
+                        event.getChannel().sendMessage("Graph now also shows K/D").queue();
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
@@ -361,7 +394,56 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     int test = 0;
                     try {
                         Statement stmt = main.conn.createStatement();
-                        stmt.execute("INSERT INTO settings(serverid, banned, short) VALUES ("+name+",' ','"+test+"') ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET short=EXCLUDED.short;");
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd) VALUES (" + name + ",' ','0','.'," + test + ") ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET kd=EXCLUDED.kd;");
+                        stmt.close();
+                        event.getChannel().sendMessage("Graph now only shows Elo").queue();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }
+
+
+            }
+
+            //prefix
+            if (args[1].equalsIgnoreCase("setprefix")) {
+                String setPrefix;
+                if (args.length == 3) {
+                    setPrefix = args[2];
+                    name = event.getMessage().getGuild().getId();
+                    try {
+                        Statement stmt = main.conn.createStatement();
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd) VALUES (" + name + ",' ',0,'" + setPrefix + "',0) ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET prefix=EXCLUDED.prefix;");
+                        stmt.close();
+                        event.getChannel().sendMessage("Prefix changed. You can use now *" + setPrefix + "faceit* ! \n*.faceithelp* will still be available\nIf you have problems with the prefix change please contact me").queue();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }
+
+
+            }
+
+            //.f
+            if (args[1].equalsIgnoreCase("shortcmd")) {
+                name = event.getMessage().getGuild().getId();
+                if (args[2].equalsIgnoreCase("on")) {
+                    int test = 9;
+                    try {
+                        Statement stmt = main.conn.createStatement();
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd) VALUES (" + name + ",' ','" + test + "','.',0) ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET short=EXCLUDED.short;");
+                        stmt.close();
+                        event.getChannel().sendMessage("Short command activated. You can use now *" + cPrefix + "f*").queue();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+
+                }
+                if (args[2].equalsIgnoreCase("off")) {
+                    int test = 0;
+                    try {
+                        Statement stmt = main.conn.createStatement();
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd) VALUES (" + name + ",' ','" + test + "','.',0) ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET short=EXCLUDED.short;");
                         stmt.close();
                         event.getChannel().sendMessage("Short command deactivated").queue();
                     } catch (SQLException throwables) {
@@ -387,7 +469,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }
                     try {
                         Statement stmt = main.conn.createStatement();
-                        stmt.execute("INSERT INTO settings(serverid, banned, short) VALUES ("+name+",'"+inte+"',0) ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET banned=EXCLUDED.banned;");
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd) VALUES (" + name + ",'" + inte + "',0,'.',0) ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET banned=EXCLUDED.banned;");
                         stmt.close();
                         event.getChannel().sendMessage(" "+inte.replace(","," ")+" can not use the bot anymore").queue();
                     } catch (SQLException throwables) {
@@ -399,7 +481,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     name = event.getMessage().getGuild().getId();
                     try {
                         Statement stmt = main.conn.createStatement();
-                        stmt.execute("INSERT INTO settings(serverid, banned, short) VALUES ("+name+",' ', 0) ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET banned=EXCLUDED.banned;");
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd) VALUES (" + name + ",' ', 0,'.',0) ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET banned=EXCLUDED.banned;");
                         stmt.close();
                         event.getChannel().sendMessage("Cleared all banned persons").queue();
                     } catch (SQLException throwables) {
@@ -413,7 +495,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         }
 
         //Normal User
-        if (args[0].equalsIgnoreCase(".faceit")||args[0].equalsIgnoreCase(".f")) {
+        if (args[0].equalsIgnoreCase(cPrefix + "faceit") || args[0].equalsIgnoreCase(cPrefix + "f")) {
             try {
                 //check if banned
                 name = event.getMessage().getGuild().getId();
@@ -422,7 +504,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 if (rs.next()) {
                     System.out.println(rs.getString(2));
                     String inte = rs.getString(2);
-                    if(inte.contains(event.getAuthor().getName())){
+                    if (inte.contains(event.getAuthor().getName())) {
                         return;
                     }
                 }
@@ -430,7 +512,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 throwables.printStackTrace();
             }
 
-            if(args[0].equalsIgnoreCase(".f")){
+            if (args[0].equalsIgnoreCase(cPrefix + "f")) {
                 try {
                     //shortcut activated for server?
                     name = null;
@@ -474,9 +556,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 {
                                     if (args.length == 3) {
                                         savedCounter = Integer.parseInt(args[2]);
-                                        event.getChannel().sendMessage("*loading " + savedCounter + ". Match from now (saved user)*").queue();
+                                        event.getChannel().sendMessage("*loading " + savedCounter + ". Match from now (saved user)*").queue(message -> loadingMSG = message);
                                     } else {
-                                        event.getChannel().sendMessage("*loading latest Match from saved user*").queue();
+                                        event.getChannel().sendMessage("*loading latest Match from saved user*").queue(message -> loadingMSG = message);
                                     }
 
                                     try {
@@ -533,6 +615,10 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                         latestem.setColor(0xff0000);
                                         latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/lose.png");
                                     }
+                                    try {
+                                        loadingMSG.delete().queue();
+                                    } catch (NullPointerException ignored) {
+                                    }
 
                                     event.getChannel().sendMessage(latestem.build()).queue();
                                     try {
@@ -573,7 +659,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 }
                                 StringBuilder hello = new StringBuilder();
                                 hello.append("\"\",".repeat(Math.max(0, savedCounter)));
-                                event.getChannel().sendMessage("*loading last " + savedCounter + " games from saved user*").queue();
+                                event.getChannel().sendMessage("*loading last " + savedCounter + " games from saved user*").queue(message -> loadingMSG = message);
                                 try {
                                     faceitOnlyPlayerId.main(null);
                                 } catch (InterruptedException e) {
@@ -619,9 +705,25 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                     faceitLast20EloPoints.win = 0;
                                     return;
                                 }
+                                int kdGraph = 0;
+                                try {
+
+                                    name = event.getMessage().getGuild().getId();
+                                    Statement stmt1 = main.conn.createStatement();
+                                    ResultSet rs1 = stmt.executeQuery("SELECT * FROM settings WHERE serverid=" + name);
+                                    if (rs1.next()) {
+                                        System.out.println(rs1.getString(5));
+                                        kdGraph = rs1.getInt(5);
+                                    } else {
+                                        kdGraph = 0;
+                                    }
+                                } catch (SQLException throwables) {
+                                    System.out.println("kd not workin");
+                                    kdGraph = 0;
+                                }
 
                                 EmbedBuilder last = new EmbedBuilder();
-                                last.setTitle("Stats for your last " + savedCounter + " Games");
+                                last.setTitle(savedArgs + "'s last " + savedCounter + " Games");
                                 try {
                                     last.setThumbnail(faceitOnlyPlayerId.faceitAva);
                                 } catch (IllegalArgumentException e) {
@@ -639,8 +741,16 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 last.addField("Winrate: ", faceitLast20EloPoints.win * 100 / savedCounter + "%", true);
                                 last.addField("Start / End Elo: ", faceitLast20EloPoints.startElo + " / " + faceitLast20EloPoints.endElo, true);
                                 last.addField("Min. / Max. Elo: ", faceitLast20EloPoints.lowelo + " / " + faceitLast20EloPoints.highelo, true);
-                                last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[" + hello.toString() + "],datasets:[{label:%27EloPoints%27,data:%20[" + faceitLast20EloPoints.fcEloHistory + "],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
+                                if (kdGraph == 0) {
+                                    last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[" + hello.toString() + "],datasets:[{label:%27EloPoints%27,data:%20[" + faceitLast20EloPoints.fcEloHistory + "],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
+                                } else {
+                                    last.setImage("https://quickchart.io/chart?bkg=white&c=" + URLEncoder.encode("{type:'line',data:{labels:[" + hello.toString() + "],datasets:[{label:'Elo',yAxisID:'A',data: [" + faceitLast20EloPoints.fcEloHistory + "],backgroundColor:'rgba(255,0,0,0.5)',borderColor:'red'},{label:'K/D',yAxisID:'B',data: [" + faceitLast20EloPoints.kdHistory + "],backgroundColor:'rgba(78,80,255,0)',borderColor:'blue'}]},options:{scales:{xAxes:[{ticks:{reverse:true}}],yAxes:[{id:'A',type:'linear',position:'left',ticks:{beginAtZero:false,}},{id:'B',type:'linear',position:'right',ticks:{beginAtZero:false}}]}}}", StandardCharsets.UTF_8));
+                                }
                                 last.setColor(0xe6851e);
+                                try {
+                                    loadingMSG.delete().queue();
+                                } catch (NullPointerException ignored) {
+                                }
 
 
                                 event.getChannel().sendMessage(last.build()).queue();
@@ -667,7 +777,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
                             //map
                             else if (savedMap.equalsIgnoreCase("dust2") || savedMap.equalsIgnoreCase("mirage") || savedMap.equalsIgnoreCase("train") || savedMap.equalsIgnoreCase("cache") || savedMap.equalsIgnoreCase("overpass") || savedMap.equalsIgnoreCase("vertigo") || savedMap.equalsIgnoreCase("inferno") || savedMap.equalsIgnoreCase("nuke")) {
-                                event.getChannel().sendMessage("*loading map stats from saved user*").queue();
+                                event.getChannel().sendMessage("*loading map stats from saved user*").queue(message -> loadingMSG = message);
                                 plsStop = "false";
                                 try {
                                     faceitOnlyPlayerId.main(null);
@@ -745,6 +855,10 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 mapem.addField("MVPs: ", faceitMaps.mvps, true);
                                 mapem.setThumbnail(faceitMaps.mappicture);
                                 mapem.setColor(0xe6851e);
+                                try {
+                                    loadingMSG.delete().queue();
+                                } catch (NullPointerException ignored) {
+                                }
 
 
                                 event.getChannel().sendMessage(mapem.build()).queue();
@@ -777,7 +891,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         System.out.println(rs.getString(2));
                         savedArgs = rs.getString(2);
                         {
-                            event.getChannel().sendMessage("*loading faceit Stats from saved user*").queue();
+                            event.getChannel().sendMessage("*loading faceit Stats from saved user*").queue(message -> loadingMSG = message);
 
                             try {
                                 faceitAPI.main(null);
@@ -858,11 +972,16 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                             info.addField("AFK / Left early: ", faceitAPI.faceitAfk + " / " + faceitAPI.faceitLeave, true);
                             info.setFooter("\uD83C\uDF10 Rank: " + faceitPlayerRanking.regionRank + " | " + countryCodeToEmoji(faceitAPI.faceitplayerCountry) + " Rank: " + faceitPlayerRanking.countryRank);
                             info.setColor(0xe6851e);
+                            try {
+                                loadingMSG.delete().queue();
+                            } catch (NullPointerException ignored) {
+                            }
 
                             event.getChannel().sendMessage(info.build()).queue();
                             try {
                                 toSend.delete().queue();
-                            }catch (NullPointerException ignored){}
+                            } catch (NullPointerException ignored) {
+                            }
                             //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
 
@@ -871,9 +990,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }else{
                         EmbedBuilder err = new EmbedBuilder();
                         err.setTitle("Don't forget the FaceIT Name!");
-                        err.setDescription("You can save your FaceIT Name with *.faceitsave*!\nBut This Feature is only for [Voters](https://top.gg/bot/770312130037153813/vote)!");
+                        err.setDescription("You can save your FaceIT Name with " + cPrefix + "*faceitsave*!\nBut This Feature is only for [Voters](https://top.gg/bot/770312130037153813/vote)!");
                         err.setColor(0xff0000);
-                        err.setFooter("'.faceithelp' if you need help");
+                        err.setFooter("'" + cPrefix + "faceithelp' if you need help");
                         event.getChannel().sendMessage(err.build()).queue();
                     }
                     rs.close();
@@ -882,27 +1001,27 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     throwables.printStackTrace();
                     EmbedBuilder err = new EmbedBuilder();
                     err.setTitle("Don't forget the FaceIT Name!");
-                    err.setDescription("You can save your FaceIT Name with *.faceitsave*!\nBut This Feature is only for Voters\n[Vote Here!](https://top.gg/bot/770312130037153813/vote)");
+                    err.setDescription("You can save your FaceIT Name with *" + cPrefix + "faceitsave*!\nBut This Feature is only for Voters\n[Vote Here!](https://top.gg/bot/770312130037153813/vote)");
                     err.setColor(0xff0000);
-                    err.setFooter("The Saving Feature is in Alpha and only works with '.faceit' !");
+                    err.setFooter("The Saving Feature is in Alpha and only works with '" + cPrefix + "faceit' !");
                     event.getChannel().sendMessage(err.build()).queue();
                     return;
                 }
             }
             //without save, just normal function
             if (args.length == 2) {
-                    event.getChannel().sendMessage("*loading faceit Stats*").queue();
-                    savedArgs = args[1];
+                event.getChannel().sendMessage("*loading faceit Stats*").queue(message -> loadingMSG = message);
+                savedArgs = args[1];
+                try {
+                    faceitAPI.main(null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                } catch (InterruptedException | CompletionException e) {
                     try {
-                        faceitAPI.main(null);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        unvalidPlayer();
+                    } catch (CompletionException e1) {
                         event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
-                    } catch (InterruptedException | CompletionException e) {
-                        try {
-                            unvalidPlayer();
-                        } catch (CompletionException e1) {
-                            event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
                             return;
                         }
                         event.getChannel().sendMessage(search.build()).queue(message -> toSend = message);
@@ -956,32 +1075,37 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     } else {
                         info.setTitle("Stats for Premium Member " + savedArgs);
                     }
-                    info.setDescription("[FaceIT Profile](" + faceitAPI.profileURL + ") and [Steam Profile](https://steamcommunity.com/profiles/" + faceitAPI.steam64 + ")");
-                    try {
-                        info.setThumbnail(faceitAPI.faceitAvatar);
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("no pic");
-                        e.printStackTrace();
-                    }
-                    info.addField("Country: ", countryCodeToEmoji(faceitAPI.faceitplayerCountry), true);
-                    info.addField("Wins: ", faceitStats.faceitWins, true);
-                    info.addField("Winrate: ", faceitStats.faceitRate + "%", true);
-                    info.addField("K/D: ", faceitStats.faceitKD, true);
-                    info.addField("Longest Winstreak", faceitStats.longestwins + " Wins", true);
-                    info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "\u274C").replaceAll("\"", ""), true);
-                    info.addField("Headshot %: ", faceitStats.headshotperc + "%", true);
-                    info.addField("AFK / Left early: ", faceitAPI.faceitAfk + " / " + faceitAPI.faceitLeave, true);
-                    info.setFooter("\uD83C\uDF10 Rank: " + faceitPlayerRanking.regionRank + " | " + countryCodeToEmoji(faceitAPI.faceitplayerCountry) + " Rank: " + faceitPlayerRanking.countryRank);
-                    info.setColor(0xe6851e);
+                info.setDescription("[FaceIT Profile](" + faceitAPI.profileURL + ") and [Steam Profile](https://steamcommunity.com/profiles/" + faceitAPI.steam64 + ")");
+                try {
+                    info.setThumbnail(faceitAPI.faceitAvatar);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("no pic");
+                    e.printStackTrace();
+                }
+                info.addField("Country: ", countryCodeToEmoji(faceitAPI.faceitplayerCountry), true);
+                info.addField("Wins: ", faceitStats.faceitWins, true);
+                info.addField("Winrate: ", faceitStats.faceitRate + "%", true);
+                info.addField("K/D: ", faceitStats.faceitKD, true);
+                info.addField("Longest Winstreak", faceitStats.longestwins + " Wins", true);
+                info.addField("Last 5 Games: ", String.valueOf(faceitStats.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "\u274C").replaceAll("\"", ""), true);
+                info.addField("Headshot %: ", faceitStats.headshotperc + "%", true);
+                info.addField("AFK / Left early: ", faceitAPI.faceitAfk + " / " + faceitAPI.faceitLeave, true);
+                info.setFooter("\uD83C\uDF10 Rank: " + faceitPlayerRanking.regionRank + " | " + countryCodeToEmoji(faceitAPI.faceitplayerCountry) + " Rank: " + faceitPlayerRanking.countryRank);
+                info.setColor(0xe6851e);
+                try {
+                    loadingMSG.delete().queue();
+                } catch (NullPointerException ignored) {
+                }
 
-                    event.getChannel().sendMessage(info.build()).queue();
+                event.getChannel().sendMessage(info.build()).queue();
                 try {
                     toSend.delete().queue();
-                }catch (NullPointerException ignored){}
-                    //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
+                } catch (NullPointerException ignored) {
+                }
+                //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
 
-                    System.out.println(savedArgs + " stats action");
+                System.out.println(savedArgs + " stats action");
 
             }
 
@@ -992,9 +1116,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     savedCounter = 1;
                     if(args.length==4){
                         savedCounter = Integer.parseInt(args[3]);
-                        event.getChannel().sendMessage("*loading "+savedCounter+". Match from now*").queue();
+                        event.getChannel().sendMessage("*loading " + savedCounter + ". Match from now*").queue(message -> loadingMSG = message);
                     }else {
-                        event.getChannel().sendMessage("*loading latest Match*").queue();
+                        event.getChannel().sendMessage("*loading latest Match*").queue(message -> loadingMSG = message);
                     }
 
                         try {
@@ -1042,8 +1166,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     latestem.addField("Headshots: ", faceitdetailedMatch.headshots, true);
                     latestem.addField("MVPs: ", faceitdetailedMatch.mvps, true);
 
-                    latestem.setFooter("Match played at "+ faceitLatest.matchTime, "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
-                    latestem.setDescription("[Link to Game]("+faceitLatest.latestGameURL+")");
+                    latestem.setFooter("Match played at " + faceitLatest.matchTime, "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
+                    latestem.setDescription("[Link to Game](" + faceitLatest.latestGameURL + ")");
 
                     if (faceitLatest.isitWin.equals("true")) {
                         latestem.setColor(0x09ff00);
@@ -1052,11 +1176,16 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         latestem.setColor(0xff0000);
                         latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/lose.png");
                     }
+                    try {
+                        loadingMSG.delete().queue();
+                    } catch (NullPointerException ignored) {
+                    }
 
                     event.getChannel().sendMessage(latestem.build()).queue();
                     try {
                         toSend.delete().queue();
-                    }catch (NullPointerException ignored){}
+                    } catch (NullPointerException ignored) {
+                    }
                     faceitLatest.players1 = null;
                     faceitLatest.players2 = null;
                     faceitLatest.latestGameURL = null;
@@ -1068,8 +1197,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
 
                 } else if (savedMap.equalsIgnoreCase("dust2") || savedMap.equalsIgnoreCase("mirage") || savedMap.equalsIgnoreCase("train") || savedMap.equalsIgnoreCase("cache") || savedMap.equalsIgnoreCase("overpass") || savedMap.equalsIgnoreCase("vertigo") || savedMap.equalsIgnoreCase("inferno") || savedMap.equalsIgnoreCase("nuke")) {
-                    event.getChannel().sendMessage("*loading map stats*").queue();
-                    plsStop ="false";
+                    event.getChannel().sendMessage("*loading map stats*").queue(message -> loadingMSG = message);
+                    plsStop = "false";
                     try {
                         faceitOnlyPlayerId.main(null);
                     } catch (InterruptedException e) {
@@ -1146,14 +1275,18 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     mapem.addField("MVPs: ", faceitMaps.mvps, true);
                     mapem.setThumbnail(faceitMaps.mappicture);
                     mapem.setColor(0xe6851e);
+                    try {
+                        loadingMSG.delete().queue();
+                    } catch (NullPointerException ignored) {
+                    }
 
 
-                        event.getChannel().sendMessage(mapem.build()).queue();
+                    event.getChannel().sendMessage(mapem.build()).queue();
                     try {
                         toSend.delete().queue();
-                    }catch (NullPointerException ignored){}
-                        faceitOnlyPlayerId.faceitplayerID = null;
-
+                    } catch (NullPointerException ignored) {
+                    }
+                    faceitOnlyPlayerId.faceitplayerID = null;
 
 
                 } else if (savedMap.startsWith("last")||savedMap.equalsIgnoreCase("last")) {
@@ -1176,7 +1309,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }
                     StringBuilder hello = new StringBuilder();
                     hello.append("\"\",".repeat(Math.max(0, savedCounter)));
-                    event.getChannel().sendMessage("*loading last "+savedCounter+" games*").queue();
+                    event.getChannel().sendMessage("*loading last " + savedCounter + " games*").queue(message -> loadingMSG = message);
                     try {
                         faceitOnlyPlayerId.main(null);
                     } catch (InterruptedException e) {
@@ -1222,34 +1355,58 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         faceitLast20EloPoints.win = 0;
                         return;
                     }
+                    int kdGraph = 0;
+                    try {
+
+                        name = event.getMessage().getGuild().getId();
+                        Statement stmt = main.conn.createStatement();
+                        ResultSet rs = stmt.executeQuery("SELECT * FROM settings WHERE serverid=" + name);
+                        if (rs.next()) {
+                            System.out.println(rs.getString(5));
+                            kdGraph = rs.getInt(5);
+                        } else {
+                            kdGraph = 0;
+                        }
+                    } catch (SQLException throwables) {
+                        System.out.println("kd not workin");
+                        kdGraph = 0;
+                    }
+
 
                     EmbedBuilder last = new EmbedBuilder();
-                    last.setTitle("Stats for your last "+savedCounter+" Games");
+                    last.setTitle(savedArgs + "'s last " + savedCounter + " Games");
                     try {
                         last.setThumbnail(faceitOnlyPlayerId.faceitAva);
-                    }catch (IllegalArgumentException e){
+                    } catch (IllegalArgumentException e) {
                         System.out.println("no pic");
                     }
-                    last.addField("Average Kills", String.valueOf(faceitLast20EloPoints.totalsumkills/savedCounter), true);
-                    last.addField("Average Death", String.valueOf(faceitLast20EloPoints.totalsumdeaths/savedCounter), true);
+                    last.addField("Average Kills", String.valueOf(faceitLast20EloPoints.totalsumkills / savedCounter), true);
+                    last.addField("Average Death", String.valueOf(faceitLast20EloPoints.totalsumdeaths / savedCounter), true);
                     last.addField("Average K/D", String.valueOf(faceitLast20EloPoints.realkd), true);
-                    last.addField("Average Assists", String.valueOf(faceitLast20EloPoints.totalsumassists/savedCounter), true);
-                    last.addField("Average MVPs", String.valueOf(faceitLast20EloPoints.totalsummvps/savedCounter), true);
-                    last.addField("Average Headshots", String.valueOf(faceitLast20EloPoints.totalsumheadshots/savedCounter), true);
+                    last.addField("Average Assists", String.valueOf(faceitLast20EloPoints.totalsumassists / savedCounter), true);
+                    last.addField("Average MVPs", String.valueOf(faceitLast20EloPoints.totalsummvps / savedCounter), true);
+                    last.addField("Average Headshots", String.valueOf(faceitLast20EloPoints.totalsumheadshots / savedCounter), true);
                     last.addField("Triple Kills", String.valueOf(faceitLast20EloPoints.totalsumtriple), true);
                     last.addField("Quadro Kills", String.valueOf(faceitLast20EloPoints.totalsumquadro), true);
                     last.addField("Aces", String.valueOf(faceitLast20EloPoints.totalsumace), true);
-                    last.addField("Winrate: ", faceitLast20EloPoints.win*100 / savedCounter +"%", true);
-                    last.addField("Start / End Elo: ", faceitLast20EloPoints.startElo+" / "+faceitLast20EloPoints.endElo, true);
-                    last.addField("Min. / Max. Elo: ", faceitLast20EloPoints.lowelo+" / "+faceitLast20EloPoints.highelo, true);
-                    last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:["+hello.toString()+"],datasets:[{label:%27EloPoints%27,data:%20["+faceitLast20EloPoints.fcEloHistory+"],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
+                    last.addField("Winrate: ", faceitLast20EloPoints.win * 100 / savedCounter + "%", true);
+                    last.addField("Start / End Elo: ", faceitLast20EloPoints.startElo + " / " + faceitLast20EloPoints.endElo, true);
+                    last.addField("Min. / Max. Elo: ", faceitLast20EloPoints.lowelo + " / " + faceitLast20EloPoints.highelo, true);
+                    if (kdGraph == 0) {
+                        last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[" + hello.toString() + "],datasets:[{label:%27EloPoints%27,data:%20[" + faceitLast20EloPoints.fcEloHistory + "],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
+                    } else {
+                        last.setImage("https://quickchart.io/chart?bkg=white&c=" + URLEncoder.encode("{type:'line',data:{labels:[" + hello.toString() + "],datasets:[{label:'Elo',yAxisID:'A',data: [" + faceitLast20EloPoints.fcEloHistory + "],backgroundColor:'rgba(255,0,0,0.5)',borderColor:'red'},{label:'K/D',yAxisID:'B',data: [" + faceitLast20EloPoints.kdHistory + "],backgroundColor:'rgba(78,80,255,0)',borderColor:'blue'}]},options:{scales:{xAxes:[{ticks:{reverse:true}}],yAxes:[{id:'A',type:'linear',position:'left',ticks:{beginAtZero:false,}},{id:'B',type:'linear',position:'right',ticks:{beginAtZero:false}}]}}}", StandardCharsets.UTF_8));
+                    }
                     last.setColor(0xe6851e);
-
-
+                    try {
+                        loadingMSG.delete().queue();
+                    } catch (NullPointerException ignored) {
+                    }
                     event.getChannel().sendMessage(last.build()).queue();
                     try {
                         toSend.delete().queue();
-                    }catch (NullPointerException ignored){}
+                    } catch (NullPointerException ignored) {
+                    }
                     faceitOnlyPlayerId.faceitplayerID = null;
                     faceitLast20EloPoints.totalsumkills = 0;
                     faceitLast20EloPoints.totalsumdeaths = 0;
@@ -1266,7 +1423,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
             }
                 else {
-                event.getChannel().sendMessage("Wrong Argument! Use *.faceithelp* if you need help").queue();
+                    event.getChannel().sendMessage("Wrong Argument! Use *" + cPrefix + "faceithelp* if you need help").queue();
             }
 
         }
