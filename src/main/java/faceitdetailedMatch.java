@@ -19,6 +19,8 @@ public class faceitdetailedMatch {
     public static String quadroKills;
     public static String mvps;
     public static String deaths;
+    public static String KR;
+    public static String headperc;
 
 
     public static void main(String[] args) {
@@ -26,8 +28,8 @@ public class faceitdetailedMatch {
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer "+main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/matches/"+faceitLatest.matchID+"/stats"))
+                .header("Authorization", "Bearer " + main.FACEITTOKEN)
+                .uri(URI.create("https://open.faceit.com/data/v4/matches/" + faceitLatest.matchID + "/stats"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
@@ -45,6 +47,7 @@ public class faceitdetailedMatch {
         JSONObject map = rounds.getJSONObject(0);
         theMap = map.getJSONObject("round_stats").getString("Map");
         endScore = map.getJSONObject("round_stats").getString("Score");
+        String roundsPlayed = map.getJSONObject("round_stats").getString("Rounds");
 
         for (int i = 0; i < rounds.length(); i++){
             JSONObject jOBJ = rounds.getJSONObject(i);
@@ -72,9 +75,12 @@ public class faceitdetailedMatch {
         deaths = playerStats.getString("Deaths");
         kdratio = playerStats.getString("K/D Ratio");
         headshots = playerStats.getString("Headshot");
+        KR = playerStats.getString("K/R Ratio");
+        headperc = playerStats.getString("Headshots %");
 
-        System.out.println(theMap+" "+endScore);
-        System.out.println(pentaKills+tripleKills+assists+kills+quadroKills+mvps+deaths+kdratio+headshots);
+
+        System.out.println(theMap + " " + endScore);
+        System.out.println(pentaKills + tripleKills + assists + kills + quadroKills + mvps + deaths + kdratio + headshots);
         return null;
     }
 }

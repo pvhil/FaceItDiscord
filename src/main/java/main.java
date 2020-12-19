@@ -17,15 +17,16 @@ public class main implements EventListener {
     public static String FACEITTOKEN = System.getenv("FACEITTOKEN");
     public static String BOTTOKEN = System.getenv("BOTTOKEN");
     public static Connection conn;
+    public static String fullURL;
 
 
     public static void main(String[] args) throws LoginException {
         //bot is finished
-        
+
         jda = JDABuilder.createDefault(BOTTOKEN)
                 .addEventListeners(new DiscordMessage())
                 .build();
-        main.jda.getPresence().setActivity(Activity.watching("your stats | .faceithelp"));
+        main.jda.getPresence().setActivity(Activity.watching("loading... | .faceithelp"));
 
         try {
             URI dbUri = new URI(System.getenv("DATABASE_URL"));
@@ -33,6 +34,7 @@ public class main implements EventListener {
             String username = dbUri.getUserInfo().split(":")[0];
             String password = dbUri.getUserInfo().split(":")[1];
             String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+            fullURL = dbUrl + "?user=" + username + "&password=" + password + "&sslmode=require";
 
 
             conn = DriverManager.getConnection(dbUrl + "?user=" + username + "&password=" + password + "&sslmode=require");
@@ -41,6 +43,7 @@ public class main implements EventListener {
             throwables.printStackTrace();
             System.out.println("ERROR IN SQL. Voting will not work.");
         }
+        main.jda.getPresence().setActivity(Activity.watching("your stats | .faceithelp"));
     }
     @Override
     public void onEvent(@NotNull GenericEvent genericEvent) {

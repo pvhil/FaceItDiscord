@@ -39,8 +39,8 @@ public class faceitRanking {
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer "+main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/74caad23-077b-4ef3-8b1d-c6a2254dfa75/seasons/39?offset=0&limit=15"))
+                .header("Authorization", "Bearer " + main.FACEITTOKEN)
+                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/74caad23-077b-4ef3-8b1d-c6a2254dfa75/seasons/40?offset=0&limit=15"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
@@ -52,8 +52,8 @@ public class faceitRanking {
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
-                .header("Authorization", "Bearer "+main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/748cf78c-be73-4eb9-b131-21552f2f8b75/seasons/32?offset=0&limit=15"))
+                .header("Authorization", "Bearer " + main.FACEITTOKEN)
+                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/748cf78c-be73-4eb9-b131-21552f2f8b75/seasons/33?offset=0&limit=15"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
