@@ -4,7 +4,7 @@
 
 ### 1. What does it store?
 #### FaceITBot stores the following: 
-##### • User IDs and FaceIT Names (only by using .faceitsave)
+##### • User IDs and FaceIT Names (only by using .faceitsave and .faceitrole)
 ##### • Discord server IDs and its settings for the bot (only by using .faceitsettings)
 ##### • It does NOT save anything by using standard commands!! (every other command)
 
@@ -17,10 +17,11 @@
 
 ### 4. Why does it store the data?
 #### It stores User IDs and FaceIT Names because without it, the function to save names for more comfortability does not work.
-#### It stores Discord Server IDs to save the prefered settings for the bot. Without that, you can not change anything.
+#### .faceitrole only works by saving FaceIT usernames, Discord user IDs and server IDs to assign fitting roles.
+#### It also stores Discord Server IDs to save the prefered settings for the bot. Without that, you can not change anything.
 
 ### 5. I have a question.
 #### Feel free to join my [Discord server](https://discord.gg/DUuCMgXDJC) 
 
 ### Please note, that we can change this policy without any warning at any given time.
-#### **Last changed:** `18.11.2020`
+#### **Last changed:** `24.12.2020`
