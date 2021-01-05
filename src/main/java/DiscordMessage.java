@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
 
@@ -42,6 +43,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
     public static String cPrefix;
     public Message loadingMSG;
     public static Message reactionMSG;
+    public static String otherGame;
 
     public String countryCodeToEmoji(String code) {
         int OFFSET = 127397;
@@ -158,33 +160,36 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     EmbedBuilder adminstats = new EmbedBuilder();
                     adminstats.setTitle("Stats for the Bot")
                             .setAuthor("Hello phil :)")
-                            .addField("Servers: ", String.valueOf(apis.guilds), true)
+                            .addField("Servers: ", String.valueOf(main.jda.getGuilds().size()), true)
                             .addField("Users: ", String.valueOf(main.jda.getUsers().size()), true)
                             .addField("Free Ram: ", NumberFormat.getInstance().format(Runtime.getRuntime().freeMemory() / 1024) + " mb", true)
                             .setColor(0x1500ff);
                     event.getChannel().sendMessage(adminstats.build()).queue();
                 }
-                if(args.length >= 2 ){
-                    if(args[1].equalsIgnoreCase("voters")){
-                        apis.topggVotes();
-                        event.getChannel().sendMessage("Watch console").queue();
-                    }
-                    if(args[1].equalsIgnoreCase("presence")){
+                if(args.length >= 2 ) {
+                    if (args[1].equalsIgnoreCase("presence")) {
                         String activity = args[2];
                         String activity1 = args[3];
-                        if (activity.equalsIgnoreCase("reset")){
+                        if (activity.equalsIgnoreCase("reset")) {
                             main.jda.getPresence().setActivity(Activity.watching(".faceithelp"));
-                        }else {
+                        } else {
                             main.jda.getPresence().setActivity(Activity.watching(activity + " " + activity1 + " | .faceithelp"));
                         }
                     }
-                    if(args[1].equalsIgnoreCase("status")){
+                    if (args[1].equalsIgnoreCase("statcord")) {
+                        try {
+                            Statcord.updateStats();
+                        } catch (IOException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (args[1].equalsIgnoreCase("status")) {
                         String activity = args[2];
-                        if(activity.equalsIgnoreCase("away")) {
+                        if (activity.equalsIgnoreCase("away")) {
                             main.jda.getPresence().setStatus(IDLE);
                             event.getChannel().sendMessage("Bot is now idle").queue();
                         }
-                        if(activity.equalsIgnoreCase("online")) {
+                        if (activity.equalsIgnoreCase("online")) {
                             main.jda.getPresence().setStatus(ONLINE);
                             event.getChannel().sendMessage("Bot is online").queue();
                         }
@@ -230,8 +235,47 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             }
             help.addField("❤  Please vote for our Bot, it would really help! ", " [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
             event.getChannel().sendMessage(help.build()).queue();
+            Statcord.commandPost("faceithelp", event.getAuthor().getId());
             return;
         }
+        //guild top 10 with faceitrole database
+        if (args[0].equalsIgnoreCase(cPrefix + "faceitserver")) {
+            String guild = event.getGuild().getId();
+            int count = 0;
+            List<String> user = null;
+            List<String> fName = null;
+            try {
+                Statement stmt = main.conn.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS rowcount FROM levelroleuser WHERE server='" + guild + "'");
+                if (rs.next()) {
+                    count = rs.getInt(1);
+                }
+                rs.close();
+                EmbedBuilder emb = new EmbedBuilder()
+                        .setTitle("Players of this Guild:");
+                for (int i = 1; i <= count; i++) {
+                    Statement stmt2 = main.conn.createStatement();
+                    ResultSet rs1 = stmt2.executeQuery("SELECT * FROM ( SELECT cid, server, fname,userid, ROW_NUMBER () OVER (ORDER BY cid) FROM levelroleuser WHERE server='" + guild + "'" + " ) x WHERE ROW_NUMBER = " + i);
+                    if (rs1.next()) {
+                        user.add(rs1.getString(4));
+                        fName.add(rs1.getString(3));
+                    }
+                    savedArgs = fName.get(i - 1);
+                    faceitAPI.main(null);
+                    emb.addField("Member " + event.getGuild().getMemberById(user.get(i - 1)).getAsMention(), "Elo: " + faceitAPI.faceitElo, false);
+                }
+                event.getChannel().sendMessage(emb.build()).queue();
+                Statcord.commandPost("faceitserver", event.getAuthor().getId());
+
+
+            } catch (SQLException | InterruptedException | IOException e) {
+                event.getChannel().sendMessage("something went wrong ohhoh").queue();
+                e.printStackTrace();
+            }
+
+        }
+
+
         //VOTING: saving name
         if (args[0].equalsIgnoreCase(cPrefix + "faceitsave")) {
             if (args.length < 2) {
@@ -241,7 +285,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             name = event.getMessage().getAuthor().getId();
             System.out.println(name);
             savedArgs = args[1];
-            apis.topggVotes();
+            apis.topggVotes(event.getAuthor().getId());
             if (apis.vote.equalsIgnoreCase("true")) {
                 try {
                     Statement stmt = main.conn.createStatement();
@@ -272,6 +316,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
+            Statcord.commandPost("faceitsave", event.getAuthor().getId());
             name = null;
         }
         //extra: rank
@@ -318,7 +363,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 ranks.setColor(0xe6851e);
                 try {
                     loadingMSG.delete().queue();
-                } catch (NullPointerException ignored) {
+                } catch (Exception ignored) {
                 }
 
 
@@ -326,6 +371,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             } else {
                 event.getChannel().sendMessage("Please Use a region like *eu* , *fpl eu/us* , *us* and maybe a country").queue();
             }
+            Statcord.commandPost("faceitrank", event.getAuthor().getId());
             savedCountry = null;
         }
         //teams
@@ -361,9 +407,10 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             teams.setColor(0xe6851e);
             try {
                 loadingMSG.delete().queue();
-            } catch (NullPointerException ignored) {
+            } catch (Exception ignored) {
             }
             event.getChannel().sendMessage(teams.build()).queue();
+            Statcord.commandPost("faceitteams", event.getAuthor().getId());
 
 
         }
@@ -408,12 +455,13 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             hubstats.setColor(0xe6851e);
             try {
                 loadingMSG.delete().queue();
-            } catch (NullPointerException ignored) {
+            } catch (Exception ignored) {
             }
             event.getChannel().sendMessage(hubem.build()).queue();
             if (faceitHub.working.equalsIgnoreCase("true")) {
                 event.getChannel().sendMessage(hubstats.build()).queue();
             }
+            Statcord.commandPost("faceithub", event.getAuthor().getId());
             //Settings for admins/mods
         }
         if (args[0].equalsIgnoreCase(cPrefix + "faceitsettings")) {
@@ -433,6 +481,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         .setFooter("Settings will be saved for the whole Server and not only for the user");
 
                 event.getChannel().sendMessage(settings.build()).queue();
+                Statcord.commandPost("faceitsettings", event.getAuthor().getId());
                 return;
             }
             //kd
@@ -695,7 +744,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                     try {
                                         faceitLatest.main(null);
                                     } catch (CompletionException e) {
-                                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or given number is too high.").queue();
+                                        event.getChannel().sendMessage("The given number is too high for this player!").queue();
                                     }
                                     EmbedBuilder latestem = new EmbedBuilder();
                                     latestem.setTitle(faceitLatest.team1 + " vs " + faceitLatest.team2, null);
@@ -717,7 +766,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                     latestem.addField("Headshots: ", faceitdetailedMatch.headshots, true);
                                     latestem.addField("Headshot %: ", faceitdetailedMatch.headperc + "%", true);
                                     latestem.addField("MVPs: ", faceitdetailedMatch.mvps, true);
-                                    latestem.addBlankField(true);
+                                    latestem.addField("HLTV 1.0:", String.valueOf(faceitdetailedMatch.rating), true);
+
 
                                     latestem.setFooter("Match played at " + faceitLatest.matchTime, "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
                                     latestem.setDescription("[Link to Game](" + faceitLatest.latestGameURL + ")");
@@ -731,13 +781,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                     }
                                     try {
                                         loadingMSG.delete().queue();
-                                    } catch (NullPointerException ignored) {
+                                    } catch (Exception ignored) {
                                     }
+
 
                                     event.getChannel().sendMessage(latestem.build()).queue();
                                     try {
                                         toSend.delete().queue();
-                                    } catch (NullPointerException ignored) {
+                                    } catch (Exception ignored) {
                                     }
                                     faceitLatest.players1 = null;
                                     faceitLatest.players2 = null;
@@ -747,6 +798,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                     faceitLatest.team2 = null;
                                     faceitOnlyPlayerId.faceitplayerID = null;
                                     faceitLatest.isitWin = "false";
+                                    Statcord.commandPost("faceitlatest (saved)", event.getAuthor().getId());
 
 
                                 }
@@ -803,7 +855,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 try {
                                     faceitLast20EloPoints.main(null);
                                 } catch (CompletionException e) {
-                                    event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or amount of games is too high for this player").queue();
+                                    event.getChannel().sendMessage("The given number is too high for this player!").queue();
                                     e.printStackTrace();
                                     faceitOnlyPlayerId.faceitplayerID = null;
                                     faceitLast20EloPoints.totalsumkills = 0;
@@ -849,10 +901,14 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 last.addField("Average Assists", String.valueOf(faceitLast20EloPoints.totalsumassists / savedCounter), true);
                                 last.addField("Average MVPs", String.valueOf(faceitLast20EloPoints.totalsummvps / savedCounter), true);
                                 last.addField("Average Headshots", String.valueOf(faceitLast20EloPoints.totalsumheadshots / savedCounter), true);
+                                last.addField("Winrate: ", faceitLast20EloPoints.win * 100 / savedCounter + "%", true);
+                                last.addField("Average K/R: ", faceitLast20EloPoints.realkr, true);
+                                last.addField("Headshot % ", faceitLast20EloPoints.totalsumheadperc / savedCounter + "%", true);
                                 last.addField("Triple Kills", String.valueOf(faceitLast20EloPoints.totalsumtriple), true);
                                 last.addField("Quadro Kills", String.valueOf(faceitLast20EloPoints.totalsumquadro), true);
                                 last.addField("Aces", String.valueOf(faceitLast20EloPoints.totalsumace), true);
-                                last.addField("Winrate: ", faceitLast20EloPoints.win * 100 / savedCounter + "%", true);
+
+                                last.addField("HLTV 1.0: ", String.valueOf(faceitLast20EloPoints.rating), true);
                                 last.addField("Start / End Elo: ", faceitLast20EloPoints.startElo + " / " + faceitLast20EloPoints.endElo, true);
                                 last.addField("Min. / Max. Elo: ", faceitLast20EloPoints.lowelo + " / " + faceitLast20EloPoints.highelo, true);
                                 if (kdGraph == 0) {
@@ -863,14 +919,15 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 last.setColor(0xe6851e);
                                 try {
                                     loadingMSG.delete().queue();
-                                } catch (NullPointerException ignored) {
+                                } catch (Exception ignored) {
                                 }
+
 
 
                                 event.getChannel().sendMessage(last.build()).queue();
                                 try {
                                     toSend.delete().queue();
-                                } catch (NullPointerException ignored) {
+                                } catch (Exception ignored) {
                                 }
                                 faceitOnlyPlayerId.faceitplayerID = null;
                                 faceitLast20EloPoints.totalsumkills = 0;
@@ -884,6 +941,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 faceitLast20EloPoints.totalsumquadro = 0;
                                 faceitLast20EloPoints.totalsumace = 0;
                                 faceitLast20EloPoints.win = 0;
+                                Statcord.commandPost("faceitlast (saved)", event.getAuthor().getId());
                                 return;
 
 
@@ -971,16 +1029,17 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 mapem.setColor(0xe6851e);
                                 try {
                                     loadingMSG.delete().queue();
-                                } catch (NullPointerException ignored) {
+                                } catch (Exception ignored) {
                                 }
 
 
                                 event.getChannel().sendMessage(mapem.build()).queue();
                                 try {
                                     toSend.delete().queue();
-                                } catch (NullPointerException ignored) {
+                                } catch (Exception ignored) {
                                 }
                                 faceitOnlyPlayerId.faceitplayerID = null;
+                                Statcord.commandPost("faceitmap (saved)", event.getAuthor().getId());
                                 return;
                             }
 
@@ -1093,6 +1152,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                         } catch (IllegalArgumentException e) {
                                             System.out.println("no pic");
                                         }
+
+
                                         info.addField("Country: ", countryCodeToEmoji(faceitAPI.faceitplayerCountry), true);
                                         info.addField("Wins: ", faceitStats.faceitWins, true);
                                         info.addField("Winrate: ", faceitStats.faceitRate + "%", true);
@@ -1128,25 +1189,24 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                         info.setColor(0xe6851e);
                                         try {
                                             loadingMSG.delete().queue();
-                                        } catch (NullPointerException ignored) {
+                                        } catch (Exception ignored) {
                                         }
 
                                         event.getChannel().sendMessage(info.build()).queue();
                                         try {
                                             toSend.delete().queue();
-                                        } catch (NullPointerException ignored) {
+                                        } catch (Exception ignored) {
                                         }
                                         //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
 
+                                        Statcord.commandPost("faceit (saved)", event.getAuthor().getId());
                                         System.out.println(savedArgs + " ADVANCED");
                                         return;
                                     }
                                 }
-                            } catch (SQLException throwables) {
+                            } catch (SQLException | InterruptedException throwables) {
                                 throwables.printStackTrace();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
                             }
 
 
@@ -1175,13 +1235,13 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                             info.setColor(0xe6851e);
                             try {
                                 loadingMSG.delete().queue();
-                            } catch (NullPointerException ignored) {
+                            } catch (Exception ignored) {
                             }
 
                             event.getChannel().sendMessage(info.build()).queue();
                             try {
                                 toSend.delete().queue();
-                            } catch (NullPointerException ignored) {
+                            } catch (Exception ignored) {
                             }
                             //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
@@ -1333,17 +1393,19 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                             info.setColor(0xe6851e);
                             try {
                                 loadingMSG.delete().queue();
-                            } catch (NullPointerException ignored) {
+                            } catch (Exception ignored) {
                             }
+
 
                             event.getChannel().sendMessage(info.build()).queue();
                             try {
                                 toSend.delete().queue();
-                            } catch (NullPointerException ignored) {
+                            } catch (Exception ignored) {
                             }
                             //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
 
+                            Statcord.commandPost("faceit", event.getAuthor().getId());
                             System.out.println(savedArgs + " ADVANCED");
                             return;
                         }
@@ -1367,7 +1429,6 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     info.setThumbnail(faceitAPI.faceitAvatar);
                 } catch (IllegalArgumentException e) {
                     System.out.println("no pic");
-                    e.printStackTrace();
                 }
                 info.addField("Country: ", countryCodeToEmoji(faceitAPI.faceitplayerCountry), true);
                 info.addField("Wins: ", faceitStats.faceitWins, true);
@@ -1381,14 +1442,15 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 info.setColor(0xe6851e);
                 try {
                     loadingMSG.delete().queue();
-                } catch (NullPointerException ignored) {
+                } catch (Exception ignored) {
                 }
+                Statcord.commandPost("faceit", event.getAuthor().getId());
 
                 event.getChannel().sendMessage(info.build()).queue(message -> reactionMSG = message);
 
                 try {
                     toSend.delete().queue();
-                } catch (NullPointerException ignored) {
+                } catch (Exception ignored) {
                 }
                 //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
@@ -1402,8 +1464,13 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 savedMap = args[2];
                 if (savedMap.equalsIgnoreCase("latest")) {
                     savedCounter = 1;
-                    if(args.length==4){
-                        savedCounter = Integer.parseInt(args[3]);
+                    if(args.length==4) {
+                        try {
+                            savedCounter = Integer.parseInt(args[3]);
+                        } catch (NumberFormatException e) {
+                            event.getChannel().sendMessage("Illegal Parameter!").queue();
+                            return;
+                        }
                         event.getChannel().sendMessage("*loading " + savedCounter + ". Match from now*").queue(message -> loadingMSG = message);
                     }else {
                         event.getChannel().sendMessage("*loading latest Match*").queue(message -> loadingMSG = message);
@@ -1433,7 +1500,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     try {
                         faceitLatest.main(null);
                     }catch (CompletionException e){
-                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or given number is too high.").queue();
+                        event.getChannel().sendMessage("The given number is too high for this player!").queue();
                     }
                     EmbedBuilder latestem = new EmbedBuilder();
                     latestem.setTitle(faceitLatest.team1 + " vs " + faceitLatest.team2, null);
@@ -1455,7 +1522,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     latestem.addField("Headshots: ", faceitdetailedMatch.headshots, true);
                     latestem.addField("Headshot %: ", faceitdetailedMatch.headperc + "%", true);
                     latestem.addField("MVPs: ", faceitdetailedMatch.mvps, true);
-                    latestem.addBlankField(true);
+                    latestem.addField("HLTV 1.0:", String.valueOf(faceitdetailedMatch.rating), true);
+
                     latestem.setFooter("Match played at " + faceitLatest.matchTime, "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
                     latestem.setDescription("[Link to Game](" + faceitLatest.latestGameURL + ")");
 
@@ -1468,13 +1536,13 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     }
                     try {
                         loadingMSG.delete().queue();
-                    } catch (NullPointerException ignored) {
+                    } catch (Exception ignored) {
                     }
 
                     event.getChannel().sendMessage(latestem.build()).queue();
                     try {
                         toSend.delete().queue();
-                    } catch (NullPointerException ignored) {
+                    } catch (Exception ignored) {
                     }
                     faceitLatest.players1 = null;
                     faceitLatest.players2 = null;
@@ -1484,6 +1552,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLatest.team2 = null;
                     faceitOnlyPlayerId.faceitplayerID = null;
                     faceitLatest.isitWin = "false";
+                    Statcord.commandPost("faceit latest", event.getAuthor().getId());
 
 
                 } else if (savedMap.equalsIgnoreCase("dust2") || savedMap.equalsIgnoreCase("mirage") || savedMap.equalsIgnoreCase("train") || savedMap.equalsIgnoreCase("cache") || savedMap.equalsIgnoreCase("overpass") || savedMap.equalsIgnoreCase("vertigo") || savedMap.equalsIgnoreCase("inferno") || savedMap.equalsIgnoreCase("nuke")) {
@@ -1567,16 +1636,17 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     mapem.setColor(0xe6851e);
                     try {
                         loadingMSG.delete().queue();
-                    } catch (NullPointerException ignored) {
+                    } catch (Exception ignored) {
                     }
 
 
                     event.getChannel().sendMessage(mapem.build()).queue();
                     try {
                         toSend.delete().queue();
-                    } catch (NullPointerException ignored) {
+                    } catch (Exception ignored) {
                     }
                     faceitOnlyPlayerId.faceitplayerID = null;
+                    Statcord.commandPost("faceit map", event.getAuthor().getId());
 
 
                 } else if (savedMap.startsWith("last")||savedMap.equalsIgnoreCase("last")) {
@@ -1591,7 +1661,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         }
                     }
                     if(savedMap.equalsIgnoreCase("last")&& (args.length ==4)){
-                            savedCounter = Integer.parseInt(args[3]);
+                        savedCounter = Integer.parseInt(args[3]);
                         if(savedCounter>=100){
                             event.getChannel().sendMessage("You can max. load 99 Games!").queue();
                             return;
@@ -1629,7 +1699,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     try {
                         faceitLast20EloPoints.main(null);
                     }catch (CompletionException e){
-                        event.getChannel().sendMessage("Something did not work. Maybe User never played csgo or amount of games is too high for this player").queue();
+                        event.getChannel().sendMessage("The given number is too high for this player!").queue();
                         e.printStackTrace();
                         faceitOnlyPlayerId.faceitplayerID = null;
                         faceitLast20EloPoints.totalsumkills = 0;
@@ -1676,10 +1746,13 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     last.addField("Average Assists", String.valueOf(faceitLast20EloPoints.totalsumassists / savedCounter), true);
                     last.addField("Average MVPs", String.valueOf(faceitLast20EloPoints.totalsummvps / savedCounter), true);
                     last.addField("Average Headshots", String.valueOf(faceitLast20EloPoints.totalsumheadshots / savedCounter), true);
+                    last.addField("Winrate: ", faceitLast20EloPoints.win * 100 / savedCounter + "%", true);
+                    last.addField("Average K/R: ", faceitLast20EloPoints.realkr, true);
+                    last.addField("Headshot % ", faceitLast20EloPoints.totalsumheadperc / savedCounter + "%", true);
                     last.addField("Triple Kills", String.valueOf(faceitLast20EloPoints.totalsumtriple), true);
                     last.addField("Quadro Kills", String.valueOf(faceitLast20EloPoints.totalsumquadro), true);
                     last.addField("Aces", String.valueOf(faceitLast20EloPoints.totalsumace), true);
-                    last.addField("Winrate: ", faceitLast20EloPoints.win * 100 / savedCounter + "%", true);
+                    last.addField("HLTV 1.0: ", String.valueOf(faceitLast20EloPoints.rating), true);
                     last.addField("Start / End Elo: ", faceitLast20EloPoints.startElo + " / " + faceitLast20EloPoints.endElo, true);
                     last.addField("Min. / Max. Elo: ", faceitLast20EloPoints.lowelo + " / " + faceitLast20EloPoints.highelo, true);
                     if (kdGraph == 0) {
@@ -1690,12 +1763,12 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     last.setColor(0xe6851e);
                     try {
                         loadingMSG.delete().queue();
-                    } catch (NullPointerException ignored) {
+                    } catch (Exception ignored) {
                     }
                     event.getChannel().sendMessage(last.build()).queue();
                     try {
                         toSend.delete().queue();
-                    } catch (NullPointerException ignored) {
+                    } catch (Exception ignored) {
                     }
                     faceitOnlyPlayerId.faceitplayerID = null;
                     faceitLast20EloPoints.totalsumkills = 0;
@@ -1709,12 +1782,313 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLast20EloPoints.totalsumquadro = 0;
                     faceitLast20EloPoints.totalsumace = 0;
                     faceitLast20EloPoints.win = 0;
+                    Statcord.commandPost("faceit last", event.getAuthor().getId());
 
 
-            }
-                else {
+                } else if (savedMap.equalsIgnoreCase("rainbow")) {
+                    otherGame = "rainbow_6";
+                    event.getChannel().sendMessage("*loading rainbow 6 siege stats*").queue(message -> loadingMSG = message);
+                    try {
+                        faceitOnlyPlayerId.main(null);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (CompletionException e) {
+                        try {
+                            faceitOnlyPlayerId.main(null);
+                        } catch (InterruptedException | CompletionException l) {
+                            try {
+                                unvalidPlayer();
+                            } catch (CompletionException e1) {
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                                return;
+                            }
+                            event.getChannel().sendMessage(search.build()).queue(message -> toSend = message);
+                            search.clearFields();
+                            try {
+                                faceitOnlyPlayerId.main(null);
+                            } catch (InterruptedException | CompletionException g) {
+                                event.getChannel().sendMessage("Never played FaceIT!").queue();
+                                toSend.delete().queue();
+                            }
+                        }
+
+                    }
+
+
+                    try {
+                        faceitOthergames.main(null);
+                    } catch (IOException | InterruptedException | CompletionException e) {
+                        event.getChannel().sendMessage("Never played that Game!").queue();
+                        return;
+                    }
+                    if (faceitOthergames.lvl == 1) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
+                    }
+                    if (faceitOthergames.lvl == 2) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
+                    }
+                    if (faceitOthergames.lvl == 3) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
+                    }
+                    if (faceitOthergames.lvl == 4) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
+                    }
+                    if (faceitOthergames.lvl == 5) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
+                    }
+                    if (faceitOthergames.lvl == 6) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
+                    }
+                    if (faceitOthergames.lvl == 7) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
+                    }
+                    if (faceitOthergames.lvl == 8) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
+                    }
+                    if (faceitOthergames.lvl == 9) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
+                    }
+                    if (faceitOthergames.lvl == 10) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
+                    }
+                    EmbedBuilder info = new EmbedBuilder();
+                    info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);
+                    if (faceitOthergames.premium.equals("free")) {
+                        info.setTitle("Rainbow Stats for " + savedArgs);
+                    } else {
+                        info.setTitle("Rainbow Stats for Premium Member " + savedArgs);
+                    }
+                    info.setDescription("[FaceIT Profile](" + faceitOthergames.profileURL + ") and [Steam Profile](https://steamcommunity.com/profiles/" + faceitOthergames.steam64 + ")");
+                    try {
+                        info.setThumbnail(faceitOthergames.avatar);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("no pic");
+
+                    }
+                    info.addField("Country: ", countryCodeToEmoji(faceitOthergames.country), true);
+
+                    info.setColor(0xe6851e);
+                    try {
+                        loadingMSG.delete().queue();
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        toSend.delete().queue();
+                    } catch (Exception ignored) {
+                    }
+
+                    event.getChannel().sendMessage(info.build()).queue(message -> reactionMSG = message);
+                    Statcord.commandPost("faceit other", event.getAuthor().getId());
+
+
+                } else if (savedMap.equalsIgnoreCase("dota")) {
+                    otherGame = "dota2";
+                    event.getChannel().sendMessage("*loading dota2 stats*").queue(message -> loadingMSG = message);
+                    try {
+                        faceitOnlyPlayerId.main(null);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (CompletionException e) {
+                        try {
+                            faceitOnlyPlayerId.main(null);
+                        } catch (InterruptedException | CompletionException l) {
+                            try {
+                                unvalidPlayer();
+                            } catch (CompletionException e1) {
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                                return;
+                            }
+                            event.getChannel().sendMessage(search.build()).queue(message -> toSend = message);
+                            search.clearFields();
+                            try {
+                                faceitOnlyPlayerId.main(null);
+                            } catch (InterruptedException | CompletionException g) {
+                                event.getChannel().sendMessage("Never played FaceIT!").queue();
+                                toSend.delete().queue();
+                            }
+                        }
+
+                    }
+
+
+                    try {
+                        faceitOthergames.main(null);
+                        faceitOthergames.dotastats(null);
+                    } catch (IOException | InterruptedException | CompletionException e) {
+                        event.getChannel().sendMessage("Never played that Game!").queue();
+                        return;
+                    }
+                    if (faceitOthergames.lvl == 1) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
+                    }
+                    if (faceitOthergames.lvl == 2) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
+                    }
+                    if (faceitOthergames.lvl == 3) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
+                    }
+                    if (faceitOthergames.lvl == 4) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
+                    }
+                    if (faceitOthergames.lvl == 5) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
+                    }
+                    if (faceitOthergames.lvl == 6) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
+                    }
+                    if (faceitOthergames.lvl == 7) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
+                    }
+                    if (faceitOthergames.lvl == 8) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
+                    }
+                    if (faceitOthergames.lvl == 9) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
+                    }
+                    if (faceitOthergames.lvl == 10) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
+                    }
+                    EmbedBuilder info = new EmbedBuilder();
+                    info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);
+                    if (faceitOthergames.premium.equals("free")) {
+                        info.setTitle("Dota Stats for " + savedArgs);
+                    } else {
+                        info.setTitle("Dota Stats for Premium Member " + savedArgs);
+                    }
+                    info.setDescription("[FaceIT Profile](" + faceitOthergames.profileURL + ") and [Steam Profile](https://steamcommunity.com/profiles/" + faceitOthergames.steam64 + ")");
+                    try {
+                        info.setThumbnail(faceitOthergames.avatar);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("no pic");
+                    }
+                    info.addField("Country: ", countryCodeToEmoji(faceitOthergames.country), true);
+                    info.addField("Matches: ", faceitOthergames.faceitWins, true);
+                    info.addField("Winrate: ", faceitOthergames.faceitRate + "%", true);
+                    info.addField("K/D: ", faceitOthergames.faceitKD, true);
+                    info.addField("Longest Winstreak", faceitOthergames.longestwins + " Wins", true);
+                    info.addField("Last 5 Games: ", String.valueOf(faceitOthergames.faceitRecent).replace("[", "").replaceAll(",", "").replace("]", "").replaceAll("1", "\uD83C\uDFC6").replaceAll("0", "\u274C").replaceAll("\"", "").replaceAll("null", " "), true);
+                    info.addField("Avg. Gold: ", faceitOthergames.headshotperc, true);
+                    info.setColor(0xe6851e);
+
+                    info.setColor(0xe6851e);
+                    try {
+                        loadingMSG.delete().queue();
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        toSend.delete().queue();
+                    } catch (Exception ignored) {
+                    }
+
+                    event.getChannel().sendMessage(info.build()).queue(message -> reactionMSG = message);
+                    Statcord.commandPost("faceit other", event.getAuthor().getId());
+
+                } else if (savedMap.equalsIgnoreCase("pubg")) {
+                    otherGame = "pubg";
+                    event.getChannel().sendMessage("*loading pubg stats*").queue(message -> loadingMSG = message);
+                    try {
+                        faceitOnlyPlayerId.main(null);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (CompletionException e) {
+                        try {
+                            faceitOnlyPlayerId.main(null);
+                        } catch (InterruptedException | CompletionException l) {
+                            try {
+                                unvalidPlayer();
+                            } catch (CompletionException e1) {
+                                event.getChannel().sendMessage("Wrong FaceIT Name!").queue();
+                                return;
+                            }
+                            event.getChannel().sendMessage(search.build()).queue(message -> toSend = message);
+                            search.clearFields();
+                            try {
+                                faceitOnlyPlayerId.main(null);
+                            } catch (InterruptedException | CompletionException g) {
+                                event.getChannel().sendMessage("Never played FaceIT!").queue();
+                                toSend.delete().queue();
+                            }
+                        }
+
+                    }
+
+
+                    try {
+                        faceitOthergames.main(null);
+                        faceitOthergames.pubgstats(null);
+                    } catch (IOException | InterruptedException | CompletionException e) {
+                        event.getChannel().sendMessage("Never played that Game!").queue();
+                        return;
+                    }
+                    if (faceitOthergames.lvl == 1) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
+                    }
+                    if (faceitOthergames.lvl == 2) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
+                    }
+                    if (faceitOthergames.lvl == 3) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
+                    }
+                    if (faceitOthergames.lvl == 4) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
+                    }
+                    if (faceitOthergames.lvl == 5) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
+                    }
+                    if (faceitOthergames.lvl == 6) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
+                    }
+                    if (faceitOthergames.lvl == 7) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
+                    }
+                    if (faceitOthergames.lvl == 8) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
+                    }
+                    if (faceitOthergames.lvl == 9) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
+                    }
+                    if (faceitOthergames.lvl == 10) {
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
+                    }
+                    EmbedBuilder info = new EmbedBuilder();
+                    info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);
+                    if (faceitOthergames.premium.equals("free")) {
+                        info.setTitle("PUBG Stats for " + savedArgs);
+                    } else {
+                        info.setTitle("PUBG Stats for Premium Member " + savedArgs);
+                    }
+                    info.setDescription("[FaceIT Profile](" + faceitOthergames.profileURL + ") and [Steam Profile](https://steamcommunity.com/profiles/" + faceitOthergames.steam64 + ")");
+                    try {
+                        info.setThumbnail(faceitOthergames.avatar);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("no pic");
+                    }
+                    info.addField("Country: ", countryCodeToEmoji(faceitOthergames.country), true);
+                    info.addField("Wins: ", faceitOthergames.faceitWins, true);
+                    info.addField("HS % ", faceitOthergames.faceitRate + "%", true);
+                    info.addField("K/D: ", faceitOthergames.faceitKD, true);
+                    info.addField("Total Kills", faceitOthergames.longestwins + " Wins", true);
+                    info.addField("Last Placements: ", String.valueOf(faceitOthergames.faceitRecent).replace("[", "").replaceAll(",", " ").replace("]", "").replaceAll("1", "1").replaceAll("0", "0").replaceAll("\"", "").replaceAll("null", " "), true);
+                    info.addField("Top 10s ", faceitOthergames.headshotperc, true);
+                    info.addField("Winrate ", faceitOthergames.faceitLongest, true);
+                    info.setColor(0xe6851e);
+
+                    info.setColor(0xe6851e);
+                    try {
+                        loadingMSG.delete().queue();
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        toSend.delete().queue();
+                    } catch (Exception ignored) {
+                    }
+
+                    event.getChannel().sendMessage(info.build()).queue(message -> reactionMSG = message);
+
+                    Statcord.commandPost("faceit other", event.getAuthor().getId());
+                } else {
                     event.getChannel().sendMessage("Wrong Argument! Use *" + cPrefix + "faceithelp* if you need help").queue();
-            }
+                }
 
         }
 

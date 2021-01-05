@@ -17,9 +17,19 @@
       <option name="url" value="https://repo1.maven.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="github" />
+      <option name="name" value="GitHub OWNER Apache Maven Packages" />
+      <option name="url" value="https://maven.pkg.github.com/pvhil/unofficial-statcord-wrapper" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="in-project" />
+      <option name="name" value="In Project Repo" />
+      <option name="url" value="file://C:\Users\phil1\Desktop\Floodgate-development\FaceIt/libs" />
     </remote-repository>
   </component>
 </project>

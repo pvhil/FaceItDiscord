@@ -21,9 +21,11 @@ public class faceitdetailedMatch {
     public static String deaths;
     public static String KR;
     public static String headperc;
+    public static double rating = 0;
 
 
     public static void main(String[] args) {
+        rating = 0;
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
@@ -81,6 +83,22 @@ public class faceitdetailedMatch {
 
         System.out.println(theMap + " " + endScore);
         System.out.println(pentaKills + tripleKills + assists + kills + quadroKills + mvps + deaths + kdratio + headshots);
+
+        double killRating = 0;
+        double survivalRating = 0;
+        double roundsWithMultipleKillsRating = 0;
+        double AVERAGE_KPR = 0.679;
+        double AVERAGE_SPR = 0.317;
+        double AVERAGE_RMK = 1.277;
+
+        killRating = Double.parseDouble(kills) / Double.parseDouble(roundsPlayed) / AVERAGE_KPR;
+        survivalRating = (Double.parseDouble(roundsPlayed) - Double.parseDouble(deaths)) / Double.parseDouble(roundsPlayed) / AVERAGE_SPR;
+        roundsWithMultipleKillsRating = (25 * Double.parseDouble(pentaKills) + 16 * Double.parseDouble(quadroKills) + 9 * Double.parseDouble(tripleKills) + 2 * (Double.parseDouble(kills) - (5 * Double.parseDouble(pentaKills) + 4 * Double.parseDouble(quadroKills) + 3 * Double.parseDouble(tripleKills)))) / Double.parseDouble(roundsPlayed) / AVERAGE_RMK;
+        rating = (killRating + 0.7 * survivalRating + roundsWithMultipleKillsRating) / 2.7;
+        System.out.println(killRating + " " + survivalRating + " " + roundsWithMultipleKillsRating + " " + rating);
+        rating = Math.round(rating * 100) / 100.0;
+
+
         return null;
     }
 }

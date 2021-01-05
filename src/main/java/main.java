@@ -44,10 +44,13 @@ public class main implements EventListener {
             System.out.println("ERROR IN SQL. Voting will not work.");
         }
         main.jda.getPresence().setActivity(Activity.watching("your stats | .faceithelp"));
+
+        Statcord.start(jda.getSelfUser().getId(), "statcord.com-GSeZb4kDjIW0ftLsn8eD", jda, true, 5);
     }
     @Override
     public void onEvent(@NotNull GenericEvent genericEvent) {
 
     }
+
 }
 
