@@ -7,3 +7,4 @@ Procfile
 system.properties
 updatescript.bat
 /src/main/java/apis.java
+/src/main/resources/

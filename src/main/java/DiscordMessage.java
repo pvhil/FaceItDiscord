@@ -122,6 +122,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
         join.addField("⭐ .faceitsave <name> ", " Save your FaceItName to only need to write *.faceit*\n(only for voters) ", false);
         join.addField("\uD83D\uDD12 .faceitsettings ", " Will show you some options for the bot.\n (User needs manage roles permission)", false);
         join.addField("❤  Please vote for our Bot, it would really help!: ", " [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
+        join.addField(":question: Join our Support Server if you need more help! ", " [Join Here!](https://discord.gg/DUuCMgXDJC)", false);
         Objects.requireNonNull(channel).sendMessage(join.build()).queue();
     }
 
@@ -167,6 +168,17 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     event.getChannel().sendMessage(adminstats.build()).queue();
                 }
                 if(args.length >= 2 ) {
+                    if (args[1].equalsIgnoreCase("restart")) {
+                        event.getChannel().sendMessage("Restarting bot").queue();
+                        try {
+                            apis.restartDyno();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
                     if (args[1].equalsIgnoreCase("presence")) {
                         String activity = args[2];
                         String activity1 = args[3];
@@ -233,6 +245,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             if (event.getMessage().getMember().hasPermission(Permission.MANAGE_ROLES)) {
                 help.addField("\uD83D\uDD12 " + cPrefix + "faceitsettings ", " Will show you some options for the bot.\n (User needs manage roles permission)", false);
             }
+            help.addField(":question: Join our Support Server if you need more help! ", " [Join Here!](https://discord.gg/DUuCMgXDJC)", false);
             help.addField("❤  Please vote for our Bot, it would really help! ", " [Click Here to Vote!](https://top.gg/bot/770312130037153813/vote)", false);
             event.getChannel().sendMessage(help.build()).queue();
             Statcord.commandPost("faceithelp", event.getAuthor().getId());
@@ -477,6 +490,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         .addField("◽ " + cPrefix + "faceitsettings kd on/off", "When activated, the graph for 'last games' also shows the kd", false)
                         .addField("◽ " + cPrefix + "faceitsettings advanced on/off", "When activated, *.faceit* shows more information (Warning: its a lot)", false)
                         .setColor(0xe6851e)
+                        .addField("◽ " + cPrefix + "faceitsettings banchannel mention channel/clear", "Bans a text channel / clears banned channels", false)
                         .addField("◽ " + cPrefix + "faceitsettings rolesystem *mention 10 roles*/off", "Activates/Deactivated the role system. You need to mention 10 roles to activate!", false)
                         .setFooter("Settings will be saved for the whole Server and not only for the user");
 
@@ -484,6 +498,48 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 Statcord.commandPost("faceitsettings", event.getAuthor().getId());
                 return;
             }
+            //banchannel
+            if (args[1].equalsIgnoreCase("banchannel")) {
+                name = event.getGuild().getId();
+                if (args[2].equalsIgnoreCase("clear")) {
+                    try {
+                        Statement stmt = main.conn.createStatement();
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd, reaction, role, adv, banchannel) VALUES (" + name + ",' ','0','.',9,0, 0,0,' ') ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET banchannel=EXCLUDED.banchannel;");
+                        stmt.close();
+                        event.getChannel().sendMessage("Cleared banned channels").queue();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                } else {
+                    List<TextChannel> channels = event.getMessage().getMentionedChannels();
+                    if (channels.size() != 1) {
+                        event.getChannel().sendMessage("Please mention a channel!!").queue();
+                        return;
+                    }
+                    String inte = null;
+                    try {
+                        Statement stmt = main.conn.createStatement();
+                        ResultSet rs = stmt.executeQuery("SELECT * FROM settings WHERE serverid=" + name);
+                        if (rs.next()) {
+                            System.out.println(rs.getString(9));
+                            inte = rs.getString(9) + ",";
+                            inte = inte + channels.get(0).getId();
+                        } else inte = channels.get(0).getId();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    try {
+                        Statement stmt = main.conn.createStatement();
+                        stmt.execute("INSERT INTO settings(serverid, banned, short, prefix, kd, reaction, role, adv, banchannel) VALUES (" + name + ",' ','0','.',9,0, 0,0,'" + inte + "') ON CONFLICT ON CONSTRAINT settings_pkey DO UPDATE SET banchannel=EXCLUDED.banchannel;");
+                        stmt.close();
+                        event.getChannel().sendMessage("Added a banned channel. Banned channel IDs: " + inte).queue();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }
+            }
+
+
             //kd
             if (args[1].equalsIgnoreCase("kd")) {
                 if (args[2].equalsIgnoreCase("on")) {
@@ -621,8 +677,10 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         ResultSet rs = stmt.executeQuery("SELECT * FROM settings WHERE serverid=" + name);
                         if (rs.next()) {
                             System.out.println(rs.getString(2));
-                            inte = rs.getString(2)+",";
-                            inte = inte+role;
+                            inte = rs.getString(2) + ",";
+                            if (!inte.equalsIgnoreCase("null")) {
+                                inte = inte + role;
+                            } else inte = role;
                         }else inte=role;
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
@@ -652,6 +710,21 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
             }
 
 
+        }
+        String banchannel;
+        try {
+            Statement stmt = main.conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM settings WHERE serverid=" + name);
+            if (rs.next()) {
+                banchannel = rs.getString(9);
+                if (banchannel != null && !banchannel.isEmpty()) {
+                    if (banchannel.contains(event.getChannel().getId())) {
+                        return;
+                    }
+                }
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
 
         //Normal User
@@ -772,7 +845,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                     latestem.setFooter("Match played at " + faceitLatest.matchTime, "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
                                     latestem.setDescription("[Link to Game](" + faceitLatest.latestGameURL + ")");
 
-                                    if (faceitLatest.isitWin.equals("true")) {
+                                    if (faceitdetailedMatch.isItWin) {
                                         latestem.setColor(0x09ff00);
                                         latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/win.png");
                                     } else {
@@ -797,7 +870,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                     faceitLatest.team1 = null;
                                     faceitLatest.team2 = null;
                                     faceitOnlyPlayerId.faceitplayerID = null;
-                                    faceitLatest.isitWin = "false";
+                                    faceitdetailedMatch.isItWin = false;
                                     Statcord.commandPost("faceitlatest (saved)", event.getAuthor().getId());
 
 
@@ -817,6 +890,18 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                     }
                                 }
                                 if (savedMap.equalsIgnoreCase("last") && (args.length == 3)) {
+                                    faceitOnlyPlayerId.faceitplayerID = null;
+                                    faceitLast20EloPoints.totalsumkills = 0;
+                                    faceitLast20EloPoints.totalsumdeaths = 0;
+                                    faceitLast20EloPoints.totalsumkd = 0;
+                                    faceitLast20EloPoints.realkd = "0";
+                                    faceitLast20EloPoints.totalsumassists = 0;
+                                    faceitLast20EloPoints.totalsummvps = 0;
+                                    faceitLast20EloPoints.totalsumheadshots = 0;
+                                    faceitLast20EloPoints.totalsumtriple = 0;
+                                    faceitLast20EloPoints.totalsumquadro = 0;
+                                    faceitLast20EloPoints.totalsumace = 0;
+                                    faceitLast20EloPoints.win = 0;
                                     savedCounter = Integer.parseInt(args[2]);
                                     if (savedCounter >= 100) {
                                         event.getChannel().sendMessage("You can max. load 99 Games!").queue();
@@ -914,7 +999,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 if (kdGraph == 0) {
                                     last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[" + hello.toString() + "],datasets:[{label:%27EloPoints%27,data:%20[" + faceitLast20EloPoints.fcEloHistory + "],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
                                 } else {
-                                    last.setImage("https://quickchart.io/chart?bkg=white&c=" + URLEncoder.encode("{type:'line',data:{labels:[" + hello.toString() + "],datasets:[{label:'Elo',yAxisID:'A',data: [" + faceitLast20EloPoints.fcEloHistory + "],backgroundColor:'rgba(255,0,0,0.5)',borderColor:'red'},{label:'K/D',yAxisID:'B',data: [" + faceitLast20EloPoints.kdHistory + "],backgroundColor:'rgba(78,80,255,0)',borderColor:'blue'}]},options:{scales:{xAxes:[{ticks:{reverse:true}}],yAxes:[{id:'A',type:'linear',position:'left',ticks:{beginAtZero:false,}},{id:'B',type:'linear',position:'right',ticks:{beginAtZero:false}}]}}}", StandardCharsets.UTF_8));
+                                    last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[" + hello.toString() + "],datasets:[{label:%27Elo%27,yAxisID:%27A%27,data:[" + faceitLast20EloPoints.fcEloHistory + "],backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27},{label:%27K%2FD%27,yAxisID:%27B%27,data:[" + faceitLast20EloPoints.kdHistory + "],backgroundColor:%22rgba(78,80,255,0)%22,borderColor:%27blue%27}]},options:{scales:{xAxes:[{ticks:{reverse:true}}],yAxes:[{id:%27A%27,type:%27linear%27,position:%27left%27,ticks:{beginAtZero:false,}},{id:%27B%27,type:%27linear%27,position:%27right%27,ticks:{beginAtZero:false}}]}}}");
                                 }
                                 last.setColor(0xe6851e);
                                 try {
@@ -1091,34 +1176,34 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
 
                             if (faceitAPI.faceitLevel == 1) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
                             }
                             if (faceitAPI.faceitLevel == 2) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
                             }
                             if (faceitAPI.faceitLevel == 3) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
                             }
                             if (faceitAPI.faceitLevel == 4) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
                             }
                             if (faceitAPI.faceitLevel == 5) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
                             }
                             if (faceitAPI.faceitLevel == 6) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
                             }
                             if (faceitAPI.faceitLevel == 7) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
                             }
                             if (faceitAPI.faceitLevel == 8) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
                             }
                             if (faceitAPI.faceitLevel == 9) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
                             }
                             if (faceitAPI.faceitLevel == 10) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
+                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
                             }
 
                             try {
@@ -1243,6 +1328,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                                 toSend.delete().queue();
                             } catch (Exception ignored) {
                             }
+                            Statcord.commandPost("faceit (saved)", event.getAuthor().getId());
                             //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
 
@@ -1287,47 +1373,58 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         }
                         event.getChannel().sendMessage(search.build()).queue(message -> toSend = message);
                         search.clearFields();
-                        try {
-                            faceitAPI.main(null);
-                        } catch (IOException | InterruptedException | CompletionException g) {
-                            g.printStackTrace();
-                            event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
-                            toSend.delete().queue();
-                        }
+                    try {
+                        faceitAPI.main(null);
+                    } catch (IOException | InterruptedException | CompletionException g) {
+                        g.printStackTrace();
+                        event.getChannel().sendMessage("Never played FaceIT CSGO!").queue();
+                        toSend.delete().queue();
                     }
+                }
 
 
-                    if (faceitAPI.faceitLevel == 1) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
-                    }
-                    if (faceitAPI.faceitLevel == 2) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
-                    }
-                    if (faceitAPI.faceitLevel == 3) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
-                    }
-                    if (faceitAPI.faceitLevel == 4) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
-                    }
-                    if (faceitAPI.faceitLevel == 5) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
-                    }
-                    if (faceitAPI.faceitLevel == 6) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
-                    }
-                    if (faceitAPI.faceitLevel == 7) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
-                    }
+                if (faceitAPI.faceitLevel == 1) {
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
+                }
+                if (faceitAPI.faceitLevel == 2) {
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
+                }
+                if (faceitAPI.faceitLevel == 3) {
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
+                }
+                if (faceitAPI.faceitLevel == 4) {
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
+                }
+                if (faceitAPI.faceitLevel == 5) {
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
+                }
+                if (faceitAPI.faceitLevel == 6) {
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
+                }
+                if (faceitAPI.faceitLevel == 7) {
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
+                }
                 if (faceitAPI.faceitLevel == 8) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
                 }
                 if (faceitAPI.faceitLevel == 9) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
                 }
                 if (faceitAPI.faceitLevel == 10) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
                 }
                 try {
+                    faceitLast20EloPoints.totalsumkills = 0;
+                    faceitLast20EloPoints.totalsumdeaths = 0;
+                    faceitLast20EloPoints.totalsumkd = 0;
+                    faceitLast20EloPoints.realkd = "0";
+                    faceitLast20EloPoints.totalsumassists = 0;
+                    faceitLast20EloPoints.totalsummvps = 0;
+                    faceitLast20EloPoints.totalsumheadshots = 0;
+                    faceitLast20EloPoints.totalsumtriple = 0;
+                    faceitLast20EloPoints.totalsumquadro = 0;
+                    faceitLast20EloPoints.totalsumace = 0;
+                    faceitLast20EloPoints.win = 0;
                     //shortcut activated for server?
                     name = null;
                     name = event.getMessage().getGuild().getId();
@@ -1447,11 +1544,11 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 Statcord.commandPost("faceit", event.getAuthor().getId());
 
                 event.getChannel().sendMessage(info.build()).queue(message -> reactionMSG = message);
-
                 try {
                     toSend.delete().queue();
                 } catch (Exception ignored) {
                 }
+
                 //faceitRecent faceitLongest faceitKD faceitRate faceitWins faceitLevel faceitElo tofu
 
 
@@ -1527,7 +1624,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     latestem.setFooter("Match played at " + faceitLatest.matchTime, "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png");
                     latestem.setDescription("[Link to Game](" + faceitLatest.latestGameURL + ")");
 
-                    if (faceitLatest.isitWin.equals("true")) {
+                    if (faceitdetailedMatch.isItWin) {
                         latestem.setColor(0x09ff00);
                         latestem.setThumbnail("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/win.png");
                     } else {
@@ -1551,7 +1648,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     faceitLatest.team1 = null;
                     faceitLatest.team2 = null;
                     faceitOnlyPlayerId.faceitplayerID = null;
-                    faceitLatest.isitWin = "false";
+                    faceitdetailedMatch.isItWin = false;
                     Statcord.commandPost("faceit latest", event.getAuthor().getId());
 
 
@@ -1650,12 +1747,24 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
 
 
                 } else if (savedMap.startsWith("last")||savedMap.equalsIgnoreCase("last")) {
-                    if(savedMap.length()==4){
+                    faceitOnlyPlayerId.faceitplayerID = null;
+                    faceitLast20EloPoints.totalsumkills = 0;
+                    faceitLast20EloPoints.totalsumdeaths = 0;
+                    faceitLast20EloPoints.totalsumkd = 0;
+                    faceitLast20EloPoints.realkd = "0";
+                    faceitLast20EloPoints.totalsumassists = 0;
+                    faceitLast20EloPoints.totalsummvps = 0;
+                    faceitLast20EloPoints.totalsumheadshots = 0;
+                    faceitLast20EloPoints.totalsumtriple = 0;
+                    faceitLast20EloPoints.totalsumquadro = 0;
+                    faceitLast20EloPoints.totalsumace = 0;
+                    faceitLast20EloPoints.win = 0;
+                    if (savedMap.length() == 4) {
                         savedCounter = 15;
                     } else {
                         String[] split = savedMap.split("t");
                         savedCounter = Integer.parseInt(split[1]);
-                        if(savedCounter>=100){
+                        if (savedCounter >= 100) {
                             event.getChannel().sendMessage("You can max. load 99 Games!").queue();
                             return;
                         }
@@ -1758,7 +1867,7 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                     if (kdGraph == 0) {
                         last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[" + hello.toString() + "],datasets:[{label:%27EloPoints%27,data:%20[" + faceitLast20EloPoints.fcEloHistory + "],%20fill:true,backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27}]},options:{scales:{xAxes:[{ticks:{reverse:%20true}}],yAxes:[{ticks:{beginAtZero:%20false}}],}}}");
                     } else {
-                        last.setImage("https://quickchart.io/chart?bkg=white&c=" + URLEncoder.encode("{type:'line',data:{labels:[" + hello.toString() + "],datasets:[{label:'Elo',yAxisID:'A',data: [" + faceitLast20EloPoints.fcEloHistory + "],backgroundColor:'rgba(255,0,0,0.5)',borderColor:'red'},{label:'K/D',yAxisID:'B',data: [" + faceitLast20EloPoints.kdHistory + "],backgroundColor:'rgba(78,80,255,0)',borderColor:'blue'}]},options:{scales:{xAxes:[{ticks:{reverse:true}}],yAxes:[{id:'A',type:'linear',position:'left',ticks:{beginAtZero:false,}},{id:'B',type:'linear',position:'right',ticks:{beginAtZero:false}}]}}}", StandardCharsets.UTF_8));
+                        last.setImage("https://quickchart.io/chart?bkg=white&c={type:%27line%27,data:{labels:[" + hello.toString() + "],datasets:[{label:%27Elo%27,yAxisID:%27A%27,data:[" + faceitLast20EloPoints.fcEloHistory + "],backgroundColor:%22rgba(255,0,0,0.5)%22,borderColor:%27red%27},{label:%27K%2FD%27,yAxisID:%27B%27,data:[" + faceitLast20EloPoints.kdHistory + "],backgroundColor:%22rgba(78,80,255,0)%22,borderColor:%27blue%27}]},options:{scales:{xAxes:[{ticks:{reverse:true}}],yAxes:[{id:%27A%27,type:%27linear%27,position:%27left%27,ticks:{beginAtZero:false,}},{id:%27B%27,type:%27linear%27,position:%27right%27,ticks:{beginAtZero:false}}]}}}");
                     }
                     last.setColor(0xe6851e);
                     try {
@@ -1822,34 +1931,34 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         return;
                     }
                     if (faceitOthergames.lvl == 1) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
                     }
                     if (faceitOthergames.lvl == 2) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
                     }
                     if (faceitOthergames.lvl == 3) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
                     }
                     if (faceitOthergames.lvl == 4) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
                     }
                     if (faceitOthergames.lvl == 5) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
                     }
                     if (faceitOthergames.lvl == 6) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
                     }
                     if (faceitOthergames.lvl == 7) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
                     }
                     if (faceitOthergames.lvl == 8) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
                     }
                     if (faceitOthergames.lvl == 9) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
                     }
                     if (faceitOthergames.lvl == 10) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
                     }
                     EmbedBuilder info = new EmbedBuilder();
                     info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);
@@ -1919,34 +2028,34 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         return;
                     }
                     if (faceitOthergames.lvl == 1) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
                     }
                     if (faceitOthergames.lvl == 2) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
                     }
                     if (faceitOthergames.lvl == 3) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
                     }
                     if (faceitOthergames.lvl == 4) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
                     }
                     if (faceitOthergames.lvl == 5) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
                     }
                     if (faceitOthergames.lvl == 6) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
                     }
                     if (faceitOthergames.lvl == 7) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
                     }
                     if (faceitOthergames.lvl == 8) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
                     }
                     if (faceitOthergames.lvl == 9) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
                     }
                     if (faceitOthergames.lvl == 10) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
                     }
                     EmbedBuilder info = new EmbedBuilder();
                     info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);
@@ -2021,34 +2130,34 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         return;
                     }
                     if (faceitOthergames.lvl == 1) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_1.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
                     }
                     if (faceitOthergames.lvl == 2) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_2.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
                     }
                     if (faceitOthergames.lvl == 3) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_3.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
                     }
                     if (faceitOthergames.lvl == 4) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_4.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
                     }
                     if (faceitOthergames.lvl == 5) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_5.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
                     }
                     if (faceitOthergames.lvl == 6) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_6.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
                     }
                     if (faceitOthergames.lvl == 7) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_7.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
                     }
                     if (faceitOthergames.lvl == 8) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_8.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
                     }
                     if (faceitOthergames.lvl == 9) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_9.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
                     }
                     if (faceitOthergames.lvl == 10) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/skill_level_10.png";
+                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
                     }
                     EmbedBuilder info = new EmbedBuilder();
                     info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);

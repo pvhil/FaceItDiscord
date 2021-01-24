@@ -5,6 +5,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Period;
 
 public class faceitRanking {
     public static String topr;
@@ -35,12 +38,21 @@ public class faceitRanking {
                 .join();
     }
     public static void fpleu() {
+        LocalDate bday = LocalDate.of(2020, Month.JANUARY, 1);
+        LocalDate today = LocalDate.now();
+        Period age = Period.between(bday, today);
+        int years = age.getYears();
+        int months = age.getMonths();
+
+        int season = (years * 12) + months + 41;
+
+
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
                 .header("Authorization", "Bearer " + main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/74caad23-077b-4ef3-8b1d-c6a2254dfa75/seasons/40?offset=0&limit=15"))
+                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/74caad23-077b-4ef3-8b1d-c6a2254dfa75/seasons/" + season + "?offset=0&limit=15"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
@@ -48,12 +60,19 @@ public class faceitRanking {
                 .join();
     }
     public static void fplus() {
+        LocalDate bday = LocalDate.of(2020, Month.JANUARY, 1);
+        LocalDate today = LocalDate.now();
+        Period age = Period.between(bday, today);
+        int years = age.getYears();
+        int months = age.getMonths();
+
+        int season = (years * 12) + months + 34;
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()
                 .header("accept", "application/json")
                 .header("Authorization", "Bearer " + main.FACEITTOKEN)
-                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/748cf78c-be73-4eb9-b131-21552f2f8b75/seasons/33?offset=0&limit=15"))
+                .uri(URI.create("https://open.faceit.com/data/v4/leaderboards/hubs/748cf78c-be73-4eb9-b131-21552f2f8b75/seasons/" + season + "?offset=0&limit=15"))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)

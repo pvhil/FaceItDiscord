@@ -22,6 +22,7 @@ public class faceitdetailedMatch {
     public static String KR;
     public static String headperc;
     public static double rating = 0;
+    public static boolean isItWin = false;
 
 
     public static void main(String[] args) {
@@ -79,6 +80,11 @@ public class faceitdetailedMatch {
         headshots = playerStats.getString("Headshot");
         KR = playerStats.getString("K/R Ratio");
         headperc = playerStats.getString("Headshots %");
+        if (playerStats.getString("Result").equalsIgnoreCase("1")) {
+            isItWin = true;
+        } else {
+            isItWin = false;
+        }
 
 
         System.out.println(theMap + " " + endScore);
