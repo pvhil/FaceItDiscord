@@ -1,3 +1,5 @@
+Bot maybe needs a complete rewrite :/  
+
 <img src="https://cdn.discordapp.com/avatars/770312130037153813/704aab707701ace86dd8e737800b4521.png?size=512" height="140" align="right" style="background-color:black;padding:20px;"/>
 
 # FaceIT Stats for your Discord Server!
@@ -14,37 +16,20 @@ A Discord Bot which shows you how bad you are in csgo!
 ## Installation
 1. Add Bot to your Server: https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot
 ## Usage
-IMPORTANT! Faceitname is case-sensitive  
-* <code>.faceit (faceitname)</code> = look at lifetime stats  
-* <code>.faceit (faceitname) latest</code> = look at latest match  
-* <code>.faceit (faceitname) (map)</code> = Look at map stats  
-* <code>.faceit (faceitname) last (amount of games)</code> = Shows your Stats for your last games (standard: 15)  
-* <code>.faceitrank (region) (opt: country)</code> = Top 15 for your region / country  
-* <code>.faceitrank fpl eu/us</code> = Current Leaderboard of the FPL  
-* <code>.faceithub (hub)</code> = Information and Leaderboard for a hub  
-<p></p>
-  
-* <code>.faceithubsettings </code> = Settings for the discord server admin (with MANAGE-ROLES permission)  
-* <code>.faceitsave (name)</code> = Save your name for more comfortability. This is only for [Voters](https://top.gg/bot/770312130037153813)  
 
-  
-If you need more help, look at our [Examples](https://github.com/pvhil/FaceItDiscord/blob/master/examples.md)
+Please look at [Top.GG](https://top.gg/bot/770312130037153813) for the newest updates and information about this bot  
 
 ## Note
 Bot is using charts from quickchart.io, images from countryflags.io and the FaceIT API v1 and v4.  
-Bot is in version 3.0  
-Code could be for some people a mess because im still learning java
+Code *is* a mess because it was my very first and complete Java project. Will rewrite it soon :)
 
 ## Known Bugs
+
 .faceit player last (ex. 99) could be too high for some players because player played unranked faceit games which cant be added to the equation (NOT fixable) -> use lower amount    
-  
 If you know a bug please contact me on my [Discord Server](https://discord.gg/DUuCMgXDJC)
 
 ## Can i host this bot by my own?
-Of course you can. But please do not act like it is your written code.  
-I will not help you to host this bot by yourself. You need to edit the code to your preferences.  
-Please do not use this code commercially and only for your private things if you really want to host it yourself.  
-It would really be better if you just add the bot. [Invite](https://discord.com/api/oauth2/authorize?client_id=770312130037153813&permissions=8&scope=bot)
+No please do not.
 
 ## Disclaimer
 FACEITDiscord/FaceITBot/FaceITDiscordBot is a third-party application and not affiliated with FACEIT. [Privacy Policy](https://github.com/pvhil/FaceItDiscord/blob/master/privacy.md)
