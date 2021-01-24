@@ -38,7 +38,7 @@ public class faceitRanking {
                 .join();
     }
     public static void fpleu() {
-        LocalDate bday = LocalDate.of(2020, Month.JANUARY, 1);
+        LocalDate bday = LocalDate.of(2021, Month.JANUARY, 1);
         LocalDate today = LocalDate.now();
         Period age = Period.between(bday, today);
         int years = age.getYears();
@@ -60,7 +60,7 @@ public class faceitRanking {
                 .join();
     }
     public static void fplus() {
-        LocalDate bday = LocalDate.of(2020, Month.JANUARY, 1);
+        LocalDate bday = LocalDate.of(2021, Month.JANUARY, 1);
         LocalDate today = LocalDate.now();
         Period age = Period.between(bday, today);
         int years = age.getYears();
