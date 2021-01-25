@@ -11,6 +11,7 @@ import java.time.Period;
 
 public class faceitRanking {
     public static String topr;
+    public static int season;
     public static void main(String[] args) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
@@ -44,7 +45,7 @@ public class faceitRanking {
         int years = age.getYears();
         int months = age.getMonths();
 
-        int season = (years * 12) + months + 41;
+        season = (years * 12) + months + 41;
 
 
         HttpClient client = HttpClient.newHttpClient();
@@ -66,7 +67,7 @@ public class faceitRanking {
         int years = age.getYears();
         int months = age.getMonths();
 
-        int season = (years * 12) + months + 34;
+        season = (years * 12) + months + 34;
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = (HttpRequest) HttpRequest.newBuilder()
                 .GET()

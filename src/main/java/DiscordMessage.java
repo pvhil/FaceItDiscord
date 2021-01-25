@@ -349,10 +349,10 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         }
                         if (savedCountry.equalsIgnoreCase("us")) {
                             faceitRanking.fplus();
-                            ranks.setFooter("Season 33");
+                            ranks.setFooter("Season " + faceitRanking.season);
                         } else if (savedCountry.equalsIgnoreCase("eu")) {
                             faceitRanking.fpleu();
-                            ranks.setFooter("Season 40");
+                            ranks.setFooter("Season " + faceitRanking.season);
                         } else {
                             event.getChannel().sendMessage("Use a region (*us/eu*)").queue();
                             return;
@@ -1175,36 +1175,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                             }
 
 
-                            if (faceitAPI.faceitLevel == 1) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
-                            }
-                            if (faceitAPI.faceitLevel == 2) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
-                            }
-                            if (faceitAPI.faceitLevel == 3) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
-                            }
-                            if (faceitAPI.faceitLevel == 4) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
-                            }
-                            if (faceitAPI.faceitLevel == 5) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
-                            }
-                            if (faceitAPI.faceitLevel == 6) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
-                            }
-                            if (faceitAPI.faceitLevel == 7) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
-                            }
-                            if (faceitAPI.faceitLevel == 8) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
-                            }
-                            if (faceitAPI.faceitLevel == 9) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
-                            }
-                            if (faceitAPI.faceitLevel == 10) {
-                                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
-                            }
+                            faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/" + faceitAPI.faceitLevel + ".png";
+
 
                             try {
                                 //shortcut activated for server?
@@ -1383,36 +1355,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                 }
 
 
-                if (faceitAPI.faceitLevel == 1) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
-                }
-                if (faceitAPI.faceitLevel == 2) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
-                }
-                if (faceitAPI.faceitLevel == 3) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
-                }
-                if (faceitAPI.faceitLevel == 4) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
-                }
-                if (faceitAPI.faceitLevel == 5) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
-                }
-                if (faceitAPI.faceitLevel == 6) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
-                }
-                if (faceitAPI.faceitLevel == 7) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
-                }
-                if (faceitAPI.faceitLevel == 8) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
-                }
-                if (faceitAPI.faceitLevel == 9) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
-                }
-                if (faceitAPI.faceitLevel == 10) {
-                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
-                }
+                faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/" + faceitAPI.faceitLevel + ".png";
+
                 try {
                     faceitLast20EloPoints.totalsumkills = 0;
                     faceitLast20EloPoints.totalsumdeaths = 0;
@@ -1930,36 +1874,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         event.getChannel().sendMessage("Never played that Game!").queue();
                         return;
                     }
-                    if (faceitOthergames.lvl == 1) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
-                    }
-                    if (faceitOthergames.lvl == 2) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
-                    }
-                    if (faceitOthergames.lvl == 3) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
-                    }
-                    if (faceitOthergames.lvl == 4) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
-                    }
-                    if (faceitOthergames.lvl == 5) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
-                    }
-                    if (faceitOthergames.lvl == 6) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
-                    }
-                    if (faceitOthergames.lvl == 7) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
-                    }
-                    if (faceitOthergames.lvl == 8) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
-                    }
-                    if (faceitOthergames.lvl == 9) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
-                    }
-                    if (faceitOthergames.lvl == 10) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
-                    }
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/" + faceitOthergames.lvl + ".png";
+
                     EmbedBuilder info = new EmbedBuilder();
                     info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);
                     if (faceitOthergames.premium.equals("free")) {
@@ -2027,36 +1943,9 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         event.getChannel().sendMessage("Never played that Game!").queue();
                         return;
                     }
-                    if (faceitOthergames.lvl == 1) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
-                    }
-                    if (faceitOthergames.lvl == 2) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
-                    }
-                    if (faceitOthergames.lvl == 3) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
-                    }
-                    if (faceitOthergames.lvl == 4) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
-                    }
-                    if (faceitOthergames.lvl == 5) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
-                    }
-                    if (faceitOthergames.lvl == 6) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
-                    }
-                    if (faceitOthergames.lvl == 7) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
-                    }
-                    if (faceitOthergames.lvl == 8) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
-                    }
-                    if (faceitOthergames.lvl == 9) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
-                    }
-                    if (faceitOthergames.lvl == 10) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
-                    }
+
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/" + faceitOthergames.lvl + ".png";
+
                     EmbedBuilder info = new EmbedBuilder();
                     info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);
                     if (faceitOthergames.premium.equals("free")) {
@@ -2129,36 +2018,8 @@ public class DiscordMessage extends ListenerAdapter implements EventListener {
                         event.getChannel().sendMessage("Never played that Game!").queue();
                         return;
                     }
-                    if (faceitOthergames.lvl == 1) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/1.png";
-                    }
-                    if (faceitOthergames.lvl == 2) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2.png";
-                    }
-                    if (faceitOthergames.lvl == 3) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/3.png";
-                    }
-                    if (faceitOthergames.lvl == 4) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/4.png";
-                    }
-                    if (faceitOthergames.lvl == 5) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/5.png";
-                    }
-                    if (faceitOthergames.lvl == 6) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/6.png";
-                    }
-                    if (faceitOthergames.lvl == 7) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/7.png";
-                    }
-                    if (faceitOthergames.lvl == 8) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/8.png";
-                    }
-                    if (faceitOthergames.lvl == 9) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/9.png";
-                    }
-                    if (faceitOthergames.lvl == 10) {
-                        faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/10.png";
-                    }
+                    faceitLevelPNG = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/" + faceitOthergames.lvl + ".png";
+
                     EmbedBuilder info = new EmbedBuilder();
                     info.setAuthor("Elo: " + faceitOthergames.elo, null, faceitLevelPNG);
                     if (faceitOthergames.premium.equals("free")) {
