@@ -9,3 +9,7 @@
 ## Adding the role:
 
 ![activating](https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/2021-01-05-16-50-15.gif)
+
+## Fixing the rolesystem:
+
+![fix](https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/rolesystemfix.gif)
