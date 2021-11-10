@@ -1,0 +1,6 @@
+/node_modules
+commandstructure.txt
+herokuupload.txt
+main.py
+/*.env
+rolesystem/.env
