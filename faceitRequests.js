@@ -184,6 +184,29 @@ async function idStats(x) {
   })
 }
 
+//normal stats need id
+async function idStatsCheck(x) {
+  return new Promise((resolve, reject) => {
+    try {
+      axios.get("https://open.faceit.com/data/v4/players/" + x, {
+          headers: {
+            'accept': 'application/json',
+            'Authorization': 'Bearer ' + ft
+          }
+        })
+        .then(function (response) {
+          resolve(response.data)
+        })
+        .catch(function (error) {
+          reject("error")
+          console.log(error);
+        })
+    } catch (err) {
+      return "error"
+    }
+  })
+}
+
 //stats with nickname
 async function nickStats(x) {
   return new Promise((resolve, reject) => {
@@ -385,5 +408,6 @@ module.exports = {
   searchHub,
   vOneRequest,
   hubLeaderboard,
-  hubInfo
+  hubInfo,
+  idStatsCheck
 }

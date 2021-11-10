@@ -15,14 +15,22 @@ const {
 
 async function fStats(name) {
    try {
+      var id = 0
+      try{
+      var sCon = await fr.nickStats(name)
+      id = sCon.player_id
+      }catch (ex){
       var sCon = await fr.searchPlayer(name)
+      id = sCon.items[0].player_id
+      }
 
-      var csgoStats = await fr.idStats(sCon.items[0].player_id)
-      var regiont = await fr.nickStats(sCon.items[0].nickname)
+      var temp = await fr.idStatsCheck(id)
+      var csgoStats = await fr.idStats(temp.player_id)
+      var regiont = await fr.nickStats(temp.nickname)
       var region = regiont.games.csgo.region
       var country = regiont.country
-      var rank = await fr.plRankRegion(sCon.items[0].player_id, region)
-      var rankw = await fr.plRankCountry(sCon.items[0].player_id, country, region)
+      var rank = await fr.plRankRegion(temp.player_id, region)
+      var rankw = await fr.plRankCountry(temp.player_id, country, region)
       var skilllevel = regiont.games.csgo["skill_level"].toString()
 
       var premium = ""
@@ -35,7 +43,7 @@ async function fStats(name) {
 
       const embed = new MessageEmbed()
          .setColor('#FF5500')
-         .setTitle('Stats for ' + premium + sCon.items[0].nickname)
+         .setTitle('Stats for ' + premium + temp.nickname)
          .addFields({
             name: 'Country',
             value: countryCodeEmoji(country),
