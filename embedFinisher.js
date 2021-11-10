@@ -1,15 +1,12 @@
 const fr = require("./faceitRequests");
 const {
    countryCodeEmoji,
-   emojiCountryCode
 } = require('country-code-emoji');
 const numbformat = new Intl.NumberFormat();
 
 
 const {
    MessageEmbed,
-   MessageActionRow,
-   MessageButton
 } = require('discord.js');
 
 
@@ -91,9 +88,15 @@ async function fStats(name) {
 }
 async function fLatest(name) {
    try {
-
-      var sCon = await fr.searchPlayer(name)
-      var historty = await fr.historyReq(sCon.items[0].player_id, 1)
+      var id = 0
+      try{
+         var sCon = await fr.nickStats(name)
+         id = sCon.player_id
+         }catch (ex){
+         var sCon = await fr.searchPlayer(name)
+         id = sCon.items[0].player_id
+         }
+      var historty = await fr.historyReq(id, 1)
       var history = historty.items[0]
       var game = await fr.detailedMatch(history["match_id"])
 
@@ -113,12 +116,12 @@ async function fLatest(name) {
                team2.push(game.rounds[0].teams[i].players[a].nickname)
             }
          }
-         if (JSON.stringify(game.rounds[0].teams[i]).includes(sCon.items[0].player_id)) {
+         if (JSON.stringify(game.rounds[0].teams[i]).includes(id)) {
 
             for (var a = 0; a < game.rounds[0].teams[i].players.length; a++) {
 
 
-               if (JSON.stringify(game.rounds[0].teams[i].players[a]).includes(sCon.items[0].player_id)) {
+               if (JSON.stringify(game.rounds[0].teams[i].players[a]).includes(id)) {
                   teamIndex = i
                   plIndex = a
                   isWin = game.rounds[0].teams[i].players[a].Result
@@ -238,8 +241,15 @@ async function fLatest(name) {
 }
 async function fMap(name, map) {
    try {
-      var sCon = await fr.searchPlayer(name)
-      var stats = await fr.idStats(sCon.items[0].player_id)
+      var id = 0
+      try{
+         var sCon = await fr.nickStats(name)
+         id = sCon.player_id
+         }catch (ex){
+         var sCon = await fr.searchPlayer(name)
+         id = sCon.items[0].player_id
+         }
+      var stats = await fr.idStats(id)
 
       for (var i = 0; i < stats.segments.length; i++) {
          if (JSON.stringify(stats.segments[i]).includes("5v5") && JSON.stringify(stats.segments[i]).includes(map)) {
@@ -334,9 +344,19 @@ async function fMap(name, map) {
 }
 async function fLast(name, count) {
    try {
-      var sCon = await fr.searchPlayer(name)
-      var stats = await fr.vOneRequest(sCon.items[0].player_id)
-      var nickStats = await fr.nickStats(sCon.items[0].nickname)
+      var id = 0
+      var nickname = ""
+      try{
+         var sCon = await fr.nickStats(name)
+         id = sCon.player_id
+         nickname = sCon.nickname
+         }catch (ex){
+         var sCon = await fr.searchPlayer(name)
+         id = sCon.items[0].player_id
+         nickname = sCon.items[0].nickname
+         }
+      var stats = await fr.vOneRequest(id)
+      var nickStats = await fr.nickStats(nickname)
 
       var elopoints = []
       var wins = 0
@@ -402,7 +422,7 @@ async function fLast(name, count) {
 
       const embed = new MessageEmbed()
          .setColor('#FF5500')
-         .setTitle(sCon.items[0].nickname + "'s last " + count + " Games")
+         .setTitle(nickname + "'s last " + count + " Games")
          .addFields({
             name: 'Avg Kills',
             value: (Math.round(totalkills / countint)).toString(),
