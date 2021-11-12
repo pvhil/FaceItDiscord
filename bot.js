@@ -332,7 +332,7 @@ client.on('interactionCreate', async interaction => {
 							return
 						}
 					}
-					pgclient.query("INSERT INTO levelrole(discordid,one,two,three,four,five,six,seven,eight,nine,ten) VALUES ('" + gId + "','" + roles[0] + "','" + roles[1] + "','" + roles[2] + "','" + roles[3] + "','" + roles[4] + "','" + roles[5] + "','" + roles[6] + "','" + roles[7] + "','" + roles[8] + "','" + roles[9] + "') ON CONFLICT ON CONSTRAINT levelrole_pkey DO UPDATE SET discordid=EXCLUDED.discordid;", (err, res) => {
+					pgclient.query("INSERT INTO levelrole(discordid,level1,level2,level3,level4,level5,level6,level7,level8,level9,level10) VALUES ('" + gId + "','" + roles[0] + "','" + roles[1] + "','" + roles[2] + "','" + roles[3] + "','" + roles[4] + "','" + roles[5] + "','" + roles[6] + "','" + roles[7] + "','" + roles[8] + "','" + roles[9] + "') ON CONFLICT ON CONSTRAINT levelrole_pkey DO UPDATE SET discordid=EXCLUDED.discordid;", (err, res) => {
 						const errembed = new MessageEmbed()
 							.setColor('#FF5500')
 							.setTitle("Activated the Role System!")

@@ -21,6 +21,12 @@ const client = new Client({
 	intents: [Intents.FLAGS.GUILDS]
 });
 
+function sleep(ms) {
+	return new Promise((resolve) => {
+	  setTimeout(resolve, ms);
+	});
+  }
+
 async function syncQuery(query) {
 	return new Promise((resolve, reject) => {
 		try {
@@ -36,12 +42,13 @@ async function syncQuery(query) {
 
 var shardid = 0
 
-process.on("message", message => {
+process.on("message", async message => {
     if (!message.type) return false;
 
     if (message.type == "shardId") {
         console.log(`The shard id is: ${message.data.shardId}`);
 		shardid = message.data.shardId
+		await sleep(10000);
 		refreshRoles()
 		setInterval(refreshRoles, 3600000);
     };
@@ -129,6 +136,7 @@ async function refreshRoles(){
 			await syncQuery("DELETE FROM stats WHERE faceit='"+faceItName+"'")
 			continue
 		}
+
 		console.log("FaceIt: "+faceItName)
 		console.log("FaceIt Level: "+fLevel)
 		console.log("Discord ID: "+userReq.rows[i].discord)
@@ -141,7 +149,7 @@ async function refreshRoles(){
 			}catch (e){
 				//delete guild
 				console.log("Bot Left Guild. Deleting from Database")
-				await syncQuery("DELETE FROM levelrole WHERE discord='"+guildReq.rows[a].discordid+"'")
+				await syncQuery("DELETE FROM levelrole WHERE discordid='"+guildReq.rows[a].discordid+"'")
 				continue
 			}
 			try{
@@ -150,7 +158,8 @@ async function refreshRoles(){
 				console.log("Not in this Server. Next Guild")
 				continue;
 			}
-			var levelRole = await syncQuery("SELECT * FROM levelrole WHERE discord='"+guildReq.rows[a].discordid+"'")
+			var levelRole = await syncQuery("SELECT * FROM levelrole WHERE discordid='"+guildReq.rows[a].discordid+"'")
+
 			
 			try{
 			if(!(fetchedMember.roles.cache.has(levelRole.rows[0]["level"+fLevel]))){
@@ -169,7 +178,7 @@ async function refreshRoles(){
 			}
 		}catch(e){
 			console.log("invalid roles! deleting server")
-			await syncQuery("DELETE FROM levelrole WHERE discord='"+guildReq.rows[a].discordid+"'")
+			await syncQuery("DELETE FROM levelrole WHERE discordid='"+guildReq.rows[a].discordid+"'")
 			continue
 		}
 		console.log("-")
