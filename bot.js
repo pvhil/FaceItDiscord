@@ -27,8 +27,6 @@ const {
 	MessageActionRow,
 	MessageButton,
 	MessageSelectMenu,
-	ButtonInteraction,
-	RoleManager
 	Permissions
 } = require('discord.js');
 const client = new Client({
