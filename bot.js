@@ -105,8 +105,8 @@ ap.on('posted', () => {
 // interaction handling
 client.on('interactionCreate', async interaction => {
 	if (interaction.isCommand()) {
-		await interaction.deferReply();
 		if (interaction.commandName === 'stats') {
+			await interaction.deferReply();
 
 			var name = interaction.options.getString('faceitname');
 			var resp = await faceit.fStats(name)
@@ -156,6 +156,7 @@ client.on('interactionCreate', async interaction => {
 				})
 			}
 		} else if (interaction.commandName === 'latest') {
+			await interaction.deferReply();
 			var name = interaction.options.getString('faceitname');
 			var resp = await faceit.fLatest(name)
 			Statcord.ShardingClient.postCommand(interaction.commandName, interaction.user.id, client);
@@ -165,6 +166,7 @@ client.on('interactionCreate', async interaction => {
 			})
 
 		} else if (interaction.commandName === 'map') {
+			await interaction.deferReply();
 			var name = interaction.options.getString('faceitname');
 			var resp = await faceit.fMap(name, "de_dust2")
 
@@ -231,6 +233,7 @@ client.on('interactionCreate', async interaction => {
 				components: [row]
 			})
 		} else if (interaction.commandName === 'last') {
+			await interaction.deferReply();
 			var name = interaction.options.getString('faceitname');
 			var count = interaction.options.getString('games');
 			var resp = await faceit.fLast(name, count)
@@ -238,6 +241,7 @@ client.on('interactionCreate', async interaction => {
 				embeds: [resp]
 			})
 		} else if (interaction.commandName === 'ranking') {
+			await interaction.deferReply();
 			var region = interaction.options.getString('region');
 			var country = interaction.options.getString('country');
 			var resp = await faceit.fRanking(region, country)
@@ -249,6 +253,7 @@ client.on('interactionCreate', async interaction => {
 			})
 
 		} else if (interaction.commandName === 'hub') {
+			await interaction.deferReply();
 			var hub = interaction.options.getString('hub');
 			var resp = await faceit.fHub(hub)
 			if (resp.length == 2) {
@@ -264,6 +269,7 @@ client.on('interactionCreate', async interaction => {
 			}
 
 		} else if (interaction.commandName === 'team') {
+			await interaction.deferReply();
 			var team = interaction.options.getString('team');
 			var resp = await faceit.fTeam(team)
 			Statcord.ShardingClient.postCommand(interaction.commandName, interaction.user.id, client);
@@ -272,6 +278,7 @@ client.on('interactionCreate', async interaction => {
 				embeds: [resp]
 			})
 		} else if (interaction.commandName === 'save') {
+			await interaction.deferReply();
 			var name = interaction.options.getString('faceit');
 			var uId = interaction.user.id
 
@@ -309,6 +316,19 @@ client.on('interactionCreate', async interaction => {
 			}
 
 		} else if (interaction.commandName === 'settings') {
+			await interaction.deferReply({ephemeral: true});
+			if(!(interaction.member.permissions.has(Permissions.FLAGS.MANAGE_ROLES))){
+				const errembed = new MessageEmbed()
+				.setColor('#ff0000')
+				.setTitle("You do not have enough Permissions!")
+				.setDescription("You need MANAGE ROLES to change the settings")
+				.setTimestamp()
+			interaction.editReply({
+				embeds: [errembed],
+				ephemeral: true
+			})
+
+			}
 
 			if (interaction.options.getSubcommand() == "rolesystem") {
 				try {
@@ -401,6 +421,7 @@ client.on('interactionCreate', async interaction => {
 				}
 			}
 		} else if (interaction.commandName === 'help') {
+			await interaction.deferReply();
 			interaction.editReply({
 				embeds: [helpEmbed]
 			})
