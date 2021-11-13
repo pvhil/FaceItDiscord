@@ -1,1 +1,0 @@
-// https://canary.discord.com/api/v9/users/251719490813952011/profile?with_mutual_guilds=true
