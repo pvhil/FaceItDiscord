@@ -135,10 +135,10 @@ async function fLatest(name) {
       var date = new Date(historty.to * 1000)
 
 
-      var win = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/lose.png"
+      var win = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/pictures/l.png"
 
       if (isWin == "1") {
-         win = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/win.png"
+         win = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/pictures/trophy.png"
       }
 
 
