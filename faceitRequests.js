@@ -1,5 +1,5 @@
-const axios = require('axios');
-const dotenv = require('dotenv').config()
+const axios = require("axios");
+const dotenv = require("dotenv").config()
 
 
 const ft = process.env.FACEITTOKEN
@@ -11,8 +11,8 @@ function searchPlayer(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/search/players?nickname=" + encodeURIComponent(x) + "&game=csgo&offset=0&limit=1", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -33,8 +33,8 @@ async function detailedMatch(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/matches/" + encodeURIComponent(x) + "/stats", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -56,8 +56,8 @@ async function searchHub(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/search/hubs?name=" + encodeURIComponent(x) + "&offset=0&limit=1", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -79,8 +79,8 @@ async function hubInfo(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/hubs/" + encodeURIComponent(x), {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -102,8 +102,8 @@ async function hubLeaderboard(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/leaderboards/hubs/" + encodeURIComponent(x) + "/general?offset=0&limit=10", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -145,8 +145,8 @@ async function historyReq(x, numb) {
     try {
       axios.get("https://open.faceit.com/data/v4/players/" + encodeURIComponent(x) + "/history?game=csgo&offset=0&limit=" + numb, {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -168,8 +168,8 @@ async function idStats(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/players/" + x + "/stats/csgo", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -191,8 +191,8 @@ async function idStatsCheck(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/players/" + x, {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -214,8 +214,8 @@ async function nickStats(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/players?nickname=" + encodeURIComponent(x), {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -237,8 +237,8 @@ async function otherGames(x, game) {
     try {
       axios.get("https://open.faceit.com/data/v4/players/" + encodeURIComponent(x) + "/stats/" + game, {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -261,8 +261,8 @@ async function plRankRegion(x, reg) {
     try {
       axios.get("https://open.faceit.com/data/v4/rankings/games/csgo/regions/" + reg + "/players/" + encodeURIComponent(x) + "?limit=1", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -284,8 +284,8 @@ async function plRankCountry(x, country, reg) {
     try {
       axios.get("https://open.faceit.com/data/v4/rankings/games/csgo/regions/" + reg + "/players/" + encodeURIComponent(x) + "?country=" + country + "&limit=1", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -307,8 +307,8 @@ async function rankRegion(reg) {
     try {
       axios.get("https://open.faceit.com/data/v4/rankings/games/csgo/regions/" + reg + "?offset=0&limit=15", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -330,8 +330,8 @@ async function rankCountry(country, reg) {
     try {
       axios.get("https://open.faceit.com/data/v4/rankings/games/csgo/regions/" + reg + "?country=" + country + "&offset=0&limit=15", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -353,8 +353,8 @@ async function teamSearch(team) {
     try {
       axios.get("https://open.faceit.com/data/v4/search/teams?nickname=" + encodeURIComponent(team) + "&offset=0&limit=1", {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -376,8 +376,8 @@ async function teamInfo(x) {
     try {
       axios.get("https://open.faceit.com/data/v4/teams/" + encodeURIComponent(x), {
           headers: {
-            'accept': 'application/json',
-            'Authorization': 'Bearer ' + ft
+            "accept": "application/json",
+            "Authorization": "Bearer " + ft
           }
         })
         .then(function (response) {
@@ -399,7 +399,7 @@ async function topggcheck(x) {
     try {
       axios.get("https://top.gg/api/bots/770312130037153813/check?userId="+x, {
         headers: {
-          'Authorization': topggtoken
+          "Authorization": topggtoken
         }
         })
         .then(function (response) {

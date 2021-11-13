@@ -51,7 +51,7 @@ process.on("message", async message => {
 		await sleep(10000);
 		refreshRoles()
 		setInterval(refreshRoles, 3600000);
-    };
+    }
 });
 
 async function nickStats(x) {

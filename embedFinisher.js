@@ -1,13 +1,13 @@
 const fr = require("./faceitRequests");
 const {
    countryCodeEmoji,
-} = require('country-code-emoji');
+} = require("country-code-emoji");
 const numbformat = new Intl.NumberFormat();
 
 
 const {
    MessageEmbed,
-} = require('discord.js');
+} = require("discord.js");
 
 
 async function fStats(name) {
@@ -39,46 +39,46 @@ async function fStats(name) {
 
 
       const embed = new MessageEmbed()
-         .setColor('#FF5500')
-         .setTitle('Stats for ' + premium + temp.nickname)
+         .setColor("#FF5500")
+         .setTitle("Stats for " + premium + temp.nickname)
          .addFields({
-            name: 'Country',
+            name: "Country",
             value: countryCodeEmoji(country),
             inline: true
          }, {
-            name: 'Wins',
+            name: "Wins",
             value: (csgoStats.lifetime.Wins).toString(),
             inline: true
          }, {
-            name: 'Winrate',
+            name: "Winrate",
             value: csgoStats.lifetime["Win Rate %"].toString() + "%",
             inline: true
          }, {
-            name: 'K/D',
+            name: "K/D",
             value: csgoStats.lifetime["Average K/D Ratio"].toString(),
             inline: true
          }, {
-            name: 'Longest Winstreak',
+            name: "Longest Winstreak",
             value: csgoStats.lifetime["Longest Win Streak"].toString(),
             inline: true
          }, {
-            name: 'Last 5 Games',
+            name: "Last 5 Games",
             value: csgoStats.lifetime["Recent Results"].toString().replaceAll(",", "").replaceAll("0", "❌").replaceAll("1", "🏆").replaceAll("null", ""),
             inline: true
          }, {
-            name: 'Headshot %',
+            name: "Headshot %",
             value: csgoStats.lifetime["Average Headshots %"].toString() + "%",
             inline: true
          })
          .setAuthor("Elo: " + regiont.games.csgo["faceit_elo"].toString(), skilllevelpic)
          .setThumbnail(regiont.avatar)
          .setDescription("[FaceIT Profile](" + regiont["faceit_url"].toString().replace("{lang}", "en") + ") and [Steam Profile](https://steamcommunity.com/profiles/" + regiont["steam_id_64"] + ")")
-         .setFooter('🌐 Rank: ' + numbformat.format(rank.position).toString() + " | Country Rank: " + numbformat.format(rankw.position).toString());
+         .setFooter("🌐 Rank: " + numbformat.format(rank.position).toString() + " | Country Rank: " + numbformat.format(rankw.position).toString());
 
       return embed
    } catch (e) {
       const errembed = new MessageEmbed()
-         .setColor('#ff0000')
+         .setColor("#ff0000")
          .setTitle("Wrong FaceIT Name")
          .setDescription("This FaceIT Name is invalid! Try again")
          .setTimestamp()
@@ -143,78 +143,78 @@ async function fLatest(name) {
 
 
       const embed = new MessageEmbed()
-         .setColor('#FF5500')
+         .setColor("#FF5500")
          .setTitle(history.teams.faction1.nickname + " vs " + history.teams.faction2.nickname)
          .addFields({
-            name: 'Team 1',
+            name: "Team 1",
             value: team1.toString().replaceAll(",", "\n"),
             inline: true
          }, {
-            name: 'Team 2',
+            name: "Team 2",
             value: team2.toString().replaceAll(",", "\n"),
             inline: true
          }, {
-            name: '\u200b',
+            name: "\u200b",
             value: "\u200b",
             inline: false
          }, {
-            name: 'Final Score',
+            name: "Final Score",
             value: game.rounds[0]["round_stats"].Score.toString(),
             inline: true
          }, {
-            name: 'Map',
+            name: "Map",
             value: game.rounds[0]["round_stats"].Map.toString(),
             inline: true
          }, {
-            name: '\u200b',
+            name: "\u200b",
             value: "\u200b",
             inline: false
          }, {
-            name: 'Kills',
+            name: "Kills",
             value: plStats.Kills.toString(),
             inline: true
          }, {
-            name: 'Deaths',
+            name: "Deaths",
             value: plStats.Deaths.toString(),
             inline: true
          }, {
-            name: 'K/D',
+            name: "K/D",
             value: plStats["K/D Ratio"].toString(),
             inline: true
          }, {
-            name: 'Triple Kills',
+            name: "Triple Kills",
             value: plStats["Triple Kills"].toString(),
             inline: true
          }, {
-            name: 'Quadro Kills',
+            name: "Quadro Kills",
             value: plStats["Quadro Kills"].toString(),
             inline: true
          }, {
-            name: 'Aces',
+            name: "Aces",
             value: plStats["Penta Kills"].toString(),
             inline: true
          }, {
-            name: 'K/R',
+            name: "K/R",
             value: plStats["K/R Ratio"].toString(),
             inline: true
          }, {
-            name: 'Assists',
+            name: "Assists",
             value: plStats["Assists"].toString(),
             inline: true
          }, {
-            name: 'Headshots',
+            name: "Headshots",
             value: plStats["Headshots"].toString(),
             inline: true
          }, {
-            name: 'Headshot %',
+            name: "Headshot %",
             value: plStats["Headshots %"].toString() + "%",
             inline: true
          }, {
-            name: 'MVPs',
+            name: "MVPs",
             value: plStats["MVPs"].toString(),
             inline: true
          }, {
-            name: 'HLTV 1.0',
+            name: "HLTV 1.0",
             value: "In work",
             inline: true
          }, )
@@ -225,7 +225,7 @@ async function fLatest(name) {
       return embed
    } catch (e) {
       const errembed = new MessageEmbed()
-         .setColor('#ff0000')
+         .setColor("#ff0000")
          .setTitle("Wrong FaceIT Name")
          .setDescription("This FaceIT Name is invalid! Try again")
          .setTimestamp()
@@ -256,70 +256,70 @@ async function fMap(name, map) {
             var mapstats = stats.segments[i].stats
 
             const embed = new MessageEmbed()
-               .setColor('#FF5500')
+               .setColor("#FF5500")
                .setTitle("Stats for " + map)
                .addFields({
-                  name: 'Kills',
+                  name: "Kills",
                   value: mapstats.Kills,
                   inline: true
                }, {
-                  name: 'Deaths',
+                  name: "Deaths",
                   value: mapstats.Deaths,
                   inline: true
                }, {
-                  name: 'Assists',
+                  name: "Assists",
                   value: mapstats.Assists,
                   inline: true
                }, {
-                  name: 'Avg Kills',
+                  name: "Avg Kills",
                   value: mapstats["Average Kills"],
                   inline: true
                }, {
-                  name: 'Avg Deaths',
+                  name: "Avg Deaths",
                   value: mapstats["Average Deaths"],
                   inline: true
                }, {
-                  name: 'Played Rounds',
+                  name: "Played Rounds",
                   value: mapstats.Rounds,
                   inline: true
                }, {
-                  name: 'Matches',
+                  name: "Matches",
                   value: mapstats.Matches,
                   inline: true
                }, {
-                  name: 'Wins',
+                  name: "Wins",
                   value: mapstats.Wins,
                   inline: true
                }, {
-                  name: 'Winrate',
+                  name: "Winrate",
                   value: mapstats["Win Rate %"] + "%",
                   inline: true
                }, {
-                  name: 'Triple Kills',
+                  name: "Triple Kills",
                   value: mapstats["Triple Kills"].toString(),
                   inline: true
                }, {
-                  name: 'Quadro Kills',
+                  name: "Quadro Kills",
                   value: mapstats["Quadro Kills"].toString(),
                   inline: true
                }, {
-                  name: 'Aces',
+                  name: "Aces",
                   value: mapstats["Penta Kills"].toString(),
                   inline: true
                }, {
-                  name: 'Headshots',
+                  name: "Headshots",
                   value: mapstats.Headshots.toString(),
                   inline: true
                }, {
-                  name: 'Headshots per Match',
+                  name: "Headshots per Match",
                   value: mapstats["Headshots per Match"].toString(),
                   inline: true
                }, {
-                  name: 'Avg K/D',
+                  name: "Avg K/D",
                   value: mapstats["Average K/D Ratio"].toString(),
                   inline: true
                }, {
-                  name: 'MVPS',
+                  name: "MVPS",
                   value: mapstats["MVPs"].toString(),
                   inline: true
                }, )
@@ -331,7 +331,7 @@ async function fMap(name, map) {
       }
    } catch (e) {
       const errembed = new MessageEmbed()
-         .setColor('#ff0000')
+         .setColor("#ff0000")
          .setTitle("Wrong FaceIT Name")
          .setDescription("This FaceIT Name is invalid! Try again")
          .setTimestamp()
@@ -421,66 +421,66 @@ async function fLast(name, count) {
       var countint = parseInt(count)
 
       const embed = new MessageEmbed()
-         .setColor('#FF5500')
+         .setColor("#FF5500")
          .setTitle(nickname + "'s last " + count + " Games")
          .addFields({
-            name: 'Avg Kills',
+            name: "Avg Kills",
             value: (Math.round(totalkills / countint)).toString(),
             inline: true
          }, {
-            name: 'Avg Deaths',
+            name: "Avg Deaths",
             value: (Math.round(totaldeaths / countint)).toString(),
             inline: true
          }, {
-            name: 'Avg K/D',
+            name: "Avg K/D",
             value: realkd.toString(),
             inline: true
          }, {
-            name: 'Avg Assists',
+            name: "Avg Assists",
             value: (Math.round(totalassists / countint)).toString(),
             inline: true
          }, {
-            name: 'Avg MVPs',
+            name: "Avg MVPs",
             value: (Math.round(totalmvps / countint)).toString(),
             inline: true
          }, {
-            name: 'Avg Headshots',
+            name: "Avg Headshots",
             value: (totalhs / countint).toString(),
             inline: true
          }, {
-            name: 'Winrate',
+            name: "Winrate",
             value: (Math.round((wins * 100) / countint)).toString(),
             inline: true
          }, {
-            name: 'Avg K/R',
+            name: "Avg K/R",
             value: realkr.toString(),
             inline: true
          }, {
-            name: 'Headshot %',
+            name: "Headshot %",
             value: (Math.round(totalhsperc / countint)).toString() + "%",
             inline: true
          }, {
-            name: 'Triple Kills',
+            name: "Triple Kills",
             value: (Math.round(totaltriple / countint)).toString(),
             inline: true
          }, {
-            name: 'Quadro Kills',
+            name: "Quadro Kills",
             value: (Math.round(totalquadro / countint)).toString(),
             inline: true
          }, {
-            name: 'Aces',
+            name: "Aces",
             value: (Math.round(totalace / countint)).toString(),
             inline: true
          }, {
-            name: 'HLTV 1.0',
+            name: "HLTV 1.0",
             value: "Coming back",
             inline: true
          }, {
-            name: 'Start / End Elo',
+            name: "Start / End Elo",
             value: (elopoints[0] + " / " + elopoints[elopoints.length - 1]).toString(),
             inline: true
          }, {
-            name: 'Min. / Max. Elo',
+            name: "Min. / Max. Elo",
             value: (Math.min(...elopoints) + " / " + Math.max(...elopoints)).toString(),
             inline: true
          }, )
@@ -490,7 +490,7 @@ async function fLast(name, count) {
       return embed
    } catch (e) {
       const errembed = new MessageEmbed()
-         .setColor('#ff0000')
+         .setColor("#ff0000")
          .setTitle("Wrong FaceIT Name")
          .setDescription("This FaceIT Name is invalid! Try again")
          .setTimestamp()
@@ -523,13 +523,13 @@ async function fRanking(region, country) {
 
       }
       embed
-         .setColor('#FF5500')
+         .setColor("#FF5500")
          .setDescription(ept.join(""))
 
       return embed
    } catch (e) {
       const errembed = new MessageEmbed()
-         .setColor('#ff0000')
+         .setColor("#ff0000")
          .setTitle("Wrong FaceIT Name")
          .setDescription("This FaceIT Name is invalid! Try again")
          .setTimestamp()
@@ -546,23 +546,23 @@ async function fHub(name) {
 
 
       const embed = new MessageEmbed()
-         .setColor('#FF5500')
+         .setColor("#FF5500")
          .setTitle(hubSearch.items[0]["name"])
          .setDescription(hubInfo["description"])
          .addFields({
-            name: 'Players',
+            name: "Players",
             value: hubInfo["players_joined"].toString(),
             inline: true
          }, {
-            name: 'Min/Max Elolevel',
+            name: "Min/Max Elolevel",
             value: hubInfo["min_skill_level"] + " / " + hubInfo["max_skill_level"],
             inline: true
          }, {
-            name: 'Permissions',
+            name: "Permissions",
             value: hubInfo["join_permission"],
             inline: true
          }, {
-            name: 'FaceIT Link',
+            name: "FaceIT Link",
             value: "[Link to FaceIT Hub](" + hubInfo["faceit_url"].replaceAll("{lang}", "en") + ")",
             inline: true
          }, )
@@ -578,7 +578,7 @@ async function fHub(name) {
       }
 
       const lead = new MessageEmbed()
-         .setColor('#FF5500')
+         .setColor("#FF5500")
          .setTitle("Leaderboard")
          .setDescription(lDesc.join(""))
 
@@ -588,7 +588,7 @@ async function fHub(name) {
 
    } catch (e) {
       const errembed = new MessageEmbed()
-         .setColor('#ff0000')
+         .setColor("#ff0000")
          .setTitle("Wrong FaceIT Name")
          .setDescription("This FaceIT Name is invalid! Try again")
          .setTimestamp()
@@ -603,7 +603,7 @@ async function fTeam(name) {
       var teamInfo = await fr.teamInfo(teamSearch.items[0]["team_id"])
 
       const embed = new MessageEmbed()
-         .setColor('#FF5500')
+         .setColor("#FF5500")
          .setTitle("Team " + teamSearch.items[0]["name"])
          .setDescription(teamInfo["description"] + "\n [Link to FaceIT](" + teamInfo["faceit_url"].replaceAll("{lang}", "en") + ")")
          .setThumbnail(teamInfo.avatar)
@@ -615,7 +615,7 @@ async function fTeam(name) {
       return embed
    } catch (e) {
       const errembed = new MessageEmbed()
-         .setColor('#ff0000')
+         .setColor("#ff0000")
          .setTitle("Wrong FaceIT Name")
          .setDescription("This FaceIT Name is invalid! Try again")
          .setTimestamp()
