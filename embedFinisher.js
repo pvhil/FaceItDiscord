@@ -35,7 +35,7 @@ async function fStats(name) {
          premium = " Premium User "
       }
 
-      var skilllevelpic = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/" + skilllevel + ".png"
+      var skilllevelpic = "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/pictures/level" + skilllevel + ".png"
 
 
       const embed = new MessageEmbed()
