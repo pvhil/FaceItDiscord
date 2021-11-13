@@ -392,6 +392,26 @@ async function teamInfo(x) {
   })
 }
 
+// extra: vote check
+async function topggcheck(x) {
+  return new Promise((resolve, reject) => {
+    try {
+      axios.get("https://top.gg/api/bots/770312130037153813/check?userId="+x, {
+        })
+        .then(function (response) {
+          resolve(response.data)
+        })
+        .catch(function (error) {
+          reject("error")
+          console.log(error);
+        })
+    } catch (err) {
+      return "error"
+    }
+  })
+}
+
+
 module.exports = {
   teamInfo,
   searchPlayer,
@@ -409,5 +429,6 @@ module.exports = {
   vOneRequest,
   hubLeaderboard,
   hubInfo,
-  idStatsCheck
+  idStatsCheck,
+  topggcheck
 }

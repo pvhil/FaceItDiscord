@@ -334,6 +334,22 @@ client.on('interactionCreate', async interaction => {
 					var gId = interaction.guild.id
 					var roles = []
 					var botrole = interaction.guild.roles.botRoleFor(interaction.guild.me)
+
+					var topggvote = await fr.topggcheck(interaction.user.id)
+					if(topggvote.voted != 1){
+						const errembed = new MessageEmbed()
+								.setColor('#ff0000')
+								.setTitle("You need to vote for the Bot to use this Feature!")
+								.setDescription("Please vote for our bot [here](https://top.gg/bot/770312130037153813/vote) to use the Rolesystem.\nThank you!")
+								.setTimestamp()
+							interaction.editReply({
+								embeds: [errembed],
+								ephemeral: true
+							})
+
+							return
+					}
+
 					for (var i = 1; i < 11; i++) {
 						roles.push(interaction.options.getRole("level" + i).id)
 						if (interaction.options.getRole("level" + i).comparePositionTo(botrole) > 0) {
