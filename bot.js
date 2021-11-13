@@ -29,6 +29,7 @@ const {
 	MessageSelectMenu,
 	ButtonInteraction,
 	RoleManager
+	Permissions
 } = require('discord.js');
 const client = new Client({
 	intents: [Intents.FLAGS.GUILDS]
