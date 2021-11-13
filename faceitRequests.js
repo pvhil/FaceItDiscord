@@ -3,6 +3,7 @@ const dotenv = require('dotenv').config()
 
 
 const ft = process.env.FACEITTOKEN
+const topggtoken = process.env.TOPTOKEN
 
 // search player
 function searchPlayer(x) {
@@ -397,6 +398,9 @@ async function topggcheck(x) {
   return new Promise((resolve, reject) => {
     try {
       axios.get("https://top.gg/api/bots/770312130037153813/check?userId="+x, {
+        headers: {
+          'Authorization': topggtoken
+        }
         })
         .then(function (response) {
           resolve(response.data)
