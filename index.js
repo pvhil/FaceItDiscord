@@ -1,7 +1,7 @@
-const dotenv = require("dotenv").config()
+const dotenv = require('dotenv').config()
 const {
     ShardingManager
-} = require("discord.js");
+} = require('discord.js');
 const Statcord = require("statcord.js");
 
 //check envs
@@ -11,7 +11,7 @@ console.log(process.env.PGTOK)
 console.log(process.env.FACEITTOKEN)
 console.log(process.env.TOPTOKEN)
 
-const manager = new ShardingManager("./bot.js", {
+const manager = new ShardingManager('./bot.js', {
     token: (process.env.BOTTOKEN).toString()
 });
 
@@ -24,7 +24,7 @@ const statcord = new Statcord.ShardingClient({
     autopost: true
 });
 
-manager.on("shardCreate", shard => console.log(`Launched shard ${shard.id}`));
+manager.on('shardCreate', shard => console.log(`Launched shard ${shard.id}`));
 
 manager.spawn();
 
