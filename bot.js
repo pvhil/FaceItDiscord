@@ -317,15 +317,15 @@ client.on('interactionCreate', async interaction => {
 			var guildid = interaction.guild.id;
 			try{
 				var guildInfo = await syncQuery("SELECT * FROM levelrole WHERE discordid='"+guildid+"'")
-				if(guildInfo.rows =! 1){
-					return
-				}else{
+				if(guildInfo.rows.length === 1){
+					console.log(guildInfo.rows[0]["level"+level])
 					await interaction.member.roles.add(guildInfo.rows[0]["level"+level])
 				}
-
 			}catch(e){
-				console.log("error adding roles in save")
+				console.log("no rolesystem")
 			}
+
+			
 
 		} else if (interaction.commandName === 'settings') {
 			await interaction.deferReply({ephemeral: true});
