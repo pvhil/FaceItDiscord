@@ -370,7 +370,8 @@ client.on('interactionCreate', async interaction => {
 							const errembed = new MessageEmbed()
 								.setColor('#ff0000')
 								.setTitle("Cant interact with these Roles!")
-								.setDescription("My BotRole Position is too low! Please move my Role (FaceItBot) in the RoleSettings of this Server to the top!")
+								.setDescription("My BotRole Position is too low! Please move my Role (FaceItBot) in the Role Settings of this Server to the top!\nLook at the video down below for more help.")
+								.setImage("https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/pictures/rolehelp.gif")
 								.setTimestamp()
 							interaction.editReply({
 								embeds: [errembed],
