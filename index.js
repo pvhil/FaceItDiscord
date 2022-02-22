@@ -4,13 +4,6 @@ const {
 } = require('discord.js');
 const Statcord = require("statcord.js");
 
-//check envs
-console.log(process.env.BOTTOKEN)
-console.log(process.env.STATTOKEN)
-console.log(process.env.PGTOK)
-console.log(process.env.FACEITTOKEN)
-console.log(process.env.TOPTOKEN)
-
 const manager = new ShardingManager('./bot.js', {
     token: (process.env.BOTTOKEN).toString()
 });

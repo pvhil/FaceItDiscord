@@ -10,7 +10,6 @@ const manager = new ShardingManager('./rolesystem.js', {
 
 manager.on('shardCreate', shard => {
     shard.on("ready", () => {
-        console.log(`[DEBUG/SHARD] Shard ${shard.id} connected to Discord's Gateway.`)
         shard.send({type: "shardId", data: {shardId: shard.id}});
     });
 });

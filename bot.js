@@ -318,7 +318,6 @@ client.on('interactionCreate', async interaction => {
 			try{
 				var guildInfo = await syncQuery("SELECT * FROM levelrole WHERE discordid='"+guildid+"'")
 				if(guildInfo.rows.length === 1){
-					console.log(guildInfo.rows[0]["level"+level])
 					await interaction.member.roles.add(guildInfo.rows[0]["level"+level])
 				}
 			}catch(e){
