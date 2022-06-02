@@ -1,4 +1,4 @@
-const { default: axios } = require("axios")
+const { default: axios } = require('axios')
 
 const defaultQuery = (url, version = 4) => new Promise((resolve, reject) => {
   axios.get(url, version !== 4 ? {} : {
