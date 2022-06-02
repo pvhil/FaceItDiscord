@@ -1,10 +1,10 @@
-require('dotenv').config()
+require("dotenv").config()
 const {
   ShardingManager
-} = require('discord.js')
-const Statcord = require('statcord.js')
+} = require("discord.js")
+const Statcord = require("statcord.js")
 
-const manager = new ShardingManager('./bot.js', {
+const manager = new ShardingManager("./bot.js", {
   token: (process.env.BOTTOKEN).toString()
 })
 
@@ -17,14 +17,14 @@ const statcord = new Statcord.ShardingClient({
   autopost: true
 })
 
-manager.on('shardCreate', shard => console.log(`Launched shard ${shard.id}`))
+manager.on("shardCreate", shard => console.log(`Launched shard ${shard.id}`))
 manager.spawn()
 
-statcord.on('autopost-start', () => {
-  console.log('Started autopost')
+statcord.on("autopost-start", () => {
+  console.log("Started autopost")
 })
 
-statcord.on('post', status => {
-  if (!status) console.log('Successful post')
+statcord.on("post", status => {
+  if (!status) console.log("Successful post")
   else console.error(status)
 })

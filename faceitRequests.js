@@ -1,6 +1,6 @@
-const axios = require('axios')
-const { defaultQuery } = require('./utils/faceit')
-require('dotenv').config()
+const axios = require("axios")
+const { defaultQuery } = require("./utils/faceit")
+require("dotenv").config()
 
 const topggtoken = process.env.TOPTOKEN
 
@@ -59,20 +59,20 @@ const teamInfo = x => defaultQuery(`https://open.faceit.com/data/v4/teams/${enco
 async function topggcheck(x) {
   return new Promise((resolve, reject) => {
     try {
-      axios.get('https://top.gg/api/bots/770312130037153813/check?userId=' + x, {
+      axios.get("https://top.gg/api/bots/770312130037153813/check?userId=" + x, {
         headers: {
-          'Authorization': topggtoken
+          "Authorization": topggtoken
         }
       })
         .then(function (response) {
           resolve(response.data)
         })
         .catch(function (error) {
-          reject('error')
+          reject("error")
           console.log(error)
         })
     } catch (err) {
-      return 'error'
+      return "error"
     }
   })
 }

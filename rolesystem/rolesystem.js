@@ -1,8 +1,8 @@
-const { Client, Intents } = require('discord.js')
-const { nickStats } = require('../faceitRequests')
-const { syncQuery } = require('../utils/postgres')
-const pg = require('pg').Client
-require('dotenv').config()
+const { Client, Intents } = require("discord.js")
+const { nickStats } = require("../faceitRequests")
+const { syncQuery } = require("../utils/postgres")
+const pg = require("pg").Client
+require("dotenv").config()
 
 const pgcred = process.env.PGTOK
 
@@ -18,8 +18,8 @@ const sleep = ms => new Promise((resolve) => setTimeout(resolve, ms))
 
 let shardid = 0
 
-process.on('message', async message => {
-  if (!message.type || message.type != 'shardId') return
+process.on("message", async message => {
+  if (!message.type || message.type != "shardId") return
 
   console.log(`The shard id is: ${message.data.shardId}`)
   shardid = message.data.shardId
@@ -29,9 +29,9 @@ process.on('message', async message => {
 })
 
 async function refreshRoles() {
-  console.log('-----Started Refreshing Roles-----')
+  console.log("-----Started Refreshing Roles-----")
 
-  const count = await syncQuery('SELECT COUNT(*) AS rowcount FROM stats')
+  const count = await syncQuery("SELECT COUNT(*) AS rowcount FROM stats")
   let number = parseInt(count.rows[0].rowcount), n = 3, values = [], endInt = number
 
   console.log(number)
@@ -55,35 +55,35 @@ async function refreshRoles() {
   else if (shardid <= 1) endInt = endInt - values[1]
   else if (shardid <= 0) endInt = endInt - values[2]
 
-  console.log('start: ', startInt, 'end: ', endInt)
+  console.log("start: ", startInt, "end: ", endInt)
 
-  const userReq = await syncQuery('SELECT * FROM stats'),
-    guildReq = await syncQuery('SELECT * FROM levelrole')
+  const userReq = await syncQuery("SELECT * FROM stats"),
+    guildReq = await syncQuery("SELECT * FROM levelrole")
 
-  console.log('Users: ' + count.rows[0].rowcount)
+  console.log("Users: " + count.rows[0].rowcount)
 
   for (let i = startInt; i < endInt; i++) {
-    console.log('----\n User Nr. ' + i)
+    console.log("----\n User Nr. " + i)
 
     const faceItName = userReq.rows[i].faceit
     let fLevel
 
     try {
       const resp = await nickStats(faceItName)
-      fLevel = resp.games.csgo['skill_level']
+      fLevel = resp.games.csgo["skill_level"]
     } catch (e) {
-      console.log('invalid faceitname?: ' + faceItName)
-      await syncQuery('DELETE FROM stats WHERE faceit=$1', [faceItName])
+      console.log("invalid faceitname?: " + faceItName)
+      await syncQuery("DELETE FROM stats WHERE faceit=$1", [faceItName])
       continue
     }
 
-    console.log('FaceIt: ' + faceItName)
-    console.log('FaceIt Level: ' + fLevel)
-    console.log('Discord ID: ' + userReq.rows[i].discord)
+    console.log("FaceIt: " + faceItName)
+    console.log("FaceIt Level: " + fLevel)
+    console.log("Discord ID: " + userReq.rows[i].discord)
 
     for (let a = 0; a < guildReq.rows.length; a++) {
-      console.log('-\nGuild Nr. ' + a)
-      console.log('Guild ID: ' + guildReq.rows[a].discordid)
+      console.log("-\nGuild Nr. " + a)
+      console.log("Guild ID: " + guildReq.rows[a].discordid)
 
       let fetchedGuild, fetchedMember
 
@@ -91,43 +91,43 @@ async function refreshRoles() {
         fetchedGuild = await client.guilds.fetch(guildReq.rows[a].discordid)
       } catch (e) {
         //delete guild
-        console.log('Bot Left Guild. Deleting from Database')
-        await syncQuery('DELETE FROM levelrole WHERE discordid=$1', [guildReq.rows[a].discordid])
+        console.log("Bot Left Guild. Deleting from Database")
+        await syncQuery("DELETE FROM levelrole WHERE discordid=$1", [guildReq.rows[a].discordid])
         continue
       }
 
       try {
         fetchedMember = await fetchedGuild.members.fetch(userReq.rows[i].discord)
       } catch (e) {
-        console.log('Not in this Server. Next Guild')
+        console.log("Not in this Server. Next Guild")
         continue
       }
 
-      let levelRole = await syncQuery('SELECT * FROM levelrole WHERE discordid=$1', [guildReq.rows[a].discordid])
+      let levelRole = await syncQuery("SELECT * FROM levelrole WHERE discordid=$1", [guildReq.rows[a].discordid])
 
       try {
-        if (!(fetchedMember.roles.cache.has(levelRole.rows[0]['level' + fLevel]))) {
+        if (!(fetchedMember.roles.cache.has(levelRole.rows[0]["level" + fLevel]))) {
           const arrRoles = []
-          for (var l = 1; l < 11; l++) arrRoles.push(levelRole.rows[0]['level' + l])
+          for (var l = 1; l < 11; l++) arrRoles.push(levelRole.rows[0]["level" + l])
 
-          await fetchedMember.roles.remove(arrRoles, 'RoleSystem')
-          await fetchedMember.roles.add(levelRole.rows[0]['level' + fLevel], 'RoleSystem')
+          await fetchedMember.roles.remove(arrRoles, "RoleSystem")
+          await fetchedMember.roles.add(levelRole.rows[0]["level" + fLevel], "RoleSystem")
 
-          console.log('Changed Role')
+          console.log("Changed Role")
         } else {
-          console.log('No Role Change \n-')
+          console.log("No Role Change \n-")
           continue
         }
       } catch (e) {
-        console.log('invalid roles! deleting server')
-        await syncQuery('DELETE FROM levelrole WHERE discordid=$1', [guildReq.rows[a].discordid])
+        console.log("invalid roles! deleting server")
+        await syncQuery("DELETE FROM levelrole WHERE discordid=$1", [guildReq.rows[a].discordid])
         continue
       }
-      console.log('-')
+      console.log("-")
     }
-    console.log('----')
+    console.log("----")
   }
-  console.log('-----Ended Refreshing Roles-----')
+  console.log("-----Ended Refreshing Roles-----")
 }
 
 client.login(discordToken)

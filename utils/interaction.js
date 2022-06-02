@@ -6,8 +6,8 @@ const editInteraction = (interaction, resp) => {
   if (!resp) return
   interaction.fetchReply()
     .then(e => {
-      e.removeAttachments().catch((err) => console.log(err, 'error removing attachments'))
-      e.edit(resp).catch((err) => console.log(err, 'error editing interaction'))
+      e.removeAttachments().catch((err) => console.log(err, "error removing attachments"))
+      e.edit(resp).catch((err) => console.log(err, "error editing interaction"))
     })
 }
 

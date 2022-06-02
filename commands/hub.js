@@ -1,11 +1,11 @@
-const { fHub } = require('../embedFinisher')
-const { getInteractionOption } = require('../utils/interaction')
-const { postCommandToStatcord } = require('../utils/statcord')
+const { fHub } = require("../embedFinisher")
+const { getInteractionOption } = require("../utils/interaction")
+const { postCommandToStatcord } = require("../utils/statcord")
 
 module.exports = async interaction => {
   await interaction.deferReply()
   
-  var hub = getInteractionOption(interaction, 'hub')
+  var hub = getInteractionOption(interaction, "hub")
   var resp = await fHub(hub)
 
   if (resp.length == 2) await interaction.editReply({

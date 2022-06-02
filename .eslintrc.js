@@ -1,37 +1,37 @@
 module.exports = {
-  'env': {
-    'node': true,
-    'commonjs': true,
-    'es2021': true
+  "env": {
+    "node": true,
+    "commonjs": true,
+    "es2021": true
   },
-  'parserOptions': {
-    'ecmaVersion': 13
+  "parserOptions": {
+    "ecmaVersion": 13
   },
-  'ignorePatterns': [
-    'images/*',
-    'node_modules/*',
+  "ignorePatterns": [
+    "images/*",
+    "node_modules/*",
   ],
-  'rules': {
-    'indent': [
-      'error',
+  "rules": {
+    "indent": [
+      "error",
       2
     ],
-    'linebreak-style': [
-      'error',
-      'unix'
+    "linebreak-style": [
+      "error",
+      "unix"
     ],
-    'quotes': [
-      'error',
-      'single'
+    "quotes": [
+      "error",
+      "double"
     ],
-    'semi': [
-      'error',
-      'never'
+    "semi": [
+      "error",
+      "never"
     ],
-    'camelcase': [
-      'error',
+    "camelcase": [
+      "error",
       {
-        properties: 'always'
+        properties: "always"
       }
     ]
   }
