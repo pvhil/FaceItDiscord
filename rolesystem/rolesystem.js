@@ -1,26 +1,20 @@
-const pg = require('pg').Client
 const { Client, Intents } = require('discord.js')
 const { nickStats } = require('../faceitRequests')
-
+const { syncQuery } = require('../utils/postgres')
+const pg = require('pg').Client
 require('dotenv').config()
 
-const ft = process.env.FACEITTOKEN
-const discordToken = process.env.BOTTOKEN
 const pgcred = process.env.PGTOK
 
 const pgclient = new pg(pgcred)
 pgclient.connect()
 
+const discordToken = process.env.BOTTOKEN
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS]
 })
 
 const sleep = ms => new Promise((resolve) => setTimeout(resolve, ms))
-
-const syncQuery = (query, values = []) => new Promise((resolve, reject) => {
-  pgclient.query(query, values, (err, res) => resolve(res))
-    .catch(error => reject('error'))
-})
 
 let shardid = 0
 
@@ -135,8 +129,5 @@ async function refreshRoles() {
   }
   console.log('-----Ended Refreshing Roles-----')
 }
-
-
-
 
 client.login(discordToken)

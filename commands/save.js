@@ -1,4 +1,5 @@
 const { getInteractionOption } = require('../utils/interaction')
+const { syncQuery } = require('../utils/postgres')
 
 module.exports = async interaction => {
   await interaction.deferReply()

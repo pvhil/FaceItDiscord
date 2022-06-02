@@ -1,13 +1,6 @@
 const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.js')
 const { fStats } = require('../../embedFinisher')
-
-const syncQuery = (query) => {
-  return new Promise((resolve, reject) => {
-    pgclient.query(query, (err, res) => {
-      resolve(res)
-    }).catch(err => reject('error'))
-  })
-}
+const { syncQuery } = require('../../utils/postgres')
 
 module.exports = async (interaction) => {
   await interaction.deferReply()
@@ -15,7 +8,7 @@ module.exports = async (interaction) => {
   let notLinked = false
 
   const tId = interaction.targetId
-  const res = await syncQuery('SELECT * FROM stats WHERE discord=' + tId).catch(() => {
+  const res = await syncQuery('SELECT * FROM stats WHERE discord=$1', [tId]).catch(() => {
     const errembed = new MessageEmbed()
       .setColor('#ff0000')
       .setTitle('This User has not linked his FaceIT Profile!')
