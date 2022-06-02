@@ -1,11 +1,11 @@
-const faceit = require('../embedFinisher')
+const { fLatest } = require('../embedFinisher')
 const { getInteractionOption } = require('../utils/interaction')
 const { postCommandToStatcord } = require('../utils/statcord')
 
 module.exports = async interaction => {
   await interaction.deferReply()
   const name = getInteractionOption(interaction, 'faceitname')
-  const resp = await faceit.fLatest(name)
+  const resp = await fLatest(name)
 
   postCommandToStatcord(interaction)
 
