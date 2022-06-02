@@ -1,23 +1,8 @@
 const axios = require('axios')
+const { defaultQuery } = require('./utils/faceit')
 require('dotenv').config()
 
-const ft = process.env.FACEITTOKEN
 const topggtoken = process.env.TOPTOKEN
-
-const defaultQuery = (url, version = 4) => new Promise((resolve, reject) => {
-  axios.get(url, version !== 4 ? {} : {
-    headers: {
-      'accept': 'application/json',
-      'Authorization': `Bearer ${ft}`
-    }
-  })
-    .then((response) => resolve(response.data))
-    .catch((error) => {
-      reject('error')
-      console.log(error.message, url)
-    })
-})
-
 
 // search player
 const searchPlayer = x => defaultQuery(`https://open.faceit.com/data/v4/search/players?nickname=${encodeURIComponent(x)}&game=csgo&offset=0&limit=1`)
