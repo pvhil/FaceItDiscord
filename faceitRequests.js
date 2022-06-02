@@ -4,8 +4,8 @@ require('dotenv').config()
 const ft = process.env.FACEITTOKEN
 const topggtoken = process.env.TOPTOKEN
 
-const defaultQuery = url => new Promise((resolve, reject) => {
-  axios.get(url, {
+const defaultQuery = (url, version = 4) => new Promise((resolve, reject) => {
+  axios.get(url, version !== 4 ? {} : {
     headers: {
       'accept': 'application/json',
       'Authorization': `Bearer ${ft}`
@@ -17,6 +17,7 @@ const defaultQuery = url => new Promise((resolve, reject) => {
       console.log(error.message, url)
     })
 })
+
 
 // search player
 const searchPlayer = x => defaultQuery(`https://open.faceit.com/data/v4/search/players?nickname=${encodeURIComponent(x)}&game=csgo&offset=0&limit=1`)
@@ -34,7 +35,7 @@ const hubInfo = x => defaultQuery(`https://open.faceit.com/data/v4/hubs/${encode
 const hubLeaderboard = x => defaultQuery(`https://open.faceit.com/data/v4/leaderboards/hubs/${encodeURIComponent(x)}/general?offset=0&limit=10`)
 
 //last 20 games playerid
-const vOneRequest = x => defaultQuery(`https://api.faceit.com/stats/api/v1/stats/time/users/${encodeURIComponent(x)}/games/csgo`)
+const vOneRequest = x => defaultQuery(`https://api.faceit.com/stats/api/v1/stats/time/users/${encodeURIComponent(x)}/games/csgo`, 1)
 
 // needed for last games needs number and id
 const historyReq = x => defaultQuery(`https://open.faceit.com/data/v4/players/${encodeURIComponent(x)}/history?game=csgo&offset=0&limit=20`)
@@ -73,7 +74,7 @@ const teamInfo = x => defaultQuery(`https://open.faceit.com/data/v4/teams/${enco
 async function topggcheck(x) {
   return new Promise((resolve, reject) => {
     try {
-      axios.get("https://top.gg/api/bots/770312130037153813/check?userId=" + x, {
+      axios.get('https://top.gg/api/bots/770312130037153813/check?userId=' + x, {
         headers: {
           'Authorization': topggtoken
         }
@@ -82,11 +83,11 @@ async function topggcheck(x) {
           resolve(response.data)
         })
         .catch(function (error) {
-          reject("error")
-          console.log(error);
+          reject('error')
+          console.log(error)
         })
     } catch (err) {
-      return "error"
+      return 'error'
     }
   })
 }
