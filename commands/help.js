@@ -1,5 +1,5 @@
-const { MessageEmbed } = require("discord.js")
-const { postCommandToStatcord } = require("../utils/statcord")
+const { MessageEmbed } = require('discord.js')
+const { postCommandToStatcord } = require('../utils/statcord')
 
 const helpEmbed = new MessageEmbed()
   .setColor('#FF5500')
