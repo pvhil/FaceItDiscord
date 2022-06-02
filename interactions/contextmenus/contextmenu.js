@@ -1,5 +1,5 @@
-const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require("discord.js")
-const { fStats } = require("../../embedFinisher")
+const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.js')
+const { fStats } = require('../../embedFinisher')
 
 const syncQuery = (query) => {
   return new Promise((resolve, reject) => {
