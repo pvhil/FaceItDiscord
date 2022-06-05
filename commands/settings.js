@@ -1,5 +1,6 @@
 const { MessageEmbed, Permissions } = require("discord.js")
 const { topggcheck } = require("../faceitRequests")
+const { syncQuery } = require("../utils/postgres")
 
 module.exports = async interaction => {
   await interaction.deferReply({ ephemeral: true })
@@ -55,8 +56,8 @@ module.exports = async interaction => {
         }
       }
 
-      pgclient.query("INSERT INTO levelrole(discordid,level1,level2,level3,level4,level5,level6,level7,level8,level9,level10) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT ON CONSTRAINT levelrole_pkey DO UPDATE SET discordid=EXCLUDED.discordid;", [gId, roles[0], roles[1], roles[2], roles[3], roles[4], roles[5], roles[6], roles[7], roles[8], roles[9]],
-        (err, res) => {
+      syncQuery("INSERT INTO levelrole(discordid,level1,level2,level3,level4,level5,level6,level7,level8,level9,level10) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT ON CONSTRAINT levelrole_pkey DO UPDATE SET discordid=EXCLUDED.discordid;", [gId, roles[0], roles[1], roles[2], roles[3], roles[4], roles[5], roles[6], roles[7], roles[8], roles[9]])
+        .then(() => {
           const errembed = new MessageEmbed()
             .setColor("#FF5500")
             .setTitle("Activated the Role System!")

@@ -1,13 +1,20 @@
 const { Client, Intents } = require("discord.js")
 require("dotenv").config()
 
-if (process.env.NODE_ENV === "production") {
-  const pg = require("pg").Client
-  const { AutoPoster } = require("topgg-autoposter")
+const pg = require("pg").Client
+const { AutoPoster } = require("topgg-autoposter")
 
-  const pgclient = new pg(process.env.PGTOK)
-  pgclient.connect()
+const pgclient = new pg({
+  host: process.env.PGHOST,
+  port: process.env.PGPORT,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+})
+pgclient.connect()
+  .then(() => console.log("Connected to Postgres"))
+  .catch(err => console.error("Error while connecting to Postgres", err))
 
+if (process.env.TOPTOKEN) {
   const ap = AutoPoster(process.env.TOPTOKEN, client)
   ap.on("posted", () => console.log("Posted stats to Top.gg!"))
 }
@@ -44,17 +51,17 @@ client.on("ready", () => {
 client.on("interactionCreate", async interaction => {
   if (interaction.isCommand())
     switch (interaction.commandName) {
-    case "stats": { await stats(interaction); break }
-    case "latest": { await latest(interaction); break }
-    case "map": await map(interaction); break
-    case "last": await last(interaction); break
-    case "ranking": await ranking(interaction); break
-    case "hub": await hub(interaction); break
-    case "team": await team(interaction); break
-    case "save": await save(interaction); break
-    case "settings": await settings(interaction); break
-    case "help": await help(interaction); break
-    default: break
+      case "stats": { await stats(interaction); break }
+      case "latest": { await latest(interaction); break }
+      case "map": await map(interaction); break
+      case "last": await last(interaction); break
+      case "ranking": await ranking(interaction); break
+      case "hub": await hub(interaction); break
+      case "team": await team(interaction); break
+      case "save": await save(interaction); break
+      case "settings": await settings(interaction); break
+      case "help": await help(interaction); break
+      default: break
     }
   else if (interaction.isButton()) {
     interaction.deferUpdate().then(async () => {
@@ -65,11 +72,11 @@ client.on("interactionCreate", async interaction => {
       .then(async () => {
         if (interaction.customId.includes("selector"))
           switch (interaction.values[0]) {
-          case "normal": await statsMenu(interaction); break
-          case "latest": await latestMenu(interaction); break
-          case "last": await lastMenu(interaction); break
-          case "maps": await mapMenu(interaction); break
-          default: break
+            case "normal": await statsMenu(interaction); break
+            case "latest": await latestMenu(interaction); break
+            case "last": await lastMenu(interaction); break
+            case "maps": await mapMenu(interaction); break
+            default: break
           }
         else if (interaction.customId.includes("map")) await mapMenu(interaction)
       })

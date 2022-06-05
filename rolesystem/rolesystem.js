@@ -1,13 +1,7 @@
 const { Client, Intents } = require("discord.js")
 const { nickStats } = require("../faceitRequests")
 const { syncQuery } = require("../utils/postgres")
-const pg = require("pg").Client
 require("dotenv").config()
-
-const pgcred = process.env.PGTOK
-
-const pgclient = new pg(pgcred)
-pgclient.connect()
 
 const discordToken = process.env.BOTTOKEN
 const client = new Client({

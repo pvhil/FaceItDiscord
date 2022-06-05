@@ -1,3 +1,4 @@
+const { MessageEmbed } = require("discord.js")
 const { getInteractionOption } = require("../utils/interaction")
 const { syncQuery } = require("../utils/postgres")
 
@@ -12,8 +13,8 @@ module.exports = async interaction => {
 
     console.log(level)
 
-    pgclient.query("INSERT INTO stats(discord,faceit) VALUES ($1,$2) ON CONFLICT ON CONSTRAINT stats_pkey DO UPDATE SET faceit=EXCLUDED.faceit;", [uId, name],
-      (err, res) => {
+    syncQuery("INSERT INTO stats(discord,faceit) VALUES ($1,$2) ON CONFLICT ON CONSTRAINT stats_pkey DO UPDATE SET faceit=EXCLUDED.faceit;", [uId, name])
+      .then(() => {
         const errembed = new MessageEmbed()
           .setColor("#FF5500")
           .setTitle("Saved your FaceIT Name")
@@ -43,10 +44,8 @@ module.exports = async interaction => {
   const guildid = interaction.guild.id
 
   try {
-    const guildInfo = await syncQuery(`SELECT * FROM levelrole WHERE discordid=${guildid}`)
-    if (guildInfo.rows.length === 1) {
-      await interaction.member.roles.add(guildInfo.rows[0]["level" + level])
-    }
+    const guildInfo = await syncQuery(`SELECT * FROM levelrole WHERE discordid=$1`, [guildid])
+    if (guildInfo.rows.length === 1) await interaction.member.roles.add(guildInfo.rows[0]["level" + level])
   } catch (e) {
     console.log("no rolesystem")
   }
