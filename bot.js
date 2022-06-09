@@ -1,6 +1,10 @@
 const { Client, Intents } = require("discord.js")
 require("dotenv").config()
 
+const client = new Client({
+  intents: [Intents.FLAGS.GUILDS]
+})
+
 const pg = require("pg").Client
 const { AutoPoster } = require("topgg-autoposter")
 
@@ -34,10 +38,6 @@ const help = require("./commands/help")
 const lastMenu = require("./interactions/selectmenus/lastMenu")
 const latestMenu = require("./interactions/selectmenus/latestMenu")
 const statsMenu = require("./interactions/statsMenu")
-
-const client = new Client({
-  intents: [Intents.FLAGS.GUILDS]
-})
 
 //client ready
 client.on("ready", () => {
