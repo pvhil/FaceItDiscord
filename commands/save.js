@@ -1,5 +1,6 @@
 const { MessageEmbed } = require("discord.js")
 const { getInteractionOption } = require("../utils/interaction")
+const { postCommandToStatcord } = require("../utils/statcord")
 const { syncQuery } = require("../utils/postgres")
 const { nickStats } = require("../faceitRequests")
 
