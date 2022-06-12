@@ -1,6 +1,7 @@
 const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require("discord.js")
 const { fStats } = require("../../embedFinisher")
 const { syncQuery } = require("../../utils/postgres")
+const { postCommandToStatcord } = require("../../utils/statcord")
 
 module.exports = async (interaction) => {
   await interaction.deferReply()
