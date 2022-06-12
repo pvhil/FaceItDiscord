@@ -526,7 +526,7 @@ const fTeam = async name => {
       .setThumbnail(teamInfo.avatar)
 
     for (let i = 0; i < teamInfo.members.length; i++)
-      embed.addField(`${countryCodeEmoji(teamInfo.members[i].country)}  ${teamInfo.members[i].nickname}`, value = `[Link to Profile](${teamInfo.members[i].faceit_url.replace("{lang}", "en")})`)
+      embed.addField(`${countryCodeEmoji(teamInfo.members[i].country)}  ${teamInfo.members[i].nickname}`, `[Link to Profile](${teamInfo.members[i].faceit_url.replace("{lang}", "en")})`)
 
     return embed
   } catch (e) {
