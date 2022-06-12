@@ -1,6 +1,7 @@
 const { MessageEmbed } = require("discord.js")
 const { getInteractionOption } = require("../utils/interaction")
 const { syncQuery } = require("../utils/postgres")
+const { nickStats } = require("../faceitRequests")
 
 module.exports = async interaction => {
   await interaction.deferReply()
@@ -8,7 +9,7 @@ module.exports = async interaction => {
   const uId = interaction.user.id
 
   try {
-    const valid = await fr.nickStats(name)
+    const valid = await nickStats(name)
     const level = valid.games.csgo["skill_level"]
 
     console.log(level)
