@@ -50,7 +50,13 @@ An Action Row is included with every Command to switch statistics faster than ev
 
     ```
 
-4. Run the bot:
+4. Register Slash Commands:
+
+    ```bash
+    node deploy-commands-global.js
+    ```
+
+5. Run the bot:
 
     ```bash
     node .
