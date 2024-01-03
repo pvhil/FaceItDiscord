@@ -1,6 +1,8 @@
 const { EmbedBuilder } = require("discord.js");
 const players = require("../data_acquisition/faceit/players");
 const stats = require("../data_acquisition/faceit/stats");
+const rankingPlayer = require("../data_acquisition/faceit/rankingPlayer");
+const rankingPlayerCountry = require("../data_acquisition/faceit/rankingPlayerCountry");
 
 const { flag } = require("country-emoji");
 
@@ -12,6 +14,17 @@ async function createEmbed(faceitName) {
   }
   const responsePlayerStats = await stats.get(responsePlayers["player_id"]);
 
+  const responseRankingPlayer = await rankingPlayer.get(
+    responsePlayers["player_id"],
+    responsePlayers.games["cs2"].region
+  );
+
+  const responseRankingPlayerCountry = await rankingPlayerCountry.get(
+    responsePlayers["player_id"],
+    responsePlayers.games["cs2"].region,
+    responsePlayers.country
+  );
+
   let profileText = "Stats for ";
   if (responsePlayers.memberships.toString().includes("premium")) {
     profileText = "Stats for Premium User ";
@@ -22,7 +35,7 @@ async function createEmbed(faceitName) {
     .setTitle(`${profileText} ${responsePlayers.nickname}`)
     .setAuthor({
       name: "Elo: " + responsePlayers.games["cs2"].faceit_elo,
-      iconURL: "https://i.imgur.com/AfFp7pu.png",
+      iconURL: `https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/utility/pictures/level${responsePlayers.games["cs2"]["skill_level"]}.png`,
     })
     .setDescription(
       `[Faceit Profile](${responsePlayers["faceit_url"]
@@ -74,7 +87,7 @@ async function createEmbed(faceitName) {
     )
     .setThumbnail(responsePlayers.avatar)
     .setFooter({
-      text: `Global Rank: | Country Rank: `,
+      text: `Global Rank: ${responseRankingPlayer.position} | Country Rank: ${responseRankingPlayerCountry.position} `,
     });
 
   return embed;

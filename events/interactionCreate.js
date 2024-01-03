@@ -53,12 +53,14 @@ module.exports = {
       console.error(error);
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({
-          content: "There was an error while executing this command!",
+          content:
+            "There was an error while executing this command! Maybe this User has never played CS2 on FaceIT?",
           ephemeral: true,
         });
       } else {
         await interaction.reply({
-          content: "There was an error while executing this command!",
+          content:
+            "There was an error while executing this command! Maybe this User has never played CS2 on FaceIT?",
           ephemeral: true,
         });
       }

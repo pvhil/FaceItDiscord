@@ -23,6 +23,8 @@ async function createEmbed(faceitName) {
   const roster1 = responsegameStats.teams["faction1"].roster;
   const roster2 = responsegameStats.teams["faction2"].roster;
 
+  const timeStarted = new Date(responsegameStats["started_at"] * 1000);
+
   roster1.forEach((player) => {
     rosterArray1.push(player.nickname);
   });
@@ -31,9 +33,11 @@ async function createEmbed(faceitName) {
     rosterArray2.push(player.nickname);
   });
 
-  let win = "test";
+  let win =
+    "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/utility/pictures/l.png";
   if (playerStatsinGame.Result == "1") {
-    win = "win";
+    win =
+      "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/utility/pictures/trophy.png";
   }
 
   const embed = new EmbedBuilder()
@@ -140,10 +144,15 @@ async function createEmbed(faceitName) {
         responsegameStats.faceit_url.toString().replace("{lang}", "en") +
         ")"
     )
+    .setThumbnail(win)
     .setFooter({
-      text: "Match played: ",
-      iconURL:
-        "https://raw.githubusercontent.com/pvhil/FaceItDiscord/master/src/main/resources/images/clock.png",
+      text:
+        "Match played: " +
+        timeStarted.getDay() +
+        "/" +
+        (timeStarted.getMonth() + 1) +
+        "/" +
+        timeStarted.getFullYear(),
     });
   return embed;
 }
