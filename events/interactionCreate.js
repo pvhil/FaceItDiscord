@@ -35,6 +35,31 @@ module.exports = {
       }
     }
 
+    // Context Menu
+    if (interaction.isContextMenuCommand()) {
+      try {
+        const command = interaction.client.commands.get(
+          interaction.commandName
+        );
+        await command.execute(interaction);
+      } catch (error) {
+        console.log(error);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
+            content:
+              "There was an error while executing this command! Maybe this User has never played CS2 on FaceIT?",
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content:
+              "There was an error while executing this command! Maybe this User has never played CS2 on FaceIT?",
+            ephemeral: true,
+          });
+        }
+      }
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
     const command = interaction.client.commands.get(interaction.commandName);

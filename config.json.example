@@ -2,5 +2,7 @@
   "token": "", // discord bot token
   "clientId": "", // bot id
   "guildId": "", // test server id
-  "faceitKey": "" // faceit api key
+  "faceitKey": "", // faceit api key
+  "mongodb-user": "",
+  "mongodb-pw": ""
 }
