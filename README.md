@@ -23,44 +23,48 @@ This Discord bot is designed to fetch and display player statistics from FaceIT,
 
 An Action Row is included with every Command to switch statistics faster than ever.
 
-
 ## Installation
+
+Before installing, please make sure you have a discord bot token, a faceit api token and if you need it Oauth information from faceit
 
 1. Clone this repository to your local machine:
 
-    ```bash
-    git clone https://github.com/pvhil/FaceItDiscord.git
-    ```
+   ```bash
+   git clone https://github.com/pvhil/FaceItDiscord.git
+   ```
 
 2. Install the required dependencies:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 3. Configure the bot by adding your Discord bot token, Bot-ID, Discord Test Server and FaceIT API key to the `config.json` file. You can also use the `config.json.example` file.
 
-    ```json
-    {
-      "token": "", 
-      "clientId": "", 
-      "guildId": "", 
-      "faceitKey": "" 
-    }
+   ```json
+   {
+     "token": "",
+     "clientId": "",
+     "guildId": "",
+     "faceitKey": ""
+     ...
+   }
 
-    ```
+   ```
 
 4. Register Slash Commands:
 
-    ```bash
-    node deploy-commands-global.js
-    ```
+   ```bash
+   node deploy-commands-global.js
+   ```
 
 5. Run the bot:
 
-    ```bash
-    node .
-    ```
+   ```bash
+   node .
+   ```
+
+6. If you want to use the /save command, you need a mongoDB Server. If you have one, paste the mongoDB URI in the config.
 
 ## Disclaimer
 

@@ -3,6 +3,9 @@
   "clientId": "", // bot id
   "guildId": "", // test server id
   "faceitKey": "", // faceit api key
-  "mongodb-user": "",
-  "mongodb-pw": ""
+  "faceitOauthId": "",
+  "faceitOauthSecret": "",
+  "expressPort": ,
+  "mongodbUrl": "",
+  "faceitloginurl": ""
 }
