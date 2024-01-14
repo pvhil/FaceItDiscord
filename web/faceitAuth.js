@@ -6,6 +6,9 @@ const {
   faceitOauthId,
   faceitOauthSecret,
   mongodbUrl,
+  cookieSecret,
+  faceitauthorizationURL,
+  faceittokenURL,
 } = require("./../config.json");
 const { jwtDecode } = require("jwt-decode");
 var app = express();
@@ -15,7 +18,7 @@ app.set("view engine", "ejs");
 
 app.use(
   session({
-    secret: "idontthinkthisissupersecurebutitsenough",
+    secret: cookieSecret,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: true },
@@ -26,8 +29,8 @@ app.use(passport.session());
 
 var strategy = new OAuth2Strategy(
   {
-    authorizationURL: "https://accounts.faceit.com",
-    tokenURL: "https://api.faceit.com/auth/v1/oauth/token",
+    authorizationURL: faceitauthorizationURL,
+    tokenURL: faceittokenURL,
     clientID: faceitOauthId,
     clientSecret: faceitOauthSecret,
     store: true,
@@ -109,6 +112,12 @@ app.get("/info", async function (req, res) {
               if (err) throw err;
               console.log("1 document deleted with rid: " + ridcookie);
             });
+          try {
+            res.clearCookie("rid");
+          } catch (err) {
+            console.log(err);
+          }
+
           res.send(
             `
             <div style="margin: 300px auto;
