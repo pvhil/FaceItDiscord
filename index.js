@@ -11,14 +11,21 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 // Auth server
 const app = require("./web/faceitAuth");
 
-const server = https.createServer(app).listen(expressPort, expressHost, () => {
-  console.log(
-    "FaceIT OAuth Server listening on port " +
-      expressPort +
-      " on " +
-      expressHost
-  );
-});
+var options = {
+  key: fs.readFileSync("./web/security/cert.key"),
+  cert: fs.readFileSync("./web/security/cert.pem"),
+};
+
+const server = https
+  .createServer(options, app)
+  .listen(expressPort, expressHost, () => {
+    console.log(
+      "FaceIT OAuth Server listening on port " +
+        expressPort +
+        " on " +
+        expressHost
+    );
+  });
 
 //test db
 const mongoDBClient = new MongoClient(mongodbUrl, {
