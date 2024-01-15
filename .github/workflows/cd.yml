@@ -29,4 +29,5 @@ jobs:
           git pull origin master
           git status
           npm install
+          node deploy-commands-global.js
           pm2 restart nodeFaceITBot
