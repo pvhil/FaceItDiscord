@@ -1,13 +1,23 @@
 const { ShardingManager } = require("discord.js");
-const { token, expressPort, mongodbUrl } = require("./config.json");
+const {
+  token,
+  expressPort,
+  mongodbUrl,
+  expressHost,
+} = require("./config.json");
 const https = require("https");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
 // Auth server
 const app = require("./web/faceitAuth");
 
-const server = https.createServer(app).listen(expressPort, () => {
-  console.log("FaceIT OAuth Server listening on port " + expressPort);
+const server = https.createServer(app).listen(expressPort, expressHost, () => {
+  console.log(
+    "FaceIT OAuth Server listening on port " +
+      expressPort +
+      " on " +
+      expressHost
+  );
 });
 
 //test db

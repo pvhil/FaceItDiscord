@@ -5,6 +5,7 @@
   "faceitKey": "", // faceit api key
   "faceitOauthId": "",
   "faceitOauthSecret": "",
+  "expressHost: "",
   "expressPort": ,
   "mongodbUrl": "",
   "faceitloginurl": "",
