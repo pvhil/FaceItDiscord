@@ -25,7 +25,7 @@ jobs:
         key: ${{ secrets.PRIVATE_KEY }}
         port: 22
         script: |
-          cd ~/home/faceitbotdiscord/FaceItDiscord
+          cd FaceItDiscord
           git pull origin master
           git status
           npm install
