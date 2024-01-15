@@ -7,6 +7,7 @@ const {
 } = require("./config.json");
 const https = require("https");
 const { MongoClient, ServerApiVersion } = require("mongodb");
+var fs = require("fs");
 
 // Auth server
 const app = require("./web/faceitAuth");
