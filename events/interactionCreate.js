@@ -72,7 +72,7 @@ module.exports = {
 
       try {
         // check if command is protected
-        if (interaction.commandName === "/save") {
+        if (interaction.commandName === "save") {
           await interaction.deferReply({ ephemeral: true });
         } else {
           await interaction.deferReply();
