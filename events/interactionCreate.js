@@ -71,6 +71,7 @@ module.exports = {
       }
 
       try {
+        console.log(interaction.commandName + " used");
         // check if command is protected
         if (interaction.commandName === "save") {
           await interaction.deferReply({ ephemeral: true });
