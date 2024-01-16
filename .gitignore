@@ -2,3 +2,5 @@ config.json
 node_modules
 deploy-commands.js
 web/security
+githubaction
+githubaction.pub
