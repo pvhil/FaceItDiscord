@@ -9,7 +9,7 @@ module.exports = {
     .setName("save")
     .setDescription("Save your FaceIT Name!"),
   async execute(interaction) {
-    var randomId = crypto.randomBytes(10).toString("hex");
+    var randomId = crypto.randomBytes(15).toString("hex");
     var deleted;
 
     //Store Id

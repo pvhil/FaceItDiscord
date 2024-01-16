@@ -60,34 +60,39 @@ module.exports = {
       }
     }
 
-    if (!interaction.isChatInputCommand()) return;
+    if (interaction.isChatInputCommand()) {
+      const command = interaction.client.commands.get(interaction.commandName);
 
-    const command = interaction.client.commands.get(interaction.commandName);
+      if (!command) {
+        console.error(
+          `No command matching ${interaction.commandName} was found.`
+        );
+        return;
+      }
 
-    if (!command) {
-      console.error(
-        `No command matching ${interaction.commandName} was found.`
-      );
-      return;
-    }
-
-    try {
-      await interaction.deferReply();
-      await command.execute(interaction);
-    } catch (error) {
-      console.error(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content:
-            "There was an error while executing this command! Maybe this User has never played CS2 on FaceIT?",
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content:
-            "There was an error while executing this command! Maybe this User has never played CS2 on FaceIT?",
-          ephemeral: true,
-        });
+      try {
+        // check if command is protected
+        if (interaction.commandName === "/save") {
+          await interaction.deferReply({ ephemeral: true });
+        } else {
+          await interaction.deferReply();
+        }
+        await command.execute(interaction);
+      } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
+            content:
+              "There was an error while executing this command! Maybe this User has never played CS2 on FaceIT?",
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content:
+              "There was an error while executing this command! Maybe this User has never played CS2 on FaceIT?",
+            ephemeral: true,
+          });
+        }
       }
     }
   },
